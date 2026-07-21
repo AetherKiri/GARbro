@@ -102,12 +102,17 @@ namespace GameRes.Formats.PkWare
 
         public ZipOpener ()
         {
+#if NET10_0_OR_GREATER
+            Settings = Array.Empty<IResourceSetting>();
+#else
             Settings = new[] { ZipEncoding };
+#endif
             Extensions = new string[] { "zip", "vndat" };
         }
 
+#if !NET10_0_OR_GREATER
         EncodingSetting ZipEncoding = new EncodingSetting ("ZIPEncodingCP", "DefaultEncoding");
-
+#endif
         public override ArcFile TryOpen (ArcView file)
         {
             if (-1 == SearchForSignature (file, PkDirSignature))
@@ -126,8 +131,13 @@ namespace GameRes.Formats.PkWare
 
         internal ArcFile OpenZipArchive (ArcView file, Stream input)
         {
+#if NET10_0_OR_GREATER
+            var codec = SharpZip.StringCodec.FromCodePage (Properties.Settings.Default.ZIPEncodingCP);
+            var zip = new SharpZip.ZipFile (input, true, codec);
+#else
             SharpZip.ZipStrings.CodePage = Properties.Settings.Default.ZIPEncodingCP;
             var zip = new SharpZip.ZipFile (input);
+#endif
             try
             {
                 var files = zip.Cast<SharpZip.ZipEntry>().Where (z => !z.IsDirectory);
@@ -189,21 +199,33 @@ namespace GameRes.Formats.PkWare
         {
             return new ZipOptions {
                 CompressionLevel = Properties.Settings.Default.ZIPCompression,
+#if NET10_0_OR_GREATER
+                FileNameEncoding = Encoding.GetEncoding (Properties.Settings.Default.ZIPEncodingCP),
+#else
                 FileNameEncoding = ZipEncoding.Get<Encoding>(),
+#endif
                 Password = Properties.Settings.Default.ZIPPassword,
             };
         }
 
         public override ResourceOptions GetOptions (object widget)
         {
+#if NET10_0_OR_GREATER
+            return GetDefaultOptions();
+#else
             if (widget is GUI.WidgetZIP)
                 Properties.Settings.Default.ZIPPassword = ((GUI.WidgetZIP)widget).Password.Text;
             return GetDefaultOptions();
+#endif
         }
 
         public override object GetAccessWidget ()
         {
+#if NET10_0_OR_GREATER
+            return null;
+#else
             return new GUI.WidgetZIP (DefaultScheme.KnownKeys);
+#endif
         }
 
         // TODO: GUI widget for options

@@ -86,13 +86,20 @@ namespace GameRes
     {
         unsafe public static byte* GetPointer (this MemoryMappedViewAccessor view, long offset)
         {
+#if NET10_0_OR_GREATER
+            byte* ptr = null;
+            view.SafeMemoryMappedViewHandle.AcquirePointer (ref ptr);
+            return ptr + view.PointerOffset;
+#else
             var num = offset % info.dwAllocationGranularity;
             byte* ptr = null;
             view.SafeMemoryMappedViewHandle.AcquirePointer (ref ptr);
             ptr += num;
             return ptr;
+#endif
         }
 
+#if !NET10_0_OR_GREATER
         [DllImport("kernel32.dll", SetLastError = false)]
         internal static extern void GetSystemInfo (ref SYSTEM_INFO lpSystemInfo);
 
@@ -117,6 +124,7 @@ namespace GameRes
         {
             GetSystemInfo (ref info);
         }
+#endif
     }
 
     public class ArcView : IDisposable
@@ -150,8 +158,13 @@ namespace GameRes
 
         private void InitFromFileStream (FileStream fs, uint length)
         {
+#if NET10_0_OR_GREATER
+            m_map = MemoryMappedFile.CreateFromFile (fs, null, length,
+                MemoryMappedFileAccess.Read, HandleInheritability.None, true);
+#else
             m_map = MemoryMappedFile.CreateFromFile (fs, null, length,
                 MemoryMappedFileAccess.Read, null, HandleInheritability.None, true);
+#endif
             try {
                 View = new Frame (this);
             } catch {
@@ -162,8 +175,13 @@ namespace GameRes
 
         private void InitFromStream (Stream input, uint length)
         {
+#if NET10_0_OR_GREATER
+            m_map = MemoryMappedFile.CreateNew (null, length, MemoryMappedFileAccess.ReadWrite,
+                MemoryMappedFileOptions.None, HandleInheritability.None);
+#else
             m_map = MemoryMappedFile.CreateNew (null, length, MemoryMappedFileAccess.ReadWrite,
                 MemoryMappedFileOptions.None, null, HandleInheritability.None);
+#endif
             try
             {
                 using (var view = m_map.CreateViewAccessor (0, length, MemoryMappedFileAccess.Write))
@@ -193,7 +211,7 @@ namespace GameRes
                     }
                 }
                 View = new Frame (this);
-            } 
+            }
             catch
             {
                 m_map.Dispose();
@@ -223,7 +241,7 @@ namespace GameRes
         {
             return new ArcViewStream (this, offset, size, name);
         }
-        
+
         public MemoryMappedViewAccessor CreateViewAccessor (long offset, uint size)
         {
             return m_map.CreateViewAccessor (offset, size, MemoryMappedFileAccess.Read);

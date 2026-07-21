@@ -330,6 +330,9 @@ namespace GameRes
 
         public void DeserializeScheme (Stream input)
         {
+#if NET10_0_OR_GREATER
+            throw new NotSupportedException ("Legacy Formats.dat is not supported by the modern runtime. Convert it to formats.v2.json.br first.");
+#else
             int version = GetSerializedSchemeVersion (input);
             if (version <= CurrentSchemeVersion)
                 return;
@@ -348,6 +351,7 @@ namespace GameRes
                 if (db.GameMap != null)
                     m_game_map = db.GameMap;
             }
+#endif
         }
 
         public void SerializeScheme (Stream output)
@@ -368,6 +372,9 @@ namespace GameRes
 
         public void SerializeScheme (Stream output, SchemeDataBase db)
         {
+#if NET10_0_OR_GREATER
+            throw new NotSupportedException ("Legacy Formats.dat writing is not supported by the modern runtime.");
+#else
             using (var writer = new BinaryWriter (output, System.Text.Encoding.UTF8, true))
             {
                 writer.Write (SchemeID.ToCharArray());
@@ -376,6 +383,7 @@ namespace GameRes
             var bin = new BinaryFormatter();
             using (var zs = new ZLibStream (output, CompressionMode.Compress, true))
                 bin.Serialize (zs, db);
+#endif
         }
 
         public int GetSerializedSchemeVersion (Stream input)

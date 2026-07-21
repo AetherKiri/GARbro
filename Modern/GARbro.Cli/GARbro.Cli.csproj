@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>garbro</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../GARbro.Core/GARbro.Core.csproj" />
+    <ProjectReference Include="../GARbro.Formats/GARbro.Formats.csproj" />
+  </ItemGroup>
+</Project>

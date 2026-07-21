@@ -1,0 +1,55 @@
+name: Modern Cross-Platform Build
+
+on:
+  push:
+    paths:
+      - 'Modern/**'
+      - 'GameRes/**'
+      - 'GARbro.Modern.sln'
+      - 'Directory.Build.props'
+      - '.github/workflows/modern-build.yml'
+  pull_request:
+    paths:
+      - 'Modern/**'
+      - 'GameRes/**'
+      - 'GARbro.Modern.sln'
+      - 'Directory.Build.props'
+      - '.github/workflows/modern-build.yml'
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet build GARbro.Modern.sln --configuration Release
+      - run: dotnet test GARbro.Modern.sln --configuration Release
+
+  publish-cli:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        rid: [win-x64, osx-x64, osx-arm64, linux-x64]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - run: >-
+          dotnet publish Modern/GARbro.Cli/GARbro.Cli.csproj
+          --configuration Release
+          --runtime ${{ matrix.rid }}
+          --self-contained true
+          --output artifacts/${{ matrix.rid }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: garbro-cli-${{ matrix.rid }}
+          path: artifacts/${{ matrix.rid }}

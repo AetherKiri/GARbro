@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>GARbro.Core</AssemblyName>
+    <RootNamespace>GameRes</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CA2255</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../GameRes/**/*.cs"
+             Exclude="../../GameRes/obj/**/*.cs;../../GameRes/bin/**/*.cs" />
+    <EmbeddedResource Include="../../GameRes/Strings/*.resx" Link="Strings/%(Filename)%(Extension)" />
+    <None Include="../../GameRes/Properties/Settings.settings" Link="Properties/Settings.settings" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="SkiaSharp" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.MacOS" Version="3.119.4" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.4" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="8.0.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="10.0.0" />
+    <PackageReference Include="System.IO.Packaging" Version="10.0.0" />
+  </ItemGroup>
+</Project>

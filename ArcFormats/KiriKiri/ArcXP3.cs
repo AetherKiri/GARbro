@@ -98,7 +98,11 @@ namespace GameRes.Formats.KiriKiri
             (byte)'X', (byte)'P', (byte)'3', 0x0d, 0x0a, 0x20, 0x0a, 0x1a, 0x8b, 0x67, 0x01
         };
 
+#if NET10_0_OR_GREATER
+        public bool ForceEncryptionQuery = false;
+#else
         public bool ForceEncryptionQuery = true;
+#endif
 
         internal static readonly ICrypt NoCryptAlgorithm = new NoCrypt();
 
@@ -147,7 +151,9 @@ namespace GameRes.Formats.KiriKiri
             using (var header = new BinaryReader (header_stream, Encoding.Unicode))
             using (var filename_map = new FilenameMap())
             {
+#if !NET10_0_OR_GREATER
                 Dictionary<string, HxEntry> hx_entry_info = null;
+#endif
                 while (-1 != header.PeekChar())
                 {
                     uint entry_signature = header.ReadUInt32();
@@ -255,6 +261,7 @@ namespace GameRes.Formats.KiriKiri
                             {
                                 DeobfuscateEntry (entry);
                             }
+#if !NET10_0_OR_GREATER
                             if (null != hx_entry_info)
                             {
                                 if (hx_entry_info.TryGetValue (entry.Name, out HxEntry info))
@@ -282,10 +289,12 @@ namespace GameRes.Formats.KiriKiri
                                     }
                                 }
                             }
+#endif
                             entry.Type = FormatCatalog.Instance.GetTypeFromName(entry.Name, ContainedFormats);
                             dir.Add (entry);
                         }
                     }
+#if !NET10_0_OR_GREATER
                     else if (0x3A == (entry_signature >> 24)) // "yuz:" || "sen:" || "dls:"
                     {
                         if (entry_size >= 0x10 && crypt_algorithm.Value is SenrenCxCrypt)
@@ -317,6 +326,7 @@ namespace GameRes.Formats.KiriKiri
                             catch (Exception) { /* ignore parse error */ }
                         }
                     }
+#endif
                     else if (entry_size > 7)
                     {
                         // 0x6E666E68 == entry_signature    // "hnfn"
@@ -424,12 +434,20 @@ NextEntry:
 
         public override object GetCreationWidget ()
         {
+#if NET10_0_OR_GREATER
+            return null;
+#else
             return new GUI.CreateXP3Widget();
+#endif
         }
 
         public override object GetAccessWidget ()
         {
+#if NET10_0_OR_GREATER
+            return null;
+#else
             return new GUI.WidgetXP3();
+#endif
         }
 
         ICrypt QueryCryptAlgorithm (ArcView file)
@@ -666,8 +684,13 @@ NextEntry:
             if (file.Length > int.MaxValue)
                 throw new FileSizeException();
 
+#if NET10_0_OR_GREATER
+            using (var map = MemoryMappedFile.CreateFromFile (file, null, 0,
+                    MemoryMappedFileAccess.Read, HandleInheritability.None, true))
+#else
             using (var map = MemoryMappedFile.CreateFromFile (file, null, 0,
                     MemoryMappedFileAccess.Read, null, HandleInheritability.None, true))
+#endif
             {
                 uint unpacked_size    = (uint)file.Length;
                 xp3entry.UnpackedSize = (uint)unpacked_size;
@@ -746,7 +769,7 @@ NextEntry:
         {
             if ("image" == entry.Type || "archive" == entry.Type)
                 return false;
-            if (entry.Name.HasExtension (".ogg"))
+            if (entry.Name.EndsWith (".ogg", StringComparison.OrdinalIgnoreCase))
                 return false;
             return true;
         }

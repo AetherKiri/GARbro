@@ -101,7 +101,7 @@ namespace GameRes.Formats.KiriKiri
                 return input;
 
             var header = new byte[5];
-            input.Read (header, 0, 5);
+            ReadExactly (input, header, 0, header.Length);
             uint signature = header.ToUInt32 (0);
             GuessEntryTypeBySignature (entry, signature);
             if (0x184D2204 == signature) // LZ4 magic
@@ -127,7 +127,7 @@ namespace GameRes.Formats.KiriKiri
             if (header.Length != 5)
                 throw new ArgumentException ("Invalid header length for DecompressMdf", "header");
             var mdf_header = new byte[4] { header[4], 0, 0, 0 };
-            input.Read (mdf_header, 1, 3);
+            ReadExactly (input, mdf_header, 1, 3);
             entry.UnpackedSize = mdf_header.ToUInt32 (0);
             entry.IsPacked = true;
             return new ZLibStream (input, CompressionMode.Decompress);
@@ -141,9 +141,9 @@ namespace GameRes.Formats.KiriKiri
             info.SetBlockSize (input.ReadByte());
             if (info.HasContentLength)
             {
-                input.Read (header, 0, 4);
+                ReadExactly (input, header, 0, 4);
                 long length = header.ToUInt32 (0);
-                input.Read (header, 0, 4);
+                ReadExactly (input, header, 0, 4);
                 length |= (long)header.ToUInt32 (0) << 32;
                 info.OriginalLength = length;
                 entry.UnpackedSize = (uint)length;
@@ -151,11 +151,23 @@ namespace GameRes.Formats.KiriKiri
             }
             if (info.HasDictionary)
             {
-                input.Read (header, 0, 4);
+                ReadExactly (input, header, 0, 4);
                 info.DictionaryId = header.ToInt32 (0);
             }
             input.ReadByte(); // skip descriptor checksum
             return new Lz4Stream (input, info);
+        }
+
+        static void ReadExactly (Stream input, byte[] buffer, int offset, int count)
+        {
+            while (count > 0)
+            {
+                int read = input.Read (buffer, offset, count);
+                if (read == 0)
+                    throw new EndOfStreamException();
+                offset += read;
+                count -= read;
+            }
         }
 
         internal Stream DecryptScript (int enc_type, Stream input, uint unpacked_size)

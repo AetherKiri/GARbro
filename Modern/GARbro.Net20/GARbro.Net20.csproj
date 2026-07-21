@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Net20</AssemblyName>
+    <RootNamespace>GameRes</RootNamespace>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../Net20/**/*.cs"
+             Exclude="../../Net20/obj/**/*.cs;../../Net20/bin/**/*.cs;../../Net20/Properties/AssemblyInfo.cs" />
+  </ItemGroup>
+</Project>

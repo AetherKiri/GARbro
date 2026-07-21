@@ -34,8 +34,12 @@ namespace GameRes.Gx4Lib
     {
         public PFHeaders Deserialize (Stream input)
         {
+#if NET10_0_OR_GREATER
+            throw new NotSupportedException ("GX4 BinaryFormatter package indexes require a safe parser before they can be read by the modern runtime.");
+#else
             var bin = new BinaryFormatter { Binder = new Gx4TypeBinder() };
             return bin.Deserialize (input) as PFHeaders;
+#endif
         }
     }
 
