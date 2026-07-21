@@ -34,8 +34,16 @@ dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-scheme FateCr
 dotnet run --project Modern/GARbro.Cli -- extract encrypted.xp3 --output extracted --xp3-scheme FateCrypt
 ```
 
-The desktop browser provides the same selection in its toolbar. The scheme must be selected before opening the archive.
+The desktop browser provides the same selection in its toolbar. Load a profile through the `Profiles` action when needed, select its scheme, then open the archive.
+
+Hx and Senren family schemes use safe, data-only JSON profiles instead of the legacy binary database:
+
+```sh
+dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-profile game-profiles.json --xp3-scheme my-game
+```
+
+Each profile declares a name, one of `CxEncryption`, `SenrenCxCrypt`, `CabbageCxCrypt`, `NanaCxCrypt`, `RiddleCxCrypt`, `HxCrypt`, or `HxCryptLite`, and the required `cx` data. No type names are deserialized from profile input.
 
 ## Current limits
 
-The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Consequently, XP3 schemes that require game-specific Hx, Senren, or related helpers remain legacy-only until a safe replacement database and their helper implementations are migrated. See [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.
+The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Game-specific profile data is therefore not bundled yet, but Hx, Senren, and related helper implementations are available through explicit JSON profiles. See [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.

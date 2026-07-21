@@ -147,5 +147,43 @@ namespace GARbro.Core.Tests
                 Directory.Delete (tempDirectory, true);
             }
         }
+
+        [Fact]
+        public void Xp3_profiles_load_hx_and_senren_schemes_without_binaryformatter ()
+        {
+            const string profiles = @"[
+              {
+                ""name"": ""hx-lite-test"",
+                ""algorithm"": ""HxCryptLite"",
+                ""cx"": {
+                  ""mask"": 0,
+                  ""offset"": 0,
+                  ""prologOrder"": [],
+                  ""oddBranchOrder"": [],
+                  ""evenBranchOrder"": [],
+                  ""controlBlock"": []
+                }
+              },
+              {
+                ""name"": ""senren-test"",
+                ""algorithm"": ""SenrenCxCrypt"",
+                ""cx"": {
+                  ""mask"": 0,
+                  ""offset"": 0,
+                  ""prologOrder"": [],
+                  ""oddBranchOrder"": [],
+                  ""evenBranchOrder"": [],
+                  ""controlBlock"": []
+                }
+              }
+            ]";
+            using (var input = new MemoryStream (Encoding.UTF8.GetBytes (profiles)))
+                Xp3SchemeProfiles.Load (input);
+
+            Assert.True (Xp3Opener.TryGetScheme ("hx-lite-test", out var hx));
+            Assert.IsType<HxCryptLite> (hx);
+            Assert.True (Xp3Opener.TryGetScheme ("senren-test", out var senren));
+            Assert.IsType<SenrenCxCrypt> (senren);
+        }
     }
 }

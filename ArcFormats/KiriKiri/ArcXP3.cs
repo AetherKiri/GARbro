@@ -144,8 +144,23 @@ namespace GameRes.Formats.KiriKiri
 
         public static IEnumerable<string> ModernSchemeNames
         {
-            get { return ModernSchemes.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase); }
+            get
+            {
+#if NET10_0_OR_GREATER
+                return ModernSchemes.Keys.Concat (Xp3SchemeProfiles.Names)
+                    .OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
+#else
+                return ModernSchemes.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
+#endif
+            }
         }
+
+#if NET10_0_OR_GREATER
+        public static void LoadModernSchemeProfiles (string path)
+        {
+            Xp3SchemeProfiles.Load (path);
+        }
+#endif
 
         public override ArcFile TryOpen (ArcView file)
         {
@@ -192,9 +207,7 @@ namespace GameRes.Formats.KiriKiri
             using (var header = new BinaryReader (header_stream, Encoding.Unicode))
             using (var filename_map = new FilenameMap())
             {
-#if !NET10_0_OR_GREATER
                 Dictionary<string, HxEntry> hx_entry_info = null;
-#endif
                 while (-1 != header.PeekChar())
                 {
                     uint entry_signature = header.ReadUInt32();
@@ -302,7 +315,6 @@ namespace GameRes.Formats.KiriKiri
                             {
                                 DeobfuscateEntry (entry);
                             }
-#if !NET10_0_OR_GREATER
                             if (null != hx_entry_info)
                             {
                                 if (hx_entry_info.TryGetValue (entry.Name, out HxEntry info))
@@ -330,12 +342,10 @@ namespace GameRes.Formats.KiriKiri
                                     }
                                 }
                             }
-#endif
                             entry.Type = FormatCatalog.Instance.GetTypeFromName(entry.Name, ContainedFormats);
                             dir.Add (entry);
                         }
                     }
-#if !NET10_0_OR_GREATER
                     else if (0x3A == (entry_signature >> 24)) // "yuz:" || "sen:" || "dls:"
                     {
                         if (entry_size >= 0x10 && crypt_algorithm.Value is SenrenCxCrypt)
@@ -367,7 +377,6 @@ namespace GameRes.Formats.KiriKiri
                             catch (Exception) { /* ignore parse error */ }
                         }
                     }
-#endif
                     else if (entry_size > 7)
                     {
                         // 0x6E666E68 == entry_signature    // "hnfn"
@@ -519,6 +528,10 @@ NextEntry:
         {
             if (!string.IsNullOrEmpty (scheme) && KnownSchemes.TryGetValue (scheme, out algorithm))
                 return true;
+#if NET10_0_OR_GREATER
+            if (!string.IsNullOrEmpty (scheme) && Xp3SchemeProfiles.TryGet (scheme, out algorithm))
+                return true;
+#endif
             Func<ICrypt> factory;
             if (!string.IsNullOrEmpty (scheme) && ModernSchemes.TryGetValue (scheme, out factory))
             {

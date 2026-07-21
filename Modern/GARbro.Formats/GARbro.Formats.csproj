@@ -14,6 +14,10 @@
     <Compile Include="../../ArcFormats/KiriKiri/ArcXP3.cs" Link="KiriKiri/ArcXP3.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/CryptAlgorithms.cs" Link="KiriKiri/CryptAlgorithms.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/CzCrypt.cs" Link="KiriKiri/CzCrypt.cs" />
+    <Compile Include="../../ArcFormats/KiriKiri/KiriKiriCx.cs" Link="KiriKiri/KiriKiriCx.cs" />
+    <Compile Include="../../ArcFormats/KiriKiri/HxCrypt.cs" Link="KiriKiri/HxCrypt.cs" />
+    <Compile Include="../../ArcFormats/KiriKiri/HxCryptLite.cs" Link="KiriKiri/HxCryptLite.cs" />
+    <Compile Include="../../ArcFormats/KiriKiri/YuzCrypt.cs" Link="KiriKiri/YuzCrypt.cs" />
     <Compile Include="../../ArcFormats/CommonStreams.cs" Link="CommonStreams.cs" />
     <Compile Include="../../ArcFormats/Lz4Stream.cs" Link="Lz4Stream.cs" />
     <Compile Include="../../ArcFormats/ExeFile.cs" Link="ExeFile.cs" />

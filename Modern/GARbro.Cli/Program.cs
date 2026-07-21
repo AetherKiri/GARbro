@@ -27,27 +27,47 @@ namespace GARbro.Cli
             }
 
             if (args.Length == 2 && args[0] == "list")
-                return WithXp3Scheme (null, () => WithArchive (args[1], ListEntries));
+                return WithXp3Scheme (null, null, () => WithArchive (args[1], ListEntries));
+
+            if (args.Length == 6 && args[0] == "list" && args[2] == "--xp3-profile" && args[4] == "--xp3-scheme")
+                return WithXp3Scheme (args[5], args[3], () => WithArchive (args[1], ListEntries));
 
             if (args.Length == 4 && args[0] == "list" && args[2] == "--xp3-scheme")
-                return WithXp3Scheme (args[3], () => WithArchive (args[1], ListEntries));
+                return WithXp3Scheme (args[3], null, () => WithArchive (args[1], ListEntries));
 
             if (args.Length == 4 && args[0] == "extract" && args[2] == "--output")
-                return WithXp3Scheme (null, () => WithArchive (args[1], archive => ExtractEntries (archive, args[3])));
+                return WithXp3Scheme (null, null, () => WithArchive (args[1], archive => ExtractEntries (archive, args[3])));
+
+            if (args.Length == 8 && args[0] == "extract" && args[2] == "--output" && args[4] == "--xp3-profile" && args[6] == "--xp3-scheme")
+                return WithXp3Scheme (args[7], args[5], () => WithArchive (args[1], archive => ExtractEntries (archive, args[3])));
 
             if (args.Length == 6 && args[0] == "extract" && args[2] == "--output" && args[4] == "--xp3-scheme")
-                return WithXp3Scheme (args[5], () => WithArchive (args[1], archive => ExtractEntries (archive, args[3])));
+                return WithXp3Scheme (args[5], null, () => WithArchive (args[1], archive => ExtractEntries (archive, args[3])));
 
             Console.Error.WriteLine ("Usage:");
             Console.Error.WriteLine ("  garbro formats");
             Console.Error.WriteLine ("  garbro xp3-schemes");
             Console.Error.WriteLine ("  garbro list <archive> [--xp3-scheme <scheme>]");
+            Console.Error.WriteLine ("  garbro list <archive> --xp3-profile <file> --xp3-scheme <scheme>");
             Console.Error.WriteLine ("  garbro extract <archive> --output <directory> [--xp3-scheme <scheme>]");
+            Console.Error.WriteLine ("  garbro extract <archive> --output <directory> --xp3-profile <file> --xp3-scheme <scheme>");
             return 2;
         }
 
-        private static int WithXp3Scheme (string scheme, Func<int> action)
+        private static int WithXp3Scheme (string scheme, string profilePath, Func<int> action)
         {
+            if (!string.IsNullOrEmpty (profilePath))
+            {
+                try
+                {
+                    Xp3Opener.LoadModernSchemeProfiles (profilePath);
+                }
+                catch (Exception error)
+                {
+                    Console.Error.WriteLine ("Unable to load XP3 profile: {0}", error.Message);
+                    return 2;
+                }
+            }
             if (!string.IsNullOrEmpty (scheme))
             {
                 ICrypt algorithm;

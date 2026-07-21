@@ -44,9 +44,15 @@ dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-scheme FateCr
 dotnet run --project Modern/GARbro.Cli -- extract encrypted.xp3 --output extracted --xp3-scheme FateCrypt
 ```
 
-The desktop application exposes the same XP3 scheme selection in its toolbar. Choose a scheme before opening an encrypted archive.
+The desktop application exposes the same XP3 scheme selection in its toolbar. Load a JSON profile through `Profiles` when needed, choose its scheme, then open the archive.
 
-Game-specific XP3 variants that require Hx, Senren, or other proprietary helper implementations are not yet available in the modern runtime. The port deliberately does not load the legacy `Formats.dat` BinaryFormatter database; its safe replacement is still in progress.
+Hx and Senren family variants can use safe JSON profiles with the CLI:
+
+```sh
+dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-profile game-profiles.json --xp3-scheme my-game
+```
+
+The port deliberately does not load the legacy `Formats.dat` BinaryFormatter database. Game-specific profile data must be supplied as explicit JSON until a reviewed profile collection is available.
 
 See [Modern/PORTING_STATUS.md](Modern/PORTING_STATUS.md) for the current format and platform boundary.
 

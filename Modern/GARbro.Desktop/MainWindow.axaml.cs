@@ -57,6 +57,32 @@ namespace GARbro.Desktop
         private void Home_Click (object sender, RoutedEventArgs e) => OpenPath (Environment.GetFolderPath (Environment.SpecialFolder.UserProfile));
         private void WorkingFolder_Click (object sender, RoutedEventArgs e) => OpenPath (Directory.GetCurrentDirectory());
 
+        private async void LoadXp3Profiles_Click (object sender, RoutedEventArgs e)
+        {
+            var files = await StorageProvider.OpenFilePickerAsync (new FilePickerOpenOptions {
+                AllowMultiple = false,
+                Title = "Load XP3 profiles",
+                FileTypeFilter = new[] { new FilePickerFileType ("JSON") { Patterns = new[] { "*.json" } } },
+            });
+            var path = files.FirstOrDefault()?.TryGetLocalPath();
+            if (string.IsNullOrEmpty (path))
+                return;
+            try
+            {
+                Xp3Opener.LoadModernSchemeProfiles (path);
+                Xp3Schemes.Clear();
+                Xp3Schemes.Add ("Automatic");
+                foreach (var scheme in Xp3Opener.ModernSchemeNames)
+                    Xp3Schemes.Add (scheme);
+                SelectedXp3Scheme = "Automatic";
+                Status = "Loaded XP3 profiles.";
+            }
+            catch (Exception error)
+            {
+                Status = "Unable to load XP3 profiles: " + error.Message;
+            }
+        }
+
         private void Back_Click (object sender, RoutedEventArgs e)
         {
             if (m_archive != null)
