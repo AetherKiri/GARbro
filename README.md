@@ -1,74 +1,67 @@
-GARbro
-======
+# GARbro
 
-Visual Novels resource browser.
+GARbro is a resource browser and extractor for visual novels.
 
-Requires .NET Framework v4.6 or newer (https://www.microsoft.com/net)
+## Project status
 
-[Supported formats](https://morkt.github.io/GARbro/supported.html)
+This repository now has two development paths:
 
-[Download latest release](https://github.com/morkt/GARbro/releases)
+- **Legacy Windows application**: the established .NET Framework/WPF application and the reference for broad format compatibility.
+- **Modern cross-platform application**: the active .NET 10 port for Windows, macOS, and Linux. It uses Avalonia for the desktop shell and is being migrated format by format.
 
-Operation
----------
+The modern port is currently focused on reliable archive access rather than full legacy format parity. Its first supported archive formats are ZIP and KiriKiri XP3.
 
-Browse through the file system to a file of interest.  If you think it's an
-archive, try to 'enter' inside by pressing 'Enter' on it.  If GARbro
-recognizes format its contents will be displayed just like regular file
-system.  Some archives are encrypted, so you will be asked for credentials or
-a supposed game title.  If game is not listed among presented options then
-most likely archive could not be opened by current GARbro version.
+## Modern quick start
 
-Files could be extracted from archives by pressing 'F4', with all images and
-audio converted to common formats in the process, of course if game format
-itself is recognized.
+Install the .NET 10 SDK, then build and test the cross-platform solution:
 
-When displaying file system contents GARbro assigns types to files based on
-their names extension (so it's not always correct).  If types are misapplied,
-it could be changed by selecting files and assigning type manually via context
-menu 'Assign file type'.
+```sh
+dotnet build GARbro.Modern.sln --configuration Release
+dotnet test GARbro.Modern.sln --configuration Release
+```
 
-GUI Hotkeys
------------
+Run the desktop browser:
 
-<table>
-<tr><td><kbd>Enter</kbd></td><td>                   Try to open selected file as archive -OR- playback audio file</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>PgDn</kbd></td><td>    Try to open selected file as archive</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>E</kbd></td><td>       Open current folder in Windows Explorer</td></tr>
-<tr><td><kbd>Backspace</kbd></td><td>               Go back</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>&rarr;</kbd></td><td>   Go forward</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>PgUp</kbd></td><td>    Go to parent directory</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>       Choose file to open as archive</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>A</kbd></td><td>       Select all files</td></tr>
-<tr><td><kbd>Space</kbd></td><td>                   Select next file</td></tr>
-<tr><td><kbd>Numpad +</kbd></td><td>                Select files matching specified mask</td></tr>
-<tr><td><kbd>F3</kbd></td><td>                      Create archive</td></tr>
-<tr><td><kbd>F4</kbd></td><td>                      Extract selected files</td></tr>
-<tr><td><kbd>F5</kbd></td><td>                      Refresh view</td></tr>
-<tr><td><kbd>F6</kbd></td><td>                      Convert selected files</td></tr>
-<tr><td><kbd>Delete</kbd></td><td>                  Delete selected files</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>H</kbd></td><td>       Fit window to a displayed image</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd></td><td>   Hide menu bar</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>T</kbd></td><td>   Hide tool bar</td></tr>
-<tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>   Hide status bar</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>       Toggle scaling of large images</td></tr>
-<tr><td><kbd>Ctrl</kbd>+<kbd>Q</kbd></td><td>       Exit</td></tr>
-</table>
+```sh
+dotnet run --project Modern/GARbro.Desktop/GARbro.Desktop.csproj
+```
 
-Author
-------
+Run the command-line tool:
 
-Written by [morkt](https://github.com/morkt/GARbro) under [MIT License](https://github.com/morkt/GARbro/blob/master/LICENSE).
+```sh
+dotnet run --project Modern/GARbro.Cli -- formats
+dotnet run --project Modern/GARbro.Cli -- list archive.zip
+dotnet run --project Modern/GARbro.Cli -- extract archive.zip --output extracted
+```
 
-Korean translation by [mireado](https://github.com/mireado), [overworks](https://github.com/overworks)
+## XP3 support
 
-Simplified Chinese translation by [elasticblitz](https://github.com/elasticblitz), [PeratX](https://github.com/PeratX) and [taroxd](https://github.com/taroxd)
+The modern runtime can create, list, preview, and extract standard XP3 archives, including compressed index and content streams. It also supports an explicit set of migrated generic encryption schemes.
 
-Japanese translation by [haniwa55](https://github.com/haniwa55)
+```sh
+dotnet run --project Modern/GARbro.Cli -- xp3-schemes
+dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-scheme FateCrypt
+dotnet run --project Modern/GARbro.Cli -- extract encrypted.xp3 --output extracted --xp3-scheme FateCrypt
+```
 
-Contributors
-------
+The desktop application exposes the same XP3 scheme selection in its toolbar. Choose a scheme before opening an encrypted archive.
 
-<a href="https://github.com/crskycode/GARbro/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=crskycode/GARbro" />
-</a>
+Game-specific XP3 variants that require Hx, Senren, or other proprietary helper implementations are not yet available in the modern runtime. The port deliberately does not load the legacy `Formats.dat` BinaryFormatter database; its safe replacement is still in progress.
+
+See [Modern/PORTING_STATUS.md](Modern/PORTING_STATUS.md) for the current format and platform boundary.
+
+## Legacy application
+
+The legacy application requires .NET Framework 4.6 or newer and remains the recommended option when a game relies on a format not yet migrated to the modern runtime.
+
+[Supported formats](https://morkt.github.io/GARbro/supported.html) | [Latest legacy release](https://github.com/morkt/GARbro/releases)
+
+## License and credits
+
+Written by [morkt](https://github.com/morkt/GARbro) under the [MIT License](LICENSE).
+
+Korean translation by [mireado](https://github.com/mireado) and [overworks](https://github.com/overworks).
+
+Simplified Chinese translation by [elasticblitz](https://github.com/elasticblitz), [PeratX](https://github.com/PeratX), and [taroxd](https://github.com/taroxd).
+
+Japanese translation by [haniwa55](https://github.com/haniwa55).

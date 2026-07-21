@@ -106,6 +106,47 @@ namespace GameRes.Formats.KiriKiri
 
         internal static readonly ICrypt NoCryptAlgorithm = new NoCrypt();
 
+        static readonly IDictionary<string, Func<ICrypt>> ModernSchemes =
+            new Dictionary<string, Func<ICrypt>> (StringComparer.OrdinalIgnoreCase) {
+                { "AlteredPinkCrypt", () => new AlteredPinkCrypt() },
+                { "AppliqueCrypt", () => new AppliqueCrypt() },
+                { "DameganeCrypt", () => new DameganeCrypt() },
+                { "DieselmineCrypt", () => new DieselmineCrypt() },
+                { "ExaCrypt", () => new ExaCrypt() },
+                { "FateCrypt", () => new FateCrypt() },
+                { "FestivalCrypt", () => new FestivalCrypt() },
+                { "FlyingShineCrypt", () => new FlyingShineCrypt() },
+                { "HaikuoCrypt", () => new HaikuoCrypt() },
+                { "HashCrypt", () => new HashCrypt() },
+                { "HibikiCrypt", () => new HibikiCrypt() },
+                { "HighRunningCrypt", () => new HighRunningCrypt() },
+                { "HybridCrypt", () => new HybridCrypt() },
+                { "KissCrypt", () => new KissCrypt() },
+                { "MizukakeCrypt", () => new MizukakeCrypt() },
+                { "NatsupochiCrypt", () => new NatsupochiCrypt() },
+                { "NephriteCrypt", () => new NephriteCrypt() },
+                { "NoCrypt", () => NoCryptAlgorithm },
+                { "OkibaCrypt", () => new OkibaCrypt() },
+                { "PinPointCrypt", () => new PinPointCrypt() },
+                { "PoringSoftCrypt", () => new PoringSoftCrypt() },
+                { "SeitenCrypt", () => new SeitenCrypt() },
+                { "SourireCrypt", () => new SourireCrypt() },
+                { "SyangrilaSmartCrypt", () => new SyangrilaSmartCrypt() },
+                { "TokidokiCrypt", () => new TokidokiCrypt() },
+                { "YuzuCrypt", () => new YuzuCrypt() },
+            };
+
+        /// <summary>
+        /// Explicit scheme selected by a modern host before opening an encrypted XP3 archive.
+        /// The legacy title database is intentionally not deserialized by the modern runtime.
+        /// </summary>
+        public static string ModernSchemeName { get; set; }
+
+        public static IEnumerable<string> ModernSchemeNames
+        {
+            get { return ModernSchemes.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase); }
+        }
+
         public override ArcFile TryOpen (ArcView file)
         {
             long base_offset = 0;
@@ -452,6 +493,15 @@ NextEntry:
 
         ICrypt QueryCryptAlgorithm (ArcView file)
         {
+#if NET10_0_OR_GREATER
+            if (!string.IsNullOrEmpty (ModernSchemeName))
+            {
+                ICrypt selected;
+                if (TryGetScheme (ModernSchemeName, out selected))
+                    return selected;
+                throw new NotSupportedException ("Unknown XP3 scheme: " + ModernSchemeName);
+            }
+#endif
             var alg = GuessCryptAlgorithm (file);
             if (null != alg)
                 return alg;
@@ -462,9 +512,21 @@ NextEntry:
         public static ICrypt GetScheme (string scheme)
         {
             ICrypt algorithm;
-            if (string.IsNullOrEmpty (scheme) || !KnownSchemes.TryGetValue (scheme, out algorithm))
-                algorithm = NoCryptAlgorithm;
-            return algorithm;
+            return TryGetScheme (scheme, out algorithm) ? algorithm : NoCryptAlgorithm;
+        }
+
+        public static bool TryGetScheme (string scheme, out ICrypt algorithm)
+        {
+            if (!string.IsNullOrEmpty (scheme) && KnownSchemes.TryGetValue (scheme, out algorithm))
+                return true;
+            Func<ICrypt> factory;
+            if (!string.IsNullOrEmpty (scheme) && ModernSchemes.TryGetValue (scheme, out factory))
+            {
+                algorithm = factory();
+                return true;
+            }
+            algorithm = null;
+            return false;
         }
 
         static uint GetFileCheckSum (Stream src)

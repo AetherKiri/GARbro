@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform.Storage;
 using GameRes;
+using GameRes.Formats.KiriKiri;
 
 namespace GARbro.Desktop
 {
@@ -21,6 +22,7 @@ namespace GARbro.Desktop
         private string m_previewText;
         private string m_pathText = Directory.GetCurrentDirectory();
         private string m_status = "Open a folder or archive to begin.";
+        private string m_selectedXp3Scheme = "Automatic";
 
         public MainWindow ()
         {
@@ -30,6 +32,8 @@ namespace GARbro.Desktop
         }
 
         public ObservableCollection<ResourceItem> Entries { get; } = new ObservableCollection<ResourceItem>();
+        public ObservableCollection<string> Xp3Schemes { get; } = new ObservableCollection<string> (
+            new[] { "Automatic" }.Concat (Xp3Opener.ModernSchemeNames));
 
         public string PathText { get => m_pathText; set => SetField (ref m_pathText, value); }
         public string Status { get => m_status; private set => SetField (ref m_status, value); }
@@ -39,6 +43,15 @@ namespace GARbro.Desktop
         public bool HasPreviewText => !string.IsNullOrEmpty (PreviewText);
         public bool HasArchive => m_archive != null;
         public ResourceItem SelectedItem { get => m_selectedItem; set => SetField (ref m_selectedItem, value); }
+        public string SelectedXp3Scheme
+        {
+            get => m_selectedXp3Scheme;
+            set
+            {
+                if (SetField (ref m_selectedXp3Scheme, value))
+                    Xp3Opener.ModernSchemeName = value == "Automatic" ? null : value;
+            }
+        }
 
         private void OpenPath_Click (object sender, RoutedEventArgs e) => OpenPath (PathText);
         private void Home_Click (object sender, RoutedEventArgs e) => OpenPath (Environment.GetFolderPath (Environment.SpecialFolder.UserProfile));
@@ -239,11 +252,12 @@ namespace GARbro.Desktop
             remove => ViewModelPropertyChanged -= value;
         }
         private void OnPropertyChanged ([CallerMemberName] string name = null) => ViewModelPropertyChanged?.Invoke (this, new PropertyChangedEventArgs (name));
-        private void SetField<T> (ref T field, T value, [CallerMemberName] string name = null)
+        private bool SetField<T> (ref T field, T value, [CallerMemberName] string name = null)
         {
-            if (Equals (field, value)) return;
+            if (Equals (field, value)) return false;
             field = value;
             OnPropertyChanged (name);
+            return true;
         }
     }
 

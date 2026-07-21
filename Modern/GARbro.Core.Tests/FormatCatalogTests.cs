@@ -4,6 +4,7 @@ using System.IO.Compression;
 using System.Text;
 using GameRes;
 using System.Windows.Media;
+using GameRes.Formats.KiriKiri;
 using Xunit;
 
 namespace GARbro.Core.Tests
@@ -101,6 +102,47 @@ namespace GARbro.Core.Tests
             {
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Xp3_format_opens_an_archive_with_an_explicit_modern_scheme ()
+        {
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            var previousScheme = Xp3Opener.ModernSchemeName;
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                File.WriteAllText ("sample.txt", "encrypted XP3", Encoding.UTF8);
+                var archivePath = Path.Combine (tempDirectory, "encrypted.xp3");
+                var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>().Single (item => item.Tag == "XP3");
+                var options = new Xp3Options {
+                    Version = 1,
+                    Scheme = new FateCrypt(),
+                    CompressIndex = true,
+                    CompressContents = true,
+                    RetainDirs = true,
+                };
+
+                using (var output = File.Create (archivePath))
+                    format.Create (output, new[] { new Entry { Name = "sample.txt" } }, options);
+
+                Xp3Opener.ModernSchemeName = "FateCrypt";
+                VFS.ChDir (archivePath);
+                var archive = VFS.CurrentArchive;
+                var entry = Assert.Single (archive.Dir);
+                using (var input = new StreamReader (archive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("encrypted XP3", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Xp3Opener.ModernSchemeName = previousScheme;
                 Directory.SetCurrentDirectory (previousDirectory);
                 Directory.Delete (tempDirectory, true);
             }
