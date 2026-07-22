@@ -77,6 +77,11 @@ namespace GARbro.LegacyDataMigration
                     ExportNpkKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-pck-keys")
+                {
+                    ExportPckKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -91,6 +96,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-csaf-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-mbl-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-npk-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-pck-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -222,6 +228,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportNpkKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new NpkKeysDocument { KnownKeys = keys });
             Console.WriteLine ("npkKeyCount={0}", keys.Count);
+        }
+
+        static void ExportPckKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportPckKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new PckKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("pckKeyCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

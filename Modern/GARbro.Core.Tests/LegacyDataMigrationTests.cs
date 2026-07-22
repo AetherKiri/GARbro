@@ -108,6 +108,13 @@ namespace GARbro.Core.Tests
             Assert.Equal ("D73FE8D142818BDF2A6B2AED6C0170F4085A1D6D81A2A2A083DB3631E2CEFCED",
                 Convert.ToHexString (SHA256.HashData (npkKeys["Sonicomi"])));
 
+            var pckKeys = LegacyXp3Exporter.ExportPckKeys (database);
+            Assert.Equal (4, pckKeys.Count);
+            Assert.Equal (10, pckKeys["Boukensha no Machi o Tsukurou! 2"].Length);
+            Assert.Equal (5, pckKeys["Mezase My Home! ~Niizuma o Mamore~"].Length);
+            Assert.Equal ("406C8C66DEAF641974D7BB240ED9685664174AF13A5C178A61959C4D9F526D48",
+                Convert.ToHexString (SHA256.HashData (pckKeys["Boukensha no Machi o Tsukurou! 2"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

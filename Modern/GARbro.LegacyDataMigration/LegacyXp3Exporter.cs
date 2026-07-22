@@ -109,6 +109,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownKeys { get; set; }
     }
 
+    internal sealed class PckKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownKeys { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -379,6 +385,15 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy NPK scheme has no KnownKeys member.");
             var dictionary = ReadRaw (npkScheme, "KnownKeys") as ClassRecord;
             return ReadByteDictionary (dictionary, "Legacy NPK key map");
+        }
+
+        internal static Dictionary<string, byte[]> ExportPckKeys (LegacyFormatsDatabase database)
+        {
+            var pckScheme = FindScheme (database, "PCK/TAMAMO");
+            if (pckScheme == null || !pckScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy PCK/TAMAMO scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (pckScheme, "KnownKeys") as ClassRecord;
+            return ReadByteDictionary (dictionary, "Legacy PCK/TAMAMO key map");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
