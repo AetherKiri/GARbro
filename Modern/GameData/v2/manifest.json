@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.15",
+  "dataVersion": "2026.07.22.16",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -92,6 +92,13 @@
       "kind": "key-map",
       "path": "GameData/v2/ns2/keys.json",
       "sha256": "a0c8b5563bf63fc5f607b4b6da245c7e7ae867e00e9cba6c1862b90a8c29bf6c"
+    },
+    {
+      "id": "nsa-keys",
+      "format": "NSA",
+      "kind": "key-map",
+      "path": "GameData/v2/nsa/keys.json",
+      "sha256": "98e23c521ef0dd01d2ffc8e09ec7295c5da15195a648d023ff7a6e4dc49a12f6"
     }
   ]
 }

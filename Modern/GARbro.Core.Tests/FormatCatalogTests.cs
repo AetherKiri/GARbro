@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using GameRes;
 using GameRes.Cryptography;
+using GameRes.Utility;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.GameSystem;
@@ -491,6 +492,75 @@ namespace GARbro.Core.Tests
             }
             finally
             {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Nsa_format_uses_migrated_key_for_encrypted_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "NSA");
+            Assert.IsType<NsaOpener> (format);
+            var scheme = Assert.IsType<NsaScheme> (format.Scheme);
+            var password = scheme.KnownKeys["Chou Gedou Yuusha"];
+            Assert.Equal (10, scheme.KnownKeys.Count);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.nsa"] = "Chou Gedou Yuusha" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.nsa");
+                CreateNsaFixture (archivePath, password);
+                Assert.NotEqual (0, BitConverter.ToInt16 (File.ReadAllBytes (archivePath), 0));
+                using (var view = new ArcView (archivePath))
+                using (var decrypted = new EncryptedViewStream (view, Encoding.ASCII.GetBytes (password)))
+                {
+                    var header = new byte[30];
+                    Assert.Equal (30, decrypted.Read (header, 0, header.Length));
+                    Assert.Equal ((byte)0x14, header[25]);
+                }
+                using (var view = new ArcView (archivePath))
+                using (var decrypted = new EncryptedViewStream (view, Encoding.ASCII.GetBytes (password)))
+                using (var reader = new ArcView.Reader (decrypted))
+                {
+                    Assert.Equal (1, Binary.BigEndian (reader.ReadInt16 ()));
+                    Assert.Equal (30u, Binary.BigEndian (reader.ReadUInt32 ()));
+                    Assert.Equal ("sample.txt", decrypted.ReadCString ());
+                    Assert.Equal ((byte)0, reader.ReadByte ());
+                    Assert.Equal (0u, Binary.BigEndian (reader.ReadUInt32 ()));
+                    Assert.Equal (20u, Binary.BigEndian (reader.ReadUInt32 ()));
+                }
+                using (var view = new ArcView (archivePath))
+                using (var parsed = format.TryOpen (view))
+                {
+                    Assert.NotNull (parsed);
+                    Assert.Equal ((uint)20, Assert.Single (parsed.Dir).Size);
+                }
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("NSA", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                Assert.True (entry.Size > 0);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated NSA fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 Directory.SetCurrentDirectory (previousDirectory);
@@ -1205,6 +1275,82 @@ namespace GARbro.Core.Tests
                 output.Write ((uint)payload.Length);
                 output.Write (new byte[baseOffset - 4 - 16]);
                 output.Write (payload);
+            }
+        }
+
+        static void CreateNsaFixture (string path, string password)
+        {
+            const int baseOffset = 30;
+            var payload = Encoding.UTF8.GetBytes ("migrated NSA fixture");
+            byte[] plain;
+            using (var stream = new MemoryStream())
+            using (var output = new BinaryWriter (stream, Encoding.UTF8, true))
+            {
+                output.Write (new byte[] { 0, 1 });
+                output.Write (new byte[] { 0, 0, 0, baseOffset });
+                output.Write (Encoding.ASCII.GetBytes ("sample.txt\0"));
+                output.Write ((byte)0);
+                output.Write (new byte[4]);
+                output.Write (new byte[] {
+                    (byte)(payload.Length >> 24), (byte)(payload.Length >> 16),
+                    (byte)(payload.Length >> 8), (byte)payload.Length,
+                });
+                output.Write (new byte[] {
+                    (byte)(payload.Length >> 24), (byte)(payload.Length >> 16),
+                    (byte)(payload.Length >> 8), (byte)payload.Length,
+                });
+                output.Write (payload);
+                plain = stream.ToArray ();
+            }
+            EncryptNsaBytes (plain, Encoding.ASCII.GetBytes (password));
+            File.WriteAllBytes (path, plain);
+        }
+
+        static void EncryptNsaBytes (byte[] data, byte[] key)
+        {
+            for (var block = 0; block < data.Length; block += 1024)
+            {
+                var blockNumber = block / 1024;
+                var number = new byte[8];
+                BitConverter.GetBytes (blockNumber).CopyTo (number, 0);
+                var md5 = MD5.HashData (number);
+                var sha1 = SHA1.HashData (number);
+                var hmacKey = new byte[16];
+                for (var i = 0; i < hmacKey.Length; ++i)
+                    hmacKey[i] = (byte)(md5[i] ^ sha1[i]);
+                var hmac = new HMACSHA512 (hmacKey).ComputeHash (key);
+                var map = Enumerable.Range (0, 256).ToArray ();
+                byte index = 0;
+                var h = 0;
+                for (var i = 0; i < 256; ++i)
+                {
+                    if (hmac.Length == h)
+                        h = 0;
+                    var tmp = map[i];
+                    index = (byte)(tmp + hmac[h++] + index);
+                    map[i] = map[index];
+                    map[index] = tmp;
+                }
+                var i0 = 0;
+                var i1 = 0;
+                for (var i = 0; i < 300; ++i)
+                {
+                    i0 = (i0 + 1) & 0xFF;
+                    var tmp = map[i0];
+                    i1 = (i1 + tmp) & 0xFF;
+                    map[i0] = map[i1];
+                    map[i1] = tmp;
+                }
+                var length = Math.Min (1024, data.Length - block);
+                for (var i = 0; i < length; ++i)
+                {
+                    i0 = (i0 + 1) & 0xFF;
+                    var tmp = map[i0];
+                    i1 = (i1 + tmp) & 0xFF;
+                    map[i0] = map[i1];
+                    map[i1] = tmp;
+                    data[block + i] ^= (byte)map[(map[i0] + tmp) & 0xFF];
+                }
             }
         }
 
