@@ -12,7 +12,7 @@
 
 - The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. The first safe v2 dataset is the bundled XP3 title registry; the remaining format-specific records still require explicit migration adapters.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
-- Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. The exported profiles still need real archive fixture coverage and automatic game bindings.
+- Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. Migrated executable bindings are available for automatic XP3 detection; real archive fixture coverage is still pending.
 - Other archive formats remain in the legacy solution while their WPF option controls are replaced with data-driven option definitions.
 
 ## Next slice

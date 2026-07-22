@@ -1,6 +1,6 @@
 # Legacy XP3 Export Status
 
-This is the reviewed migration inventory for the checked-in `ArcFormats/Resources/Formats.dat` database. The current source has database version `148`, `18,510` NRBF records, and `453` XP3 known-scheme bindings.
+This is the reviewed migration inventory for the checked-in `ArcFormats/Resources/Formats.dat` database. The current source has database version `148`, `18,510` NRBF records, `453` XP3 known-scheme bindings, and `1,129` executable-to-title game bindings.
 
 The offline `GARbro.LegacyDataMigration` tool safely reads NRBF records and exports the seven parameterized XP3 algorithms already supported by the modern runtime:
 
@@ -32,3 +32,5 @@ dotnet run --project Modern/GARbro.LegacyDataMigration/GARbro.LegacyDataMigratio
 ```
 
 The command refuses to overwrite output files. The generated profile document is bundled under `Modern/GameData/v2/xp3/profiles.json` after schema and export-count validation. It still requires archive fixture coverage and human review before being treated as release-complete data.
+
+The legacy game map was merged into `Modern/GameData/v2/xp3/title-registry.json` after checking all 236 existing executable keys for conflicts. No conflicting values were found; 36 migrated profile titles now have executable bindings and can be resolved automatically by XP3 detection.

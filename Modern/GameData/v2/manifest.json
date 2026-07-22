@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.2",
+  "dataVersion": "2026.07.22.3",
   "datasets": [
     {
       "id": "xp3-title-registry",
       "format": "XP3",
       "kind": "title-registry",
       "path": "GameData/v2/xp3/title-registry.json",
-      "sha256": "49a21600a9d8924a103e078bc1e7fb36063cbbb38ca382d599e541570d5411ae"
+      "sha256": "e540f259bf6eb888d7019bccba5b5e5486e50aa83dfe1dcb364213725420211a"
     },
     {
       "id": "xp3-profiles",

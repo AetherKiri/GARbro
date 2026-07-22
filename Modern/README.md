@@ -59,4 +59,4 @@ The original JSON array remains accepted for compatibility. New profiles use a v
 
 ## Current limits
 
-The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Its v2 data under `Modern/GameData/v2` now includes the checksum-verified XP3 title registry and exported parameterized Hx, Senren, and related profiles. Real archive fixture coverage and automatic game-to-profile bindings remain in progress. See [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) for the execution checklist and [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.
+The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Its v2 data under `Modern/GameData/v2` now includes the checksum-verified XP3 title registry, migrated executable bindings, and exported parameterized Hx, Senren, and related profiles. Real archive fixture coverage remains in progress. See [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) for the execution checklist and [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.

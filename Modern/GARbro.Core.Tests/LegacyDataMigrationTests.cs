@@ -45,6 +45,10 @@ namespace GARbro.Core.Tests
             Assert.DoesNotContain (report.SkippedProfiles,
                 profile => profile.LegacyType == "GameRes.Formats.KiriKiri.HxCrypt");
 
+            var gameMap = LegacyXp3Exporter.ExportGameMap (database);
+            Assert.Equal (1129, gameMap.Count);
+            Assert.Contains (gameMap, item => item.Key == "SenrenBanka.exe" && item.Value == "Senren＊Banka");
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

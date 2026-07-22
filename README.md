@@ -54,7 +54,7 @@ Hx and Senren family variants can use safe JSON profiles with the CLI:
 dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-profile game-profiles.json --xp3-scheme my-game
 ```
 
-The port deliberately does not load the legacy `Formats.dat` BinaryFormatter database. A checksum-verified v2 XP3 title registry and parameterized profile dataset are bundled under `Modern/GameData/v2`; archive fixture coverage and automatic game-to-profile bindings are still being migrated. See [Modern/DATABASE_MIGRATION.md](Modern/DATABASE_MIGRATION.md) for the staged plan.
+The port deliberately does not load the legacy `Formats.dat` BinaryFormatter database. A checksum-verified v2 XP3 title registry, executable bindings, and parameterized profile dataset are bundled under `Modern/GameData/v2`; archive fixture coverage is still being migrated. See [Modern/DATABASE_MIGRATION.md](Modern/DATABASE_MIGRATION.md) for the staged plan.
 
 See [Modern/PORTING_STATUS.md](Modern/PORTING_STATUS.md) for the current format and platform boundary.
 

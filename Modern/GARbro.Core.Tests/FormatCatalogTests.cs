@@ -394,6 +394,15 @@ namespace GARbro.Core.Tests
         }
 
         [Fact]
+        public void Bundled_xp3_game_map_resolves_a_parameterized_profile ()
+        {
+            Assert.True (Xp3TitleDatabase.TryGetGameTitle ("SenrenBanka.exe", out var title));
+            Assert.Equal ("Senren＊Banka", title);
+            Assert.True (Xp3Opener.TryGetScheme (title, out var scheme));
+            Assert.IsType<SenrenCxCrypt> (scheme);
+        }
+
+        [Fact]
         public void Bundled_xp3_profiles_survive_external_profile_loading ()
         {
             Assert.True (Xp3Opener.TryGetScheme ("11eyes", out var bundled));

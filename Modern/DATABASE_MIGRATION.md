@@ -10,6 +10,7 @@ This is the execution checklist for replacing the legacy `Formats.dat` BinaryFor
 - [x] Move the safe XP3 title-to-algorithm subset out of a C# compressed string into reviewed JSON.
 - [x] Add format-specific DTOs and semantic validators for v2 XP3 profiles. Do not deserialize CLR type names or arbitrary polymorphic objects.
 - [x] Keep game identification records separate from reusable algorithm profiles in the XP3 slice.
+- [x] Merge the legacy XP3 executable map into the v2 title registry and resolve migrated parameterized profiles by title.
 - [ ] Define a deterministic release-bundle builder from `GameData/v2`.
 - [ ] Sign downloaded release manifests or bundles before accepting updates.
 
@@ -24,6 +25,8 @@ This is the execution checklist for replacing the legacy `Formats.dat` BinaryFor
 - [ ] Document unsupported legacy XP3 algorithms and migrate them only after their implementations are ported.
 
 Current export coverage for the checked-in database is recorded in [LEGACY_XP3_EXPORT_STATUS.md](LEGACY_XP3_EXPORT_STATUS.md). The v2 profile dataset is now bundled and validated by the modern parser; archive fixture tests are still required before release claims are made.
+
+The migrated game map contains 1,129 executable bindings. It is kept in the title-registry dataset while the XP3 slice remains small enough to review as one unit; it can be split into its own dataset later without changing profile IDs.
 
 ## Legacy Export
 
