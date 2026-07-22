@@ -57,6 +57,10 @@ namespace GARbro.Core.Tests
                 && scheme.LegacyType == "GameRes.Formats.PkWare.ZipScheme"
                 && scheme.Members.SequenceEqual (new[] { "KnownKeys" }));
 
+            var zipKeys = LegacyXp3Exporter.ExportZipKeys (database);
+            Assert.Equal (7, zipKeys.Count);
+            Assert.Equal ("trendri0da0", zipKeys["Choir"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

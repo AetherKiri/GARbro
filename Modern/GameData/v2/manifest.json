@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.3",
+  "dataVersion": "2026.07.22.4",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -15,6 +15,13 @@
       "kind": "algorithm-profiles",
       "path": "GameData/v2/xp3/profiles.json",
       "sha256": "4d2c8f86b19353ed84c974e0291068a77def61e44acd207f8a63116848607635"
+    },
+    {
+      "id": "zip-passwords",
+      "format": "ZIP",
+      "kind": "password-map",
+      "path": "GameData/v2/zip/passwords.json",
+      "sha256": "b039ce9e2f0cc8f1ac09fd2d40aedcde5070ff223b53565ece025db0a159b6be"
     }
   ]
 }

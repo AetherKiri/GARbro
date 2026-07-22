@@ -32,11 +32,17 @@ namespace GARbro.LegacyDataMigration
                     ExportSchemeInventory (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-zip-keys")
+                {
+                    ExportZipKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3-game-map <trusted-Formats.dat> <game-map.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-scheme-inventory <trusted-Formats.dat> <inventory.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-zip-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -96,6 +102,14 @@ namespace GARbro.LegacyDataMigration
             WriteJson (outputPath, inventory);
             Console.WriteLine ("schemeCount={0}", inventory.Schemes.Count);
             Console.WriteLine ("schemeTypeCount={0}", inventory.Types.Count);
+        }
+
+        static void ExportZipKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportZipKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new Xp3ZipKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("zipKeyCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

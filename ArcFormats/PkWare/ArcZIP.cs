@@ -30,6 +30,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using GameRes.Formats.KiriKiri;
 using GameRes.Formats.Strings;
 
 using SharpZip = ICSharpCode.SharpZipLib.Zip;
@@ -191,8 +192,30 @@ namespace GameRes.Formats.PkWare
 
         string QueryPassword (ArcView file)
         {
+            string title;
+            if (TryGetArchiveTitle (file, out title) && TryGetKnownPassword (title, out var known_password))
+                return known_password;
             var options = Query<ZipOptions> (arcStrings.ZIPEncryptedNotice);
             return options.Password;
+        }
+
+        internal static bool TryGetKnownPassword (string title, out string password)
+        {
+            return ZipPasswordDatabase.TryGet (title, out password);
+        }
+
+        static bool TryGetArchiveTitle (ArcView file, out string title)
+        {
+            title = FormatCatalog.Instance.LookupGame (file.Name);
+            if (!string.IsNullOrEmpty (title))
+                return true;
+            foreach (var candidate in VFS.GetFiles (VFS.CombinePath (VFS.GetDirectoryName (file.Name), "*.exe")))
+            {
+                if (Xp3TitleDatabase.TryGetGameTitle (candidate.Name, out title))
+                    return true;
+            }
+            title = null;
+            return false;
         }
 
         public override ResourceOptions GetDefaultOptions ()
@@ -251,7 +274,7 @@ namespace GameRes.Formats.PkWare
             }
         }
 
-        ZipScheme DefaultScheme = new ZipScheme { KnownKeys = new Dictionary<string, string>() };
+        ZipScheme DefaultScheme = new ZipScheme { KnownKeys = ZipPasswordDatabase.CreateSchemeKeys() };
 
         public override ResourceScheme Scheme
         {

@@ -5,6 +5,7 @@ using System.Text;
 using GameRes;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
+using GameRes.Formats.PkWare;
 using Xunit;
 
 namespace GARbro.Core.Tests
@@ -400,6 +401,14 @@ namespace GARbro.Core.Tests
             Assert.Equal ("Senren＊Banka", title);
             Assert.True (Xp3Opener.TryGetScheme (title, out var scheme));
             Assert.IsType<SenrenCxCrypt> (scheme);
+        }
+
+        [Fact]
+        public void Bundled_zip_password_map_resolves_known_title_keys ()
+        {
+            Assert.True (ZipOpener.TryGetKnownPassword ("Choir", out var password));
+            Assert.Equal ("trendri0da0", password);
+            Assert.False (ZipOpener.TryGetKnownPassword ("unknown-zip-title", out _));
         }
 
         [Fact]

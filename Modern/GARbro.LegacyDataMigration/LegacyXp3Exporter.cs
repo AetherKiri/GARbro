@@ -55,6 +55,12 @@ namespace GARbro.LegacyDataMigration
         public int Count { get; set; }
     }
 
+    internal sealed class Xp3ZipKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, string> KnownKeys { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -248,6 +254,15 @@ namespace GARbro.LegacyDataMigration
             };
         }
 
+        internal static Dictionary<string, string> ExportZipKeys (LegacyFormatsDatabase database)
+        {
+            var zipScheme = FindScheme (database, "ZIP");
+            if (zipScheme == null || !zipScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy ZIP scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (zipScheme, "KnownKeys") as ClassRecord;
+            return ReadStringDictionary (dictionary, "Legacy ZIP key map");
+        }
+
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
             reason = null;
@@ -352,6 +367,60 @@ namespace GARbro.LegacyDataMigration
                     return record.GetRawValue (name);
             }
             return null;
+        }
+
+        static ClassRecord FindScheme (LegacyFormatsDatabase database, string tag)
+        {
+            if (database == null || database.Root == null || !database.Root.HasMember ("SchemeMap"))
+                throw new InvalidDataException ("Legacy database has no scheme map.");
+            var dictionary = database.Root.GetRawValue ("SchemeMap") as ClassRecord;
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException ("Legacy scheme map is not a dictionary.");
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return null;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return null;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException ("Legacy scheme map has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException ("Legacy scheme map contains an invalid entry.");
+                if (string.Equals (ReadRaw (entry, "key") as string, tag, StringComparison.OrdinalIgnoreCase))
+                    return ReadRaw (entry, "value") as ClassRecord;
+            }
+            return null;
+        }
+
+        static Dictionary<string, string> ReadStringDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, string> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as string;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                if (!result.TryAdd (key, value))
+                    throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
         }
 
         static T ReadRequired<T> (ClassRecord record, params string[] names)

@@ -42,11 +42,11 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 
 - [x] Inventory the serialized `SchemeMap` records from the trusted legacy database (77 format entries, 64 types).
 - [ ] Inventory every `ResourceScheme` implementation and classify it as scalar-key, structured-key, polymorphic-algorithm, or game-identification data.
-- [ ] Migrate simple scalar-key formats first, one format family per change.
+- [x] Migrate the ZIP scalar title-to-password map as a standalone v2 dataset and use it before interactive password lookup.
 - [ ] Add a format-specific validator and a representative fixture before declaring a family migrated.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
-The current SchemeMap inventory and the next ZIP candidate are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.
+The current SchemeMap inventory and the ZIP migration boundary are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.
 
 ## Completion Gates
 
