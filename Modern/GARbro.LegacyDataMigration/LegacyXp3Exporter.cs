@@ -127,6 +127,18 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, string> MsdPasswords { get; set; }
     }
 
+    internal sealed class IntKeyRecord
+    {
+        public uint Key { get; set; }
+        public string Passphrase { get; set; }
+    }
+
+    internal sealed class IntKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, IntKeyRecord> KnownKeys { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -426,6 +438,15 @@ namespace GARbro.LegacyDataMigration
             return ReadStringDictionary (dictionary, "Legacy FJSYS password map");
         }
 
+        internal static Dictionary<string, IntKeyRecord> ExportIntKeys (LegacyFormatsDatabase database)
+        {
+            var intScheme = FindScheme (database, "INT");
+            if (intScheme == null || !intScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy INT scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (intScheme, "KnownKeys") as ClassRecord;
+            return ReadIntKeyDataDictionary (dictionary, "Legacy INT key map");
+        }
+
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
             reason = null;
@@ -665,6 +686,40 @@ namespace GARbro.LegacyDataMigration
                 if (string.IsNullOrWhiteSpace (key) || value == null || value.Length == 0)
                     throw new InvalidDataException (label + " contains an incomplete entry.");
                 if (!result.TryAdd (key, value.GetArray (false)))
+                    throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, IntKeyRecord> ReadIntKeyDataDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, IntKeyRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var exported = new IntKeyRecord {
+                    Key = ReadRequired<uint> (value, "Key"),
+                    Passphrase = ReadRequired<string> (value, "Passphrase"),
+                };
+                if (string.IsNullOrEmpty (exported.Passphrase))
+                    throw new InvalidDataException (label + " contains an empty passphrase: " + key);
+                if (!result.TryAdd (key, exported))
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
             }
             return result;

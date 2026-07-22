@@ -129,6 +129,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ("秋のうららの～あかね色商店街～",
                 fjsysKeys["Aki no Urara no ~Akaneiro Shoutengai~"]);
 
+            var intKeys = LegacyXp3Exporter.ExportIntKeys (database);
+            Assert.Equal (24, intKeys.Count);
+            Assert.Equal (4081182131u, intKeys["Amakano"].Key);
+            Assert.Equal ("NXT-M81ERGNE", intKeys["Amakano"].Passphrase);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
