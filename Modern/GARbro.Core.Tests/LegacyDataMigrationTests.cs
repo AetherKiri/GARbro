@@ -139,6 +139,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ("convini_cat", noaKeys["Konneko"]["script.noa"]);
             Assert.Equal (4, noaKeys["Koishiki Manual"].Count);
 
+            var galKeys = LegacyXp3Exporter.ExportGalKeys (database);
+            Assert.Equal (3, galKeys.Count);
+            Assert.Equal ("2011", galKeys["Grope ~Yami no Naka no Kotori-tachi~"]);
+            Assert.Equal ("SRuB", galKeys["Inclusion"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

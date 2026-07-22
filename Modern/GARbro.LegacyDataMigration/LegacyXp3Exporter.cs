@@ -145,6 +145,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, Dictionary<string, string>> KnownKeys { get; set; }
     }
 
+    internal sealed class GalKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, string> KnownKeys { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -460,6 +466,15 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy NOA scheme has no KnownKeys member.");
             var dictionary = ReadRaw (noaScheme, "KnownKeys") as ClassRecord;
             return ReadStringDictionaryMap (dictionary, "Legacy NOA key map");
+        }
+
+        internal static Dictionary<string, string> ExportGalKeys (LegacyFormatsDatabase database)
+        {
+            var galScheme = FindScheme (database, "GAL");
+            if (galScheme == null || !galScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy GAL scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (galScheme, "KnownKeys") as ClassRecord;
+            return ReadStringDictionary (dictionary, "Legacy GAL key map");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
