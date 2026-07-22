@@ -115,6 +115,15 @@ namespace GARbro.Core.Tests
             Assert.Equal ("406C8C66DEAF641974D7BB240ED9685664174AF13A5C178A61959C4D9F526D48",
                 Convert.ToHexString (SHA256.HashData (pckKeys["Boukensha no Machi o Tsukurou! 2"])));
 
+            var nsaKeys = LegacyXp3Exporter.ExportNsaKeys (database);
+            var ns2Keys = LegacyXp3Exporter.ExportNsaKeys (database, "NS2");
+            Assert.Equal (10, nsaKeys.Count);
+            Assert.Equal (6, ns2Keys.Count);
+            Assert.Equal ("AD0A5B4CDC2BE77D29B15057E73A0CA883B8152181C0F47C8C07FB8219733B89",
+                Convert.ToHexString (SHA256.HashData (Encoding.UTF8.GetBytes (nsaKeys["Chou Gedou Yuusha"]))));
+            Assert.Equal ("FDA31CFCA28F42D9E49B4443CC8A7A223E8B30C89743DD75595285DE60B6A2D0",
+                Convert.ToHexString (SHA256.HashData (Encoding.UTF8.GetBytes (ns2Keys["Daydream Believer"]))));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
