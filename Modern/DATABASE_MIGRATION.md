@@ -51,7 +51,7 @@ The current SchemeMap inventory and the ZIP migration boundary are described in 
 
 ## Completion Gates
 
-- [ ] CI validates every v2 JSON file, manifest reference, digest, duplicate ID, and semantic constraint.
+- [x] CI validates every v2 JSON file, manifest reference, digest, duplicate ID, and semantic constraint.
 - [ ] CI verifies deterministic bundle generation.
 - [ ] Modern applications load only v2 data and verify updates before use.
 - [ ] The legacy binary database has no remaining production reader in the modern solution.

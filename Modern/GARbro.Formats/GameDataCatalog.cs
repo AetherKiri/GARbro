@@ -43,6 +43,25 @@ namespace GameRes.Formats
             return value;
         }
 
+        /// <summary>
+        /// Validate every manifest-referenced embedded dataset without coupling the
+        /// catalog to format-specific DTOs. CI uses this as the bundle integrity gate.
+        /// </summary>
+        internal static void ValidateAllDatasets ()
+        {
+            foreach (var dataset in s_manifest.Value.Datasets)
+            {
+                ValidateDataset (dataset);
+                var bytes = ReadResource (dataset.Path);
+                var actualHash = Convert.ToHexString (SHA256.HashData (bytes));
+                if (!string.Equals (dataset.Sha256, actualHash, StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException ("Game-data checksum mismatch: " + dataset.Id);
+                using (JsonDocument.Parse (bytes))
+                {
+                }
+            }
+        }
+
         static GameDataManifest LoadManifest ()
         {
             var manifest = JsonSerializer.Deserialize<GameDataManifest> (ReadResource (ManifestPath), s_jsonOptions);
