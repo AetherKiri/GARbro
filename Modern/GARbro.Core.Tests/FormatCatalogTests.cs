@@ -21,6 +21,7 @@ using GameRes.Formats.FamilyAdvSystem;
 using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
 using GameRes.Formats.NScripter;
+using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
@@ -557,6 +558,49 @@ namespace GARbro.Core.Tests
                 Assert.True (entry.Size > 0);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated NSA fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Fjsys_format_uses_migrated_password_for_msd_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "FJSYS");
+            Assert.IsType<FjsysOpener> (format);
+            var scheme = Assert.IsType<FjsysScheme> (format.Scheme);
+            var password = scheme.MsdPasswords["Aki no Urara no ~Akaneiro Shoutengai~"];
+            Assert.Equal (22, scheme.MsdPasswords.Count);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.fjsys"] = "Aki no Urara no ~Akaneiro Shoutengai~" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.fjsys");
+                CreateFjsysFixture (archivePath, password);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("FJSYS", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.msd", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated FJSYS fixture", input.ReadToEnd());
             }
             finally
             {
@@ -1304,6 +1348,40 @@ namespace GARbro.Core.Tests
             }
             EncryptNsaBytes (plain, Encoding.ASCII.GetBytes (password));
             File.WriteAllBytes (path, plain);
+        }
+
+        static void CreateFjsysFixture (string path, string password)
+        {
+            const int indexOffset = 0x54;
+            var name = Encoding.ASCII.GetBytes ("sample.msd\0");
+            var payload = Encoding.UTF8.GetBytes ("migrated FJSYS fixture");
+            var dataOffset = indexOffset + 0x10 + name.Length;
+            var encrypted = EncryptMsdBytes (payload, password);
+            var data = new byte[dataOffset + encrypted.Length];
+            Encoding.ASCII.GetBytes ("FJSYS").CopyTo (data, 0);
+            BitConverter.GetBytes ((uint)name.Length).CopyTo (data, 0xC);
+            BitConverter.GetBytes (1).CopyTo (data, 0x10);
+            BitConverter.GetBytes (0).CopyTo (data, indexOffset);
+            BitConverter.GetBytes ((uint)encrypted.Length).CopyTo (data, indexOffset + 4);
+            BitConverter.GetBytes ((long)dataOffset).CopyTo (data, indexOffset + 8);
+            name.CopyTo (data, indexOffset + 0x10);
+            encrypted.CopyTo (data, dataOffset);
+            File.WriteAllBytes (path, data);
+        }
+
+        static byte[] EncryptMsdBytes (byte[] plaintext, string password)
+        {
+            var result = (byte[])plaintext.Clone();
+            for (var offset = 0; offset < result.Length; offset += 0x20)
+            {
+                var chunkKey = Encoding.GetEncoding (932).GetBytes (password + (offset / 0x20).ToString());
+                var hash = MD5.HashData (chunkKey);
+                var mask = Encoding.ASCII.GetBytes (Convert.ToHexString (hash).ToLowerInvariant());
+                var count = Math.Min (mask.Length, result.Length - offset);
+                for (var i = 0; i < count; ++i)
+                    result[offset + i] ^= mask[i];
+            }
+            return result;
         }
 
         static void EncryptNsaBytes (byte[] data, byte[] key)

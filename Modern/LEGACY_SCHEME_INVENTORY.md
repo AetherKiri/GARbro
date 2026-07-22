@@ -23,6 +23,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `PCK/TAMAMO` | `GameRes.Formats.Tamamo.PckScheme` | `KnownKeys` |
 | `NS2` | `GameRes.Formats.NScripter.NsaScheme` | `KnownKeys` |
 | `NSA` | `GameRes.Formats.NScripter.NsaScheme` | `KnownKeys` |
+| `FJSYS` | `GameRes.Formats.NSystem.FjsysScheme` | `MsdPasswords` |
 
 `KnownKeys` is serialized as a string-to-string dictionary. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -49,3 +50,5 @@ The `PCK/TAMAMO` record is safely exportable with `export-pck-keys`. Its four ti
 The `NS2` record is safely exportable with `export-ns2-keys`. Its six title-to-password records are validated by `Ns2KeyDatabase`; `FormatCatalogTests.Ns2_format_loads_migrated_keys_and_opens_fixture` verifies unencrypted index and extraction.
 
 The `NSA` record is safely exportable with `export-nsa-keys`. Its ten title-to-password records are validated by `NsaKeyDatabase`; `FormatCatalogTests.Nsa_format_uses_migrated_key_for_encrypted_fixture` verifies encrypted index and uncompressed entry extraction. The modern port deliberately rejects SPB, LZSS, and NBZ records until those decompression paths are migrated.
+
+The `FJSYS` record is safely exportable with `export-fjsys-keys`. Its 22 title-to-password records are validated by `FjsysKeyDatabase`; `FormatCatalogTests.Fjsys_format_uses_migrated_password_for_msd_fixture` verifies title lookup and `.msd` extraction using the CP932 password bytes required by the legacy transform.
