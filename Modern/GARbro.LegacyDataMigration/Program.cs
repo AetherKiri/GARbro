@@ -87,6 +87,11 @@ namespace GARbro.LegacyDataMigration
                     ExportNsaKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-fjsys-keys")
+                {
+                    ExportFjsysKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-ns2-keys")
                 {
                     ExportNs2Keys (args[1], args[2]);
@@ -108,6 +113,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-npk-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-pck-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-nsa-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-fjsys-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ns2-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -256,6 +262,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportNsaKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new NsaKeysDocument { KnownKeys = keys });
             Console.WriteLine ("nsaKeyCount={0}", keys.Count);
+        }
+
+        static void ExportFjsysKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportFjsysKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new FjsysKeysDocument { MsdPasswords = keys });
+            Console.WriteLine ("fjsysKeyCount={0}", keys.Count);
         }
 
         static void ExportNs2Keys (string inputPath, string outputPath)

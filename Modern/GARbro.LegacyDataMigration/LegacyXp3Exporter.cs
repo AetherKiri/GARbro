@@ -121,6 +121,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, string> KnownKeys { get; set; }
     }
 
+    internal sealed class FjsysKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, string> MsdPasswords { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -409,6 +415,15 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy " + tag + " scheme has no KnownKeys member.");
             var dictionary = ReadRaw (nsaScheme, "KnownKeys") as ClassRecord;
             return ReadStringDictionary (dictionary, "Legacy " + tag + " key map");
+        }
+
+        internal static Dictionary<string, string> ExportFjsysKeys (LegacyFormatsDatabase database)
+        {
+            var fjsysScheme = FindScheme (database, "FJSYS");
+            if (fjsysScheme == null || !fjsysScheme.HasMember ("MsdPasswords"))
+                throw new InvalidDataException ("Legacy FJSYS scheme has no MsdPasswords member.");
+            var dictionary = ReadRaw (fjsysScheme, "MsdPasswords") as ClassRecord;
+            return ReadStringDictionary (dictionary, "Legacy FJSYS password map");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
