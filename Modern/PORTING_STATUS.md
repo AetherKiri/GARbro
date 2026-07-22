@@ -8,12 +8,13 @@
 - TopCat TCD3 discovery, listing, and extraction are available through the modern port, with its three migrated key records loaded from v2 data.
 - Morning PAK discovery, listing, and extraction are available through the modern port with its migrated 512-byte default key.
 - Moonhir FPK discovery, listing, and extraction are available through the modern port with its migrated 28-key candidate list.
+- GameSystem CMP discovery, listing, and extraction are available through the modern port with its two migrated title keys.
 - KiriKiri XP3 creation, listing, and extraction are available for standard and explicitly selected encrypted schemes, including compressed index and content streams.
 - Modern builds use platform APIs for memory mapping and register legacy code pages.
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, and Moonhir FPK records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, and CMP records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
 - Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. Migrated executable bindings are available for automatic XP3 detection; real archive fixture coverage is still pending.
 - ZIP now consumes its seven migrated title-to-password entries before falling back to the interactive password prompt; an encrypted ZipCrypto fixture covers that path.

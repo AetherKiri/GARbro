@@ -151,7 +151,11 @@ namespace GameRes.Formats.GameSystem
             get { return GameScheme.KnownKeys; }
         }
 
+#if NET10_0_OR_GREATER
+        static CmpScheme GameScheme = new CmpScheme { KnownKeys = CmpKeyDatabase.CreateSchemeKeys() };
+#else
         static CmpScheme GameScheme = new CmpScheme { KnownKeys = new Dictionary<string, byte[]> () };
+#endif
 
         public override ResourceScheme Scheme
         {

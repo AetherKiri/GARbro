@@ -8,6 +8,7 @@ using System.Text;
 using GameRes;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
+using GameRes.Formats.GameSystem;
 using GameRes.Formats.Morning;
 using GameRes.Formats.MoonhirGames;
 using GameRes.Formats.PkWare;
@@ -193,6 +194,41 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated FPK fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void GameSystem_cmp_format_loads_migrated_keys_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "CMP");
+            Assert.IsType<CmpOpener> (format);
+            Assert.Equal (2, CmpOpener.KnownKeys.Count);
+            Assert.Equal (16, CmpOpener.KnownKeys["Summer Radish Vacation!! 2"].Length);
+            Assert.Equal (16, CmpOpener.KnownKeys["Imouto de Ikou!"].Length);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.cmp");
+                CreateCmpFixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("CMP", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated CMP fixture", input.ReadToEnd());
             }
             finally
             {
@@ -692,6 +728,39 @@ namespace GARbro.Core.Tests
                 output.Write (name);
                 output.Write (new byte[dataOffset - (indexOffset + 0x18)]);
                 output.Write (payload);
+            }
+        }
+
+        static void CreateCmpFixture (string path)
+        {
+            const int dataOffset = 0x10;
+            var payload = Encoding.UTF8.GetBytes ("migrated CMP fixture");
+            const string name = "sample.txt";
+            byte[] index;
+            using (var indexStream = new MemoryStream())
+            using (var indexOutput = new BinaryWriter (indexStream, Encoding.UTF8, true))
+            {
+                indexOutput.Write ((uint)dataOffset);
+                indexOutput.Write ((byte)name.Length);
+                indexOutput.Write ((byte)0);
+                indexOutput.Write (0u);
+                indexOutput.Write (Encoding.Unicode.GetBytes (name));
+                indexOutput.Write ((uint)(dataOffset + payload.Length));
+                indexOutput.Write (0u);
+                indexOutput.Write ((byte)0);
+                index = indexStream.ToArray();
+            }
+
+            var indexOffset = dataOffset + payload.Length;
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (new byte[dataOffset]);
+                output.Write (payload);
+                output.Write (index.Length);
+                output.Write ((byte)(index.Length - 1));
+                output.Write (index);
+                output.Write (Encoding.ASCII.GetBytes ("PACK"));
+                output.Write ((uint)indexOffset);
             }
         }
 
