@@ -73,6 +73,12 @@ namespace GARbro.LegacyDataMigration
         public byte[] DefaultKey { get; set; }
     }
 
+    internal sealed class FpkKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public uint[] KnownKeys { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -290,6 +296,14 @@ namespace GARbro.LegacyDataMigration
             if (morningScheme == null || !morningScheme.HasMember ("DefaultKey"))
                 throw new InvalidDataException ("Legacy Morning scheme has no DefaultKey member.");
             return ReadRequiredArray<byte> (morningScheme, "DefaultKey");
+        }
+
+        internal static uint[] ExportFpkKeys (LegacyFormatsDatabase database)
+        {
+            var fpkScheme = FindScheme (database, "FPK/MOONHIR");
+            if (fpkScheme == null || !fpkScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy FPK scheme has no KnownKeys member.");
+            return ReadRequiredArray<uint> (fpkScheme, "KnownKeys");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)

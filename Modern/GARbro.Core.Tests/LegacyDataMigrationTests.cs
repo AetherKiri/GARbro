@@ -72,6 +72,12 @@ namespace GARbro.Core.Tests
             Assert.Equal ("9CCCDA839FCC8EF6F231A407E07286F3FDE46A97E46EF0F995094AC20379247A",
                 Convert.ToHexString (SHA256.HashData (morningKey)));
 
+            var fpkKeys = LegacyXp3Exporter.ExportFpkKeys (database);
+            Assert.Equal (28, fpkKeys.Length);
+            Assert.Equal ((uint)0, fpkKeys[0]);
+            Assert.Equal (86494307u, fpkKeys[1]);
+            Assert.Equal (4064587902u, fpkKeys[^1]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
