@@ -25,6 +25,7 @@ using GameRes.Formats.NitroPlus;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
+using GameRes.Formats.LiveMaker;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -41,6 +42,27 @@ namespace GARbro.Core.Tests
             Assert.Contains ("JPEG", tags);
             Assert.Contains ("BMP", tags);
             Assert.Contains ("TGA", tags);
+        }
+
+        [Fact]
+        public void Gal_format_loads_migrated_keys_and_reads_uncompressed_fixture ()
+        {
+            var format = FormatCatalog.Instance.ImageFormats.OfType<GalFormat> ().Single ();
+            var scheme = Assert.IsType<GalScheme> (format.Scheme);
+            Assert.Equal (3, scheme.KnownKeys.Count);
+            Assert.Equal ("2011", scheme.KnownKeys["Grope ~Yami no Naka no Kotori-tachi~"]);
+
+            var fixture = CreateGalFixture ();
+            using (var input = new BinaryStream (new MemoryStream (fixture), "sample.gal"))
+            {
+                var decoded = ImageFormat.Read (input);
+                Assert.NotNull (decoded);
+                Assert.Equal ((uint)2, decoded.Width);
+                Assert.Equal ((uint)1, decoded.Height);
+                var pixels = new byte[8];
+                decoded.Bitmap.CopyPixels (pixels, 8, 0);
+                Assert.Equal (new byte[] { 0, 0, 255, 0, 255, 0, 0, 0 }, pixels);
+            }
         }
 
         [Fact]
@@ -1194,6 +1216,42 @@ namespace GARbro.Core.Tests
                 output.Write ((uint)dataOffset);
                 output.Write ((uint)(dataOffset + payload.Length));
                 output.Write (payload);
+            }
+        }
+
+        static byte[] CreateGalFixture ()
+        {
+            using (var output = new MemoryStream ())
+            using (var writer = new BinaryWriter (output, Encoding.UTF8, true))
+            {
+                writer.Write (new byte[] { (byte)'G', (byte)'a', (byte)'l', (byte)'e', (byte)'1', (byte)'0', (byte)'3' });
+                writer.Write (0x28);
+                var header = new byte[0x28];
+                BitConverter.GetBytes (103).CopyTo (header, 0);
+                BitConverter.GetBytes (2u).CopyTo (header, 4);
+                BitConverter.GetBytes (1u).CopyTo (header, 8);
+                BitConverter.GetBytes (24).CopyTo (header, 0xC);
+                BitConverter.GetBytes (1).CopyTo (header, 0x10);
+                writer.Write (header);
+                writer.Write (0u);
+                writer.Write (0u);
+                writer.Write (new byte[9]);
+                writer.Write (1);
+                writer.Write (2);
+                writer.Write (1);
+                writer.Write (24);
+                writer.Write (0);
+                writer.Write (0);
+                writer.Write ((byte)1);
+                writer.Write (-1);
+                writer.Write (0xFF);
+                writer.Write ((byte)0);
+                writer.Write (0u);
+                writer.Write (8);
+                writer.Write (new byte[] { 0, 0, 255, 0, 255, 0, 0, 0 });
+                writer.Write (0);
+                writer.Flush ();
+                return output.ToArray ();
             }
         }
 

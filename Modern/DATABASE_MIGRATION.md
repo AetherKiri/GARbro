@@ -74,6 +74,9 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add INT key-map validation and deterministic plain/encrypted index and entry fixtures.
 - [x] Migrate the NOA nested title-to-archive password map as a standalone v2 dataset and load it in the modern NOA port.
 - [x] Add NOA nested-map validation and deterministic Raw/BSHF entry fixtures.
+- [x] Migrate the GAL title-to-key map as a standalone v2 dataset and load it in the modern GAL reader.
+- [x] Add GAL key-map validation and a deterministic uncompressed, unshuffled pixel fixture.
+- [ ] Port GAL compression, JPEG, shuffled/encrypted, layered, and alpha-layer variants.
 - [ ] Port NOA ERISA and SimpleCrypt variants before claiming complete encrypted-format coverage.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
