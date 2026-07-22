@@ -97,6 +97,11 @@ namespace GARbro.LegacyDataMigration
                     ExportIntKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-noa-keys")
+                {
+                    ExportNoaKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-ns2-keys")
                 {
                     ExportNs2Keys (args[1], args[2]);
@@ -120,6 +125,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-nsa-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-fjsys-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-int-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-noa-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ns2-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -284,6 +290,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportIntKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new IntKeysDocument { KnownKeys = keys });
             Console.WriteLine ("intKeyCount={0}", keys.Count);
+        }
+
+        static void ExportNoaKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportNoaKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new NoaKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("noaKeyCount={0}", keys.Count);
         }
 
         static void ExportNs2Keys (string inputPath, string outputPath)

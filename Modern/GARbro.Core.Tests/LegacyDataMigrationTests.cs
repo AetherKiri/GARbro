@@ -134,6 +134,11 @@ namespace GARbro.Core.Tests
             Assert.Equal (4081182131u, intKeys["Amakano"].Key);
             Assert.Equal ("NXT-M81ERGNE", intKeys["Amakano"].Passphrase);
 
+            var noaKeys = LegacyXp3Exporter.ExportNoaKeys (database);
+            Assert.Equal (26, noaKeys.Count);
+            Assert.Equal ("convini_cat", noaKeys["Konneko"]["script.noa"]);
+            Assert.Equal (4, noaKeys["Koishiki Manual"].Count);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
