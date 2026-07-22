@@ -29,6 +29,7 @@ using GameRes.Formats.LiveMaker;
 using GameRes.Formats.Crowd;
 using GameRes.Formats.Actgs;
 using GameRes.Formats.BlackRainbow;
+using GameRes.Formats.Will;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -208,6 +209,41 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("ads fixture", input.ReadToEnd ());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Arcg_format_loads_migrated_key_and_opens_inline_index_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARCG");
+            var scheme = Assert.IsType<BmiScheme> (format.Scheme);
+            Assert.Single (scheme.KnownKeys);
+            Assert.Equal ("\u300E\u30DE\u30DE\u3055\u3093\u30D0\u30EC\u30FC((\u4E73\u3086\u308C\u307E\u3093\u305B\u30FC))\u300F",
+                scheme.KnownKeys[1522388286u]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.arc");
+                File.WriteAllBytes (archivePath, CreateArcgFixture ());
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("ARCG", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("arcg fixture", input.ReadToEnd ());
             }
             finally
             {
@@ -1425,6 +1461,29 @@ namespace GARbro.Core.Tests
             Encoding.ASCII.GetBytes ("ads fixture").CopyTo (plaintext, 0x44);
             EncryptAdsBytes (plaintext, key);
             return plaintext;
+        }
+
+        static byte[] CreateArcgFixture ()
+        {
+            var index = new byte[0x20];
+            index[0] = 1;
+            BitConverter.GetBytes (0x2C).CopyTo (index, 1);
+            BitConverter.GetBytes (1).CopyTo (index, 5);
+            index[12] = 11;
+            Encoding.ASCII.GetBytes ("sample.txt").CopyTo (index, 13);
+            BitConverter.GetBytes (0x40u).CopyTo (index, 23);
+            BitConverter.GetBytes (12u).CopyTo (index, 27);
+
+            var result = new byte[0x40 + 12];
+            Encoding.ASCII.GetBytes ("ARCG").CopyTo (result, 0);
+            BitConverter.GetBytes (0x10000u).CopyTo (result, 4);
+            BitConverter.GetBytes (0x20).CopyTo (result, 8);
+            BitConverter.GetBytes (0x20).CopyTo (result, 0xC);
+            BitConverter.GetBytes ((ushort)1).CopyTo (result, 0x10);
+            BitConverter.GetBytes (1).CopyTo (result, 0x12);
+            index.CopyTo (result, 0x20);
+            Encoding.ASCII.GetBytes ("arcg fixture").CopyTo (result, 0x40);
+            return result;
         }
 
         static void EncryptAdsBytes (byte[] data, byte[] key)

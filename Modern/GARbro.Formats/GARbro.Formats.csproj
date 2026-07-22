@@ -21,6 +21,7 @@
     <Compile Include="../../ArcFormats/Actgs/ArcDAT.cs" Link="Actgs/ArcDAT.cs" />
     <Compile Include="../../ArcFormats/Actgs/ArcCG.cs" Link="Actgs/ArcCG.cs" />
     <Compile Include="../../ArcFormats/BlackRainbow/ArcADS.cs" Link="BlackRainbow/ArcADS.cs" />
+    <Compile Include="../../ArcFormats/Tanaka/ArcARCG.cs" Link="Will/ArcARCG.cs" />
     <Compile Include="../../ArcFormats/Blowfish.cs" Link="Blowfish.cs" />
     <Compile Include="../../ArcFormats/NScripter/ArcNS2.cs" Link="NScripter/ArcNS2.cs" />
     <Compile Include="../../ArcFormats/NScripter/EncryptedStream.cs" Link="NScripter/EncryptedStream.cs" />

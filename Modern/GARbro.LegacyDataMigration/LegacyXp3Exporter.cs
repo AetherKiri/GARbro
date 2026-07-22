@@ -169,6 +169,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownKeys { get; set; }
     }
 
+    internal sealed class ArcgKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<uint, string> KnownKeys { get; set; }
+    }
+
 
     internal sealed class Xp3SkippedProfile
     {
@@ -552,6 +558,15 @@ namespace GARbro.LegacyDataMigration
             return ReadByteDictionary (dictionary, "Legacy ADS key map");
         }
 
+        internal static Dictionary<uint, string> ExportArcgKeys (LegacyFormatsDatabase database)
+        {
+            var arcgScheme = FindScheme (database, "ARCG");
+            if (arcgScheme == null || !arcgScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy ARCG scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (arcgScheme, "KnownKeys") as ClassRecord;
+            return ReadUIntStringDictionary (dictionary, "Legacy ARCG key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -736,6 +751,34 @@ namespace GARbro.LegacyDataMigration
                 if (string.IsNullOrWhiteSpace (key) || !(value is int))
                     throw new InvalidDataException (label + " contains an incomplete entry.");
                 if (!result.TryAdd (key, (int)value))
+                    throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<uint, string> ReadUIntStringDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<uint, string> ();
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key");
+                var value = ReadRaw (entry, "value") as string;
+                if (!(key is uint) || string.IsNullOrWhiteSpace (value))
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                if (!result.TryAdd ((uint)key, value))
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
             }
             return result;

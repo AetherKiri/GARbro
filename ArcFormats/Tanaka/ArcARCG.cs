@@ -174,7 +174,11 @@ namespace GameRes.Formats.Will
             out uint volumeSerialNumber, IntPtr maximumComponentLength, IntPtr fileSystemFlags,
             IntPtr fileSystemNameBuffer, int nFileSystemNameSize);
 
+#if NET10_0_OR_GREATER
+        BmiScheme KnownSchemes = new BmiScheme { KnownKeys = ArcgKeyDatabase.CreateSchemeKeys () };
+#else
         BmiScheme KnownSchemes = new BmiScheme();
+#endif
 
         public override ResourceScheme Scheme
         {
