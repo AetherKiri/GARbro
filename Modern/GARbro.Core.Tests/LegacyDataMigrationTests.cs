@@ -124,6 +124,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ("FDA31CFCA28F42D9E49B4443CC8A7A223E8B30C89743DD75595285DE60B6A2D0",
                 Convert.ToHexString (SHA256.HashData (Encoding.UTF8.GetBytes (ns2Keys["Daydream Believer"]))));
 
+            var fjsysKeys = LegacyXp3Exporter.ExportFjsysKeys (database);
+            Assert.Equal (22, fjsysKeys.Count);
+            Assert.Equal ("秋のうららの～あかね色商店街～",
+                fjsysKeys["Aki no Urara no ~Akaneiro Shoutengai~"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
