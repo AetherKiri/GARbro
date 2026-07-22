@@ -13,6 +13,7 @@ using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.GameSystem;
 using GameRes.Formats.CatSystem;
+using GameRes.Formats.Entis;
 using GameRes.Formats.Morning;
 using GameRes.Formats.MoonhirGames;
 using GameRes.Formats.PkWare;
@@ -678,6 +679,81 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.ASCII))
                     Assert.Equal ("migrated INT ok!", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Noa_format_loads_nested_key_map_and_opens_raw_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "NOA");
+            Assert.IsType<NoaOpener> (format);
+            var scheme = Assert.IsType<NoaScheme> (format.Scheme);
+            Assert.Equal (26, scheme.KnownKeys.Count);
+            Assert.Equal ("convini_cat", scheme.KnownKeys["Konneko"]["script.noa"]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.noa");
+                CreateNoaRawFixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("NOA", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated NOA fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Noa_format_uses_nested_password_for_bshf_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "NOA");
+            var scheme = Assert.IsType<NoaScheme> (format.Scheme);
+            var password = scheme.KnownKeys["Konneko"]["script.noa"];
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["script.noa"] = "Konneko" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "script.noa");
+                CreateNoaBshfFixture (archivePath, password);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("NOA", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.ASCII))
+                    Assert.Equal ("migrated NOA BSHF fixture", input.ReadToEnd().TrimEnd ('\0'));
             }
             finally
             {
@@ -1490,6 +1566,107 @@ namespace GARbro.Core.Tests
             BitConverter.GetBytes (encodedSize).CopyTo (data, secondEntryOffset + 0x44);
             encryptedPayload.CopyTo (data, dataOffset);
             File.WriteAllBytes (path, data);
+        }
+
+        static void CreateNoaRawFixture (string path)
+        {
+            const int rootOffset = 0x40;
+            const int entryOffset = rootOffset + 0x14;
+            const int nameOffset = entryOffset + 0x28;
+            const int dataOffset = 0x100;
+            var name = Encoding.ASCII.GetBytes ("sample.txt");
+            var payload = Encoding.UTF8.GetBytes ("migrated NOA fixture");
+            var data = new byte[dataOffset + 0x10 + payload.Length];
+            Encoding.ASCII.GetBytes ("Entis\x1a").CopyTo (data, 0);
+            BitConverter.GetBytes (0x02000400u).CopyTo (data, 8);
+            Encoding.ASCII.GetBytes ("DirEntry").CopyTo (data, rootOffset);
+            BitConverter.GetBytes (0x40L).CopyTo (data, rootOffset + 8);
+            BitConverter.GetBytes (1).CopyTo (data, rootOffset + 0x10);
+            BitConverter.GetBytes ((uint)payload.Length).CopyTo (data, entryOffset);
+            BitConverter.GetBytes (0u).CopyTo (data, entryOffset + 8);
+            BitConverter.GetBytes (0u).CopyTo (data, entryOffset + 0xC);
+            BitConverter.GetBytes ((long)(dataOffset - rootOffset)).CopyTo (data, entryOffset + 0x10);
+            BitConverter.GetBytes (0u).CopyTo (data, entryOffset + 0x20);
+            BitConverter.GetBytes ((uint)name.Length).CopyTo (data, entryOffset + 0x24);
+            name.CopyTo (data, nameOffset);
+            BitConverter.GetBytes ((ulong)payload.Length).CopyTo (data, dataOffset + 8);
+            payload.CopyTo (data, dataOffset + 0x10);
+            File.WriteAllBytes (path, data);
+        }
+
+        static void CreateNoaBshfFixture (string path, string password)
+        {
+            const int rootOffset = 0x40;
+            const int entryOffset = rootOffset + 0x14;
+            const int nameOffset = entryOffset + 0x28;
+            const int dataOffset = 0x100;
+            var name = Encoding.ASCII.GetBytes ("sample.txt");
+            var plain = new byte[32];
+            Encoding.ASCII.GetBytes ("migrated NOA BSHF fixture").CopyTo (plain, 0);
+            var encoded = EncodeBshfBlock (plain, password);
+            var data = new byte[dataOffset + 0x10 + encoded.Length];
+            Encoding.ASCII.GetBytes ("Entis\x1a").CopyTo (data, 0);
+            BitConverter.GetBytes (0x02000400u).CopyTo (data, 8);
+            Encoding.ASCII.GetBytes ("DirEntry").CopyTo (data, rootOffset);
+            BitConverter.GetBytes (0x40L).CopyTo (data, rootOffset + 8);
+            BitConverter.GetBytes (1).CopyTo (data, rootOffset + 0x10);
+            BitConverter.GetBytes ((uint)plain.Length).CopyTo (data, entryOffset);
+            BitConverter.GetBytes (0u).CopyTo (data, entryOffset + 8);
+            BitConverter.GetBytes (0x40000000u).CopyTo (data, entryOffset + 0xC);
+            BitConverter.GetBytes ((long)(dataOffset - rootOffset)).CopyTo (data, entryOffset + 0x10);
+            BitConverter.GetBytes (0u).CopyTo (data, entryOffset + 0x20);
+            BitConverter.GetBytes ((uint)name.Length).CopyTo (data, entryOffset + 0x24);
+            name.CopyTo (data, nameOffset);
+            BitConverter.GetBytes ((ulong)encoded.Length).CopyTo (data, dataOffset + 8);
+            encoded.CopyTo (data, dataOffset + 0x10);
+            File.WriteAllBytes (path, data);
+        }
+
+        static byte[] EncodeBshfBlock (byte[] plaintext, string password)
+        {
+            var passwordBytes = Encoding.ASCII.GetBytes (password ?? " ");
+            var pass = new byte[Math.Max (32, passwordBytes.Length)];
+            Array.Copy (passwordBytes, pass, passwordBytes.Length);
+            if (passwordBytes.Length < 32)
+            {
+                var count = passwordBytes.Length;
+                pass[count++] = 0x1B;
+                for (var i = count; i < pass.Length; ++i)
+                    pass[i] = (byte)(pass[i % count] + pass[i - 1]);
+            }
+            var source = new byte[32];
+            var mask = new byte[32];
+            var passIndex = 0;
+            var bit = 0;
+            for (var sourceBit = 0; sourceBit < 256; ++sourceBit)
+            {
+                bit = (bit + pass[passIndex++]) & 0xFF;
+                if (passIndex >= pass.Length)
+                    passIndex = 0;
+                var outputByte = bit >> 3;
+                var outputMask = 0x80 >> (bit & 7);
+                while (mask[outputByte] == 0xFF)
+                {
+                    bit = (bit + 8) & 0xFF;
+                    outputByte = bit >> 3;
+                    outputMask = 0x80 >> (bit & 7);
+                }
+                while ((mask[outputByte] & outputMask) != 0)
+                {
+                    ++bit;
+                    outputMask >>= 1;
+                    if (outputMask == 0)
+                    {
+                        bit = (bit + 8) & 0xFF;
+                        outputByte = bit >> 3;
+                        outputMask = 0x80;
+                    }
+                }
+                mask[outputByte] |= (byte)outputMask;
+                if ((plaintext[outputByte] & outputMask) != 0)
+                    source[sourceBit >> 3] |= (byte)(0x80 >> (sourceBit & 7));
+            }
+            return source.Concat (new byte[4]).ToArray ();
         }
 
         static byte[] EncipherBlowfish (Blowfish blowfish, byte[] plaintext)

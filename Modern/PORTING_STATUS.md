@@ -18,13 +18,15 @@
 - NScripter NSA discovery, listing, and encrypted extraction are available for uncompressed entries with its migrated ten-key map.
 - NSystem FJSYS discovery, listing, and `.msd` extraction are available through the modern port with its migrated 22-entry password map.
 - Frontwing INT discovery, listing, and Blowfish entry extraction are available through the modern port with its migrated 24-entry structured key map.
+- Entis NOA discovery, listing, Raw extraction, and BSHF password extraction are available through the modern port with its migrated 26-title nested map.
 - KiriKiri XP3 creation, listing, and extraction are available for standard and explicitly selected encrypted schemes, including compressed index and content streams.
 - Modern builds use platform APIs for memory mapping and register legacy code pages.
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, and INT records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, and NOA records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
 - INT archive creation and interactive password-entry UI are not included in the modern port.
+- NOA ERISA and SimpleCrypt variants remain unsupported; those entries require the remaining Entis decoder slices.
 - NSA compressed entries using SPB, LZSS, or NBZ are rejected until their decompression paths are ported.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
 - Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. Migrated executable bindings are available for automatic XP3 detection; real archive fixture coverage is still pending.

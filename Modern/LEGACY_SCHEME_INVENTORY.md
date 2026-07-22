@@ -25,6 +25,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `NSA` | `GameRes.Formats.NScripter.NsaScheme` | `KnownKeys` |
 | `FJSYS` | `GameRes.Formats.NSystem.FjsysScheme` | `MsdPasswords` |
 | `INT` | `GameRes.Formats.CatSystem.IntScheme` | `KnownKeys` |
+| `NOA` | `GameRes.Formats.Entis.NoaScheme` | `KnownKeys` |
 
 `KnownKeys` is serialized as a string-to-string dictionary. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -55,3 +56,5 @@ The `NSA` record is safely exportable with `export-nsa-keys`. Its ten title-to-p
 The `FJSYS` record is safely exportable with `export-fjsys-keys`. Its 22 title-to-password records are validated by `FjsysKeyDatabase`; `FormatCatalogTests.Fjsys_format_uses_migrated_password_for_msd_fixture` verifies title lookup and `.msd` extraction using the CP932 password bytes required by the legacy transform.
 
 The `INT` record is safely exportable with `export-int-keys`. Its 24 structured title-to-key records preserve both the Blowfish key and passphrase, are validated by `IntKeyDatabase`, and are covered by `FormatCatalogTests.Int_format_loads_migrated_key_map_and_opens_plain_fixture` plus `FormatCatalogTests.Int_format_uses_migrated_key_for_encrypted_fixture`.
+
+The `NOA` record is safely exportable with `export-noa-keys`. Its 26 title-to-archive password maps are validated by `NoaKeyDatabase`; `FormatCatalogTests.Noa_format_loads_nested_key_map_and_opens_raw_fixture` covers the index layout, while `FormatCatalogTests.Noa_format_uses_nested_password_for_bshf_fixture` covers nested lookup and BSHF extraction. ERISA and SimpleCrypt entry variants remain an explicit follow-up.

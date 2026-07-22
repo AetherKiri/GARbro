@@ -5,10 +5,10 @@
 ## Supported today
 
 - Windows, macOS, and Linux builds through .NET 10.
-- Avalonia desktop browser for folders, ZIP, XP3, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, uncompressed NSA, FJSYS, and INT archives.
+- Avalonia desktop browser for folders, ZIP, XP3, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, uncompressed NSA, FJSYS, INT, and NOA archives.
 - Desktop previews for supported images, text files, and WAV, OGG, and MP3 audio.
 - Desktop extraction for one selected archive entry or the complete archive.
-- CLI listing and safe extraction for ZIP, XP3, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, uncompressed NSA, FJSYS, and INT archives.
+- CLI listing and safe extraction for ZIP, XP3, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, uncompressed NSA, FJSYS, INT, and NOA archives.
 - Standard unencrypted XP3 archives, plus explicitly selected migrated generic encryption schemes.
 - PNG, JPEG, and BMP regression coverage through the platform-neutral image layer.
 
@@ -59,4 +59,4 @@ The original JSON array remains accepted for compatibility. New profiles use a v
 
 ## Current limits
 
-The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Its v2 data under `Modern/GameData/v2` now includes checksum-verified XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, and INT datasets alongside migrated executable bindings and parameterized Hx, Senren, and related profiles. See [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) for the execution checklist and [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.
+The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Its v2 data under `Modern/GameData/v2` now includes checksum-verified XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, and NOA datasets alongside migrated executable bindings and parameterized Hx, Senren, and related profiles. See [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) for the execution checklist and [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.
