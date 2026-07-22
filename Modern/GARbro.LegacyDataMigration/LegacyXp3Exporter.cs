@@ -67,6 +67,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, int> KnownKeys { get; set; }
     }
 
+    internal sealed class MorningKeyDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public byte[] DefaultKey { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -276,6 +282,14 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy TCD scheme has no KnownKeys member.");
             var dictionary = ReadRaw (tcdScheme, "KnownKeys") as ClassRecord;
             return ReadIntDictionary (dictionary, "Legacy TCD key map");
+        }
+
+        internal static byte[] ExportMorningKey (LegacyFormatsDatabase database)
+        {
+            var morningScheme = FindScheme (database, "PAK/MORNING");
+            if (morningScheme == null || !morningScheme.HasMember ("DefaultKey"))
+                throw new InvalidDataException ("Legacy Morning scheme has no DefaultKey member.");
+            return ReadRequiredArray<byte> (morningScheme, "DefaultKey");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)

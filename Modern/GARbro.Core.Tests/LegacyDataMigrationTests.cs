@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using GARbro.LegacyDataMigration;
 using GameRes.Formats.KiriKiri;
@@ -65,6 +66,11 @@ namespace GARbro.Core.Tests
             Assert.Equal (3, tcdKeys.Count);
             Assert.Equal (327047585, tcdKeys["Atori no Sora to Shinchuu no Tsuki"]);
             Assert.Equal (-982448593, tcdKeys["Favorite Sweet!"]);
+
+            var morningKey = LegacyXp3Exporter.ExportMorningKey (database);
+            Assert.Equal (512, morningKey.Length);
+            Assert.Equal ("9CCCDA839FCC8EF6F231A407E07286F3FDE46A97E46EF0F995094AC20379247A",
+                Convert.ToHexString (SHA256.HashData (morningKey)));
 
             foreach (var profile in document.Profiles)
             {
