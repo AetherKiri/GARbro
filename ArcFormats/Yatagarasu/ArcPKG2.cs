@@ -116,7 +116,11 @@ namespace GameRes.Formats.Yatagarasu
             return bytes;
         }
 
+#if NET10_0_OR_GREATER
+        PkgScheme m_scheme = new PkgScheme { KnownKeys = PkgKeyDatabase.CreateSchemeKeys() };
+#else
         PkgScheme m_scheme = new PkgScheme { KnownKeys = new Dictionary<string, uint[]>() };
+#endif
 
         public IDictionary<string, uint[]> KnownKeys
         {

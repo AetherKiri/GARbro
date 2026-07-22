@@ -12,6 +12,7 @@ using GameRes.Formats.GameSystem;
 using GameRes.Formats.Morning;
 using GameRes.Formats.MoonhirGames;
 using GameRes.Formats.PkWare;
+using GameRes.Formats.Yatagarasu;
 using GameRes.Formats.TopCat;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
@@ -229,6 +230,41 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated CMP fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Yatagarasu_pkg_format_uses_migrated_key_to_open_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "PKG/2");
+            Assert.IsType<Pkg2Opener> (format);
+            var scheme = Assert.IsType<PkgScheme> (format.Scheme);
+            var key = scheme.KnownKeys["Seisai no Resonance"];
+            Assert.Equal (8, key.Length);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.pkg");
+                CreatePkgFixture (archivePath, key);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("PKG/2", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("PKG fixture data", input.ReadToEnd());
             }
             finally
             {
@@ -762,6 +798,53 @@ namespace GARbro.Core.Tests
                 output.Write (Encoding.ASCII.GetBytes ("PACK"));
                 output.Write ((uint)indexOffset);
             }
+        }
+
+        static void CreatePkgFixture (string path, uint[] key)
+        {
+            const int indexOffset = 8;
+            const int indexSize = 0x80;
+            const int dataOffset = indexOffset + indexSize;
+            var payload = Encoding.UTF8.GetBytes ("PKG fixture data");
+            var index = new byte[indexSize];
+            using (var indexOutput = new BinaryWriter (new MemoryStream (index), Encoding.UTF8, true))
+            {
+                var name = new byte[0x74];
+                Array.Copy (Encoding.ASCII.GetBytes ("sample.txt\0"), name, 11);
+                indexOutput.Write (name);
+                indexOutput.Write ((uint)payload.Length);
+                indexOutput.Write ((uint)dataOffset);
+                indexOutput.Write ((uint)payload.Length);
+            }
+            XorPkgBytes (index, key);
+
+            var encryptedPayload = (byte[])payload.Clone();
+            XorPkgWords (encryptedPayload, key, (payload.Length / 4) & 7);
+            var fileLength = dataOffset + encryptedPayload.Length;
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (key[0] ^ (uint)fileLength);
+                output.Write (1u ^ key[0]);
+                output.Write (index);
+                output.Write (encryptedPayload);
+            }
+        }
+
+        static void XorPkgWords (byte[] data, uint[] key, int mask)
+        {
+            for (var i = 0; i < data.Length / 4; ++i)
+            {
+                var value = BitConverter.ToUInt32 (data, i * 4) ^ key[i & mask];
+                Array.Copy (BitConverter.GetBytes (value), 0, data, i * 4, 4);
+            }
+        }
+
+        static void XorPkgBytes (byte[] data, uint[] key)
+        {
+            var keyBytes = new byte[key.Length * sizeof(uint)];
+            Buffer.BlockCopy (key, 0, keyBytes, 0, keyBytes.Length);
+            for (var i = 0; i < data.Length; ++i)
+                data[i] ^= keyBytes[i % keyBytes.Length];
         }
 
         [Fact]
