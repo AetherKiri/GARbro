@@ -77,6 +77,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Migrate the GAL title-to-key map as a standalone v2 dataset and load it in the modern GAL reader.
 - [x] Add GAL key-map validation and a deterministic uncompressed, unshuffled pixel fixture.
 - [ ] Port GAL compression, JPEG, shuffled/encrypted, layered, and alpha-layer variants.
+- [x] Migrate the CRZ identifier-to-byte-key map as a standalone v2 dataset and load it in the modern CRZ reader.
+- [x] Add CRZ key-map validation and a deterministic compressed image fixture.
 - [ ] Port NOA ERISA and SimpleCrypt variants before claiming complete encrypted-format coverage.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 

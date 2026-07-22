@@ -34,6 +34,8 @@
     <Compile Include="../../ArcFormats/AudioOGG.cs" Link="AudioOGG.cs" />
     <Compile Include="../../ArcFormats/AudioMP3.cs" Link="AudioMP3.cs" />
     <Compile Include="../../ArcFormats/CommonStreams.cs" Link="CommonStreams.cs" />
+    <Compile Include="../../ArcFormats/PackedStream.cs" Link="PackedStream.cs" />
+    <Compile Include="../../ArcFormats/LzssStream.cs" Link="LzssStream.cs" />
     <Compile Include="../../ArcFormats/Lz4Stream.cs" Link="Lz4Stream.cs" />
     <Compile Include="../../ArcFormats/ExeFile.cs" Link="ExeFile.cs" />
     <Compile Include="../../ArcFormats/SimpleEncryption.cs" Link="SimpleEncryption.cs" />

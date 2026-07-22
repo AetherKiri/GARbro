@@ -26,10 +26,13 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `FJSYS` | `GameRes.Formats.NSystem.FjsysScheme` | `MsdPasswords` |
 | `INT` | `GameRes.Formats.CatSystem.IntScheme` | `KnownKeys` |
 | `NOA` | `GameRes.Formats.Entis.NoaScheme` | `KnownKeys` |
+| `CRZ` | `GameRes.Formats.Crowd.CrzScheme` | `KnownKeys` |
 
-`KnownKeys` is serialized as a string-to-string dictionary. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
+Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
 The `GAL.KnownKeys` record is now backed by the v2 GAL key dataset. Other simple-looking records still remain inventory-only until their format ports are in scope.
+
+The `CRZ` record is safely exportable with `export-crz-keys`. Its two 36-byte identifier-to-key records are validated by `CrzKeyDatabase`; `FormatCatalogTests.Crz_format_loads_migrated_keys_and_reads_fixture` verifies LZSS decompression and encrypted header decoding.
 
 The `TCD` record is safely exportable with `export-tcd-keys`, validated by fixed-count/value regression assertions, and now loaded by the modern TopCat port. `FormatCatalogTests.Tcd_format_opens_a_minimal_v3_fixture` verifies index parsing and extraction from a deterministic TCD3 archive.
 

@@ -144,6 +144,12 @@ namespace GARbro.Core.Tests
             Assert.Equal ("2011", galKeys["Grope ~Yami no Naka no Kotori-tachi~"]);
             Assert.Equal ("SRuB", galKeys["Inclusion"]);
 
+            var crzKeys = LegacyXp3Exporter.ExportCrzKeys (database);
+            Assert.Equal (2, crzKeys.Count);
+            Assert.All (crzKeys.Values, value => Assert.Equal (0x24, value.Length));
+            Assert.Equal ("55C90ACAEE17F959B622659EEFE9769889056A20BFA5C2A49F36562300755627",
+                Convert.ToHexString (SHA256.HashData (crzKeys["(C)CROWD MissYou"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

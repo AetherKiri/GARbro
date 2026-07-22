@@ -151,6 +151,13 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, string> KnownKeys { get; set; }
     }
 
+    internal sealed class CrzKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownKeys { get; set; }
+    }
+
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -476,6 +483,16 @@ namespace GARbro.LegacyDataMigration
             var dictionary = ReadRaw (galScheme, "KnownKeys") as ClassRecord;
             return ReadStringDictionary (dictionary, "Legacy GAL key map");
         }
+
+        internal static Dictionary<string, byte[]> ExportCrzKeys (LegacyFormatsDatabase database)
+        {
+            var crzScheme = FindScheme (database, "CRZ");
+            if (crzScheme == null || !crzScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy CRZ scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (crzScheme, "KnownKeys") as ClassRecord;
+            return ReadByteDictionary (dictionary, "Legacy CRZ key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {

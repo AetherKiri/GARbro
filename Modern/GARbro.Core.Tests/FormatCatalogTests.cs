@@ -26,6 +26,7 @@ using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
 using GameRes.Formats.LiveMaker;
+using GameRes.Formats.Crowd;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -62,6 +63,26 @@ namespace GARbro.Core.Tests
                 var pixels = new byte[8];
                 decoded.Bitmap.CopyPixels (pixels, 8, 0);
                 Assert.Equal (new byte[] { 0, 0, 255, 0, 255, 0, 0, 0 }, pixels);
+            }
+        }
+
+        [Fact]
+        public void Crz_format_loads_migrated_keys_and_reads_fixture ()
+        {
+            var format = FormatCatalog.Instance.ImageFormats.OfType<CrzFormat> ().Single ();
+            var scheme = Assert.IsType<CrzScheme> (format.Scheme);
+            Assert.Equal (2, scheme.KnownKeys.Count);
+            Assert.Equal (0x24, scheme.KnownKeys["(C)CROWD MissYou"].Length);
+
+            using (var input = new BinaryStream (new MemoryStream (CreateCrzFixture ()), "sample.crz"))
+            {
+                var decoded = ImageFormat.Read (input);
+                Assert.NotNull (decoded);
+                Assert.Equal ((uint)2, decoded.Width);
+                Assert.Equal ((uint)1, decoded.Height);
+                var pixels = new byte[4];
+                decoded.Bitmap.CopyPixels (pixels, 4, 0);
+                Assert.Equal (new byte[] { 0x1F, 0x00, 0x00, 0x7C }, pixels);
             }
         }
 
@@ -1252,6 +1273,46 @@ namespace GARbro.Core.Tests
                 writer.Write (0);
                 writer.Flush ();
                 return output.ToArray ();
+            }
+        }
+
+        static byte[] CreateCrzFixture ()
+        {
+            const string id = "(C)CROWD MissYou";
+            var key = Convert.FromBase64String ("Af0QJBAZz8/f15t535F2Pf9C2CDfxuQREByk2d/R32D/QYTJ");
+            var idBytes = Encoding.ASCII.GetBytes (id);
+            var seed = Enumerable.Range (0, 16).Select (value => (byte)value).ToArray ();
+            var plainHeader = new byte[0x24];
+            BitConverter.GetBytes (2u).CopyTo (plainHeader, 4);
+            BitConverter.GetBytes (1u).CopyTo (plainHeader, 0x10);
+            var encryptedHeader = new byte[plainHeader.Length];
+            for (var i = 0; i < encryptedHeader.Length; ++i)
+                encryptedHeader[i] = (byte)(plainHeader[i] ^ key[i] ^ seed[i & 0xF]);
+
+            var unpacked = new List<byte> (idBytes.Length + 1 + seed.Length + encryptedHeader.Length + 4);
+            unpacked.AddRange (idBytes);
+            unpacked.Add (0);
+            unpacked.AddRange (seed);
+            unpacked.AddRange (encryptedHeader);
+            unpacked.AddRange (new byte[] { 0x1F, 0x00, 0x00, 0x7C });
+
+            using (var output = new MemoryStream ())
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (new byte[0xE]);
+                for (var offset = 0; offset < unpacked.Count; offset += 8)
+                {
+                    var count = Math.Min (8, unpacked.Count - offset);
+                    writer.Write ((byte)0xFF);
+                    writer.Write (unpacked.GetRange (offset, count).ToArray ());
+                }
+                writer.Flush ();
+                var result = output.ToArray ();
+                result[0] = (byte)'S';
+                result[1] = (byte)'Z';
+                result[2] = (byte)'D';
+                result[3] = (byte)'D';
+                return result;
             }
         }
 
