@@ -127,6 +127,11 @@ namespace GARbro.LegacyDataMigration
                     ExportArcgKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-mgpk-keys")
+                {
+                    ExportMgpkKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-ns2-keys")
                 {
                     ExportNs2Keys (args[1], args[2]);
@@ -156,6 +161,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-actgs-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ads-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-arcg-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-mgpk-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ns2-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -370,6 +376,13 @@ namespace GARbro.LegacyDataMigration
             Console.WriteLine ("arcgKeyCount={0}", keys.Count);
         }
 
+        static void ExportMgpkKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportMgpkKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new MgpkKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("mgpkKeyCount={0}", keys.Count);
+        }
 
         static void ExportNs2Keys (string inputPath, string outputPath)
         {

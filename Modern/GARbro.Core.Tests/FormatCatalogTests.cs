@@ -30,6 +30,7 @@ using GameRes.Formats.Crowd;
 using GameRes.Formats.Actgs;
 using GameRes.Formats.BlackRainbow;
 using GameRes.Formats.Will;
+using GameRes.Formats.Mg;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -247,6 +248,48 @@ namespace GARbro.Core.Tests
             }
             finally
             {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Mgpk_format_loads_migrated_key_and_opens_encrypted_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "MGPK");
+            var scheme = Assert.IsType<MgScheme> (format.Scheme);
+            Assert.Equal (4, scheme.KnownKeys.Count);
+            Assert.Equal ("5WW6Gj3Gf55GFYk=", Convert.ToBase64String (scheme.KnownKeys["Cartagra"]));
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.pac"] = "Cartagra" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.pac");
+                File.WriteAllBytes (archivePath, CreateMgpkFixture (scheme.KnownKeys["Cartagra"]));
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("MGPK", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("mgpk fixture", input.ReadToEnd ());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 Directory.SetCurrentDirectory (previousDirectory);
@@ -1484,6 +1527,37 @@ namespace GARbro.Core.Tests
             index.CopyTo (result, 0x20);
             Encoding.ASCII.GetBytes ("arcg fixture").CopyTo (result, 0x40);
             return result;
+        }
+
+        static byte[] CreateMgpkFixture (byte[] key)
+        {
+            const string name = "sample.txt";
+            var plain = Encoding.UTF8.GetBytes ("mgpk fixture");
+            var packed = new byte[plain.Length + 1];
+            packed[0] = (byte)(plain.Length - 1);
+            plain.CopyTo (packed, 1);
+            EncryptMgpkBytes (packed, key);
+
+            var result = new byte[0x3C + packed.Length];
+            BitConverter.GetBytes (0x4B50474Du).CopyTo (result, 0);
+            BitConverter.GetBytes (1).CopyTo (result, 4);
+            BitConverter.GetBytes (1).CopyTo (result, 8);
+            result[0x0C] = (byte)name.Length;
+            Encoding.UTF8.GetBytes (name).CopyTo (result, 0x0D);
+            BitConverter.GetBytes (0x3Cu).CopyTo (result, 0x2C);
+            BitConverter.GetBytes ((uint)packed.Length).CopyTo (result, 0x30);
+            packed.CopyTo (result, 0x3C);
+            return result;
+        }
+
+        static void EncryptMgpkBytes (byte[] data, byte[] key)
+        {
+            key = (byte[])key.Clone ();
+            for (var i = 0; i < data.Length; ++i)
+            {
+                data[i] ^= key[i % key.Length];
+                key[i % key.Length] += 27;
+            }
         }
 
         static void EncryptAdsBytes (byte[] data, byte[] key)
