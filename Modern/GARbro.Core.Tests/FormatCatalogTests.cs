@@ -17,6 +17,7 @@ using GameRes.Formats.Yatagarasu;
 using GameRes.Formats.TopCat;
 using GameRes.Formats.FamilyAdvSystem;
 using GameRes.Formats.Marble;
+using GameRes.Formats.NitroPlus;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -345,6 +346,51 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.s", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated MBL fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Nitroplus_npk_format_uses_migrated_key_for_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "NPK");
+            Assert.IsType<NpkOpener> (format);
+            var scheme = Assert.IsType<Npk2Scheme> (format.Scheme);
+            var key = scheme.KnownKeys["Sonicomi"];
+            Assert.Equal (4, scheme.KnownKeys.Count);
+            Assert.Equal (32, key.Length);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.npk"] = "Sonicomi" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.npk");
+                CreateNpkFixture (archivePath, key);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("NPK", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                Assert.Equal (32u, entry.Size);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated NPK fixture", input.ReadToEnd());
             }
             finally
             {
@@ -957,6 +1003,65 @@ namespace GARbro.Core.Tests
                 output.Write ((uint)payload.Length);
                 output.Write (new byte[dataOffset - (indexOffset + filenameLength + 8)]);
                 output.Write (payload);
+            }
+        }
+
+        static void CreateNpkFixture (string path, byte[] key)
+        {
+            const int headerSize = 0x20;
+            const int dataOffset = 0x100;
+            const string content = "migrated NPK fixture";
+            var payload = Encoding.UTF8.GetBytes (content);
+            var iv = Enumerable.Range (0, 0x10).Select (value => (byte)value).ToArray ();
+            byte[] encryptedPayload;
+            using (var aes = Aes.Create())
+            {
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Key = key;
+                aes.IV = iv;
+                using (var encryptor = aes.CreateEncryptor())
+                    encryptedPayload = encryptor.TransformFinalBlock (payload, 0, payload.Length);
+            }
+
+            byte[] index;
+            using (var indexStream = new MemoryStream())
+            using (var indexOutput = new BinaryWriter (indexStream, Encoding.UTF8, true))
+            {
+                var name = Encoding.UTF8.GetBytes ("sample.txt");
+                indexOutput.Write ((byte)0);
+                indexOutput.Write ((ushort)name.Length);
+                indexOutput.Write (name);
+                indexOutput.Write ((uint)payload.Length);
+                indexOutput.Write (new byte[0x20]);
+                indexOutput.Write (1);
+                indexOutput.Write ((long)dataOffset);
+                indexOutput.Write ((uint)encryptedPayload.Length);
+                indexOutput.Write ((uint)payload.Length);
+                indexOutput.Write ((uint)payload.Length);
+                index = indexStream.ToArray ();
+            }
+            byte[] encryptedIndex;
+            using (var aes = Aes.Create())
+            {
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Key = key;
+                aes.IV = iv;
+                using (var encryptor = aes.CreateEncryptor())
+                    encryptedIndex = encryptor.TransformFinalBlock (index, 0, index.Length);
+            }
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (0x324B504Eu);
+                output.Write (new byte[4]);
+                output.Write (iv);
+                output.Write (1);
+                output.Write ((uint)encryptedIndex.Length);
+                output.Write (encryptedIndex);
+                output.Write (new byte[dataOffset - headerSize - encryptedIndex.Length]);
+                output.Write (encryptedPayload);
             }
         }
 

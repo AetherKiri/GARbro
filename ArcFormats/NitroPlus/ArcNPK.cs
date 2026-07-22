@@ -88,7 +88,11 @@ namespace GameRes.Formats.NitroPlus
         public override bool  IsHierarchic { get { return true; } }
         public override bool      CanWrite { get { return true; } }
 
+#if NET10_0_OR_GREATER
+        static Npk2Scheme DefaultScheme = new Npk2Scheme { KnownKeys = NpkKeyDatabase.CreateSchemeKeys() };
+#else
         static Npk2Scheme DefaultScheme = new Npk2Scheme { KnownKeys = new Dictionary<string, byte[]>() };
+#endif
         internal Dictionary<string, byte[]> KnownKeys { get { return DefaultScheme.KnownKeys; } }
 
         const uint DefaultSegmentSize = 0x10000;
@@ -146,11 +150,11 @@ namespace GameRes.Formats.NitroPlus
                 int name_length = index.ReadUInt16();
                 if (0 == name_length || name_length > name_buffer.Length)
                     return null;
-                index.Read (name_buffer, 0, name_length);
+                ReadExactly (index, name_buffer, name_length);
                 var name = DefaultEncoding.GetString (name_buffer, 0, name_length);
                 var entry = FormatCatalog.Instance.Create<NpkEntry> (name);
                 entry.UnpackedSize = index.ReadUInt32();
-                index.Read (name_buffer, 0, 0x20); // skip
+                ReadExactly (index, name_buffer, 0x20); // skip
                 int segment_count = index.ReadInt32();
                 if (segment_count < 0)
                     return null;
@@ -184,6 +188,18 @@ namespace GameRes.Formats.NitroPlus
             return dir;
         }
 
+        static void ReadExactly (BinaryReader input, byte[] buffer, int count)
+        {
+            int offset = 0;
+            while (offset < count)
+            {
+                int read = input.Read (buffer, offset, count - offset);
+                if (read <= 0)
+                    throw new EndOfStreamException ("Unexpected end of NPK index.");
+                offset += read;
+            }
+        }
+
         public override Stream OpenEntry (ArcFile arc, Entry entry)
         {
             if (0 == entry.Size)
@@ -204,17 +220,29 @@ namespace GameRes.Formats.NitroPlus
 
         public override ResourceOptions GetDefaultOptions ()
         {
+#if NET10_0_OR_GREATER
+            return new Npk2Options();
+#else
             return new Npk2Options { Key = GetKey (Properties.Settings.Default.NPKScheme) };
+#endif
         }
 
         public override object GetAccessWidget ()
         {
+#if NET10_0_OR_GREATER
+            return null;
+#else
             return new GUI.WidgetNPK (KnownKeys.Keys);
+#endif
         }
 
         public override object GetCreationWidget ()
         {
+#if NET10_0_OR_GREATER
+            return null;
+#else
             return new GUI.WidgetNPK (KnownKeys.Keys);
+#endif
         }
 
         byte[] QueryEncryption (string arc_name)
@@ -225,8 +253,12 @@ namespace GameRes.Formats.NitroPlus
                 key = GetKey (title);
             if (null == key)
             {
+#if NET10_0_OR_GREATER
+                return null;
+#else
                 var options = Query<Npk2Options> (arcStrings.ArcEncryptedNotice);
                 key = options.Key;
+#endif
             }
             return key;
         }
@@ -319,12 +351,18 @@ namespace GameRes.Formats.NitroPlus
 
         byte[] GenerateAesIV ()
         {
+#if NET10_0_OR_GREATER
+            var iv = new byte[0x10];
+            RandomNumberGenerator.Fill (iv);
+            return iv;
+#else
             using (var rng = new RNGCryptoServiceProvider())
             {
                 var iv = new byte[0x10];
                 rng.GetBytes (iv);
                 return iv;
             }
+#endif
         }
 
         static readonly HashSet<string> SolidFiles = new HashSet<string> { ".png", ".jpg" };

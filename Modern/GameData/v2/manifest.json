@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.12",
+  "dataVersion": "2026.07.22.13",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -71,6 +71,13 @@
       "kind": "key-map",
       "path": "GameData/v2/mbl/keys.json",
       "sha256": "27fbc081583b1ef16de908f0f00804b38e161a8cd80a1f98d9def590dddc9f10"
+    },
+    {
+      "id": "npk-keys",
+      "format": "NPK",
+      "kind": "key-map",
+      "path": "GameData/v2/npk/keys.json",
+      "sha256": "1ef0cc926756bd9224ff4519c889594649a39b592de4dfe5d00976f6a03c40a7"
     }
   ]
 }

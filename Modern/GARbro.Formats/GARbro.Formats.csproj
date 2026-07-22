@@ -17,6 +17,7 @@
     <Compile Include="../../ArcFormats/GameSystem/ArcCMP.cs" Link="GameSystem/ArcCMP.cs" />
     <Compile Include="../../ArcFormats/Yatagarasu/ArcPKG2.cs" Link="Yatagarasu/ArcPKG2.cs" />
     <Compile Include="../../ArcFormats/FamilyAdvSystem/ArcCSAF.cs" Link="FamilyAdvSystem/ArcCSAF.cs" />
+    <Compile Include="../../ArcFormats/NitroPlus/ArcNPK.cs" Link="NitroPlus/ArcNPK.cs" />
     <Compile Include="../../ArcFormats/Crc32.cs" Link="Crc32.cs" />
     <Compile Include="../../ArcFormats/ArcCommon.cs" Link="ArcCommon.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/ArcXP3.cs" Link="KiriKiri/ArcXP3.cs" />

@@ -19,6 +19,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `PKG/2` | `GameRes.Formats.Yatagarasu.PkgScheme` | `KnownKeys` |
 | `CSAF` | `GameRes.Formats.FamilyAdvSystem.FamilyAdvScheme` | `KnownKeys` |
 | `MBL` | `GameRes.Formats.Marble.MblScheme` | `KnownKeys` |
+| `NPK` | `GameRes.Formats.NitroPlus.Npk2Scheme` | `KnownKeys` |
 
 `KnownKeys` is serialized as a string-to-string dictionary. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -37,3 +38,5 @@ The `PKG/2` record is safely exportable with `export-pkg-keys`. Its single eight
 The `CSAF` record is safely exportable with `export-csaf-keys`. Its single title-to-string key is validated by `CsafKeyDatabase`; `FormatCatalogTests.Csaf_format_loads_migrated_keys_and_opens_fixture` verifies unencrypted index parsing and extraction. The same runtime port retains CSAF's legacy AES/MD5 path for encrypted archives.
 
 The `MBL` record is safely exportable with `export-mbl-keys`. Its 58 title-to-string records, including empty-password placeholders, are validated by `MblKeyDatabase`; `FormatCatalogTests.Marble_mbl_format_uses_migrated_key_for_script_fixture` verifies title-keyed script extraction.
+
+The `NPK` record is safely exportable with `export-npk-keys`. Its four 32-byte title-to-AES-key records are validated by `NpkKeyDatabase`; `FormatCatalogTests.Nitroplus_npk_format_uses_migrated_key_for_fixture` verifies encrypted index and entry extraction. The modern port reads encrypted indexes with exact-fill loops because `CryptoStream` can legally return short reads on .NET 10.
