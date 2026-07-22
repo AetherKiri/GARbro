@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.6",
+  "dataVersion": "2026.07.22.7",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -29,6 +29,13 @@
       "kind": "key-map",
       "path": "GameData/v2/tcd/keys.json",
       "sha256": "37cc39ae342f55580d329e42bed6408a5745f1f0ae6b75537a9a666c4a36b72e"
+    },
+    {
+      "id": "morning-key",
+      "format": "PAK/MORNING",
+      "kind": "default-key",
+      "path": "GameData/v2/morning/default-key.json",
+      "sha256": "f8780c83eb33191e4414450f5d8ae7f0fc9a1e4c4628a66d5c3ff06c57b93a0a"
     }
   ]
 }

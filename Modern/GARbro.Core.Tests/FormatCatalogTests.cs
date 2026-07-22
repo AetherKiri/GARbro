@@ -8,6 +8,7 @@ using System.Text;
 using GameRes;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
+using GameRes.Formats.Morning;
 using GameRes.Formats.PkWare;
 using GameRes.Formats.TopCat;
 using ICSharpCode.SharpZipLib.Zip;
@@ -121,6 +122,40 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("dir/sample.WAV", entry.Name.Replace ('\\', '/'));
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated TCD fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Morning_format_loads_migrated_key_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "PAK/MORNING");
+            Assert.IsType<PakOpener> (format);
+            var scheme = Assert.IsType<MorningScheme> (format.Scheme);
+            Assert.Equal (512, scheme.DefaultKey.Length);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.pak");
+                CreateMorningFixture (archivePath, scheme.DefaultKey);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("PAK/MORNING", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated Morning fixture", input.ReadToEnd());
             }
             finally
             {
@@ -571,6 +606,32 @@ namespace GARbro.Core.Tests
             for (var i = 0; i < result.Length; ++i)
                 result[i] += key;
             return result;
+        }
+
+        static void CreateMorningFixture (string path, byte[] key)
+        {
+            const int indexSize = 0x200;
+            const int dataOffset = 8 + indexSize;
+            var payload = Encoding.UTF8.GetBytes ("migrated Morning fixture");
+            var index = new byte[indexSize];
+            using (var indexOutput = new BinaryWriter (new MemoryStream (index), Encoding.UTF8, true))
+            {
+                indexOutput.Write (1);
+                indexOutput.Write (16);
+                indexOutput.Write (dataOffset);
+                indexOutput.Write (payload.Length);
+                indexOutput.Write (Encoding.ASCII.GetBytes ("sample.txt\0"));
+            }
+            for (var i = 0; i < index.Length; ++i)
+                index[i] ^= key[i & (key.Length - 1)];
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (0x58668F8Bu);
+                output.Write (1u);
+                output.Write (index);
+                output.Write (payload);
+            }
         }
 
         [Fact]

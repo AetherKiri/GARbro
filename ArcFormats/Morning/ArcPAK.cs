@@ -100,7 +100,11 @@ namespace GameRes.Formats.Morning
             return DefaultScheme.DefaultKey;
         }
 
+#if NET10_0_OR_GREATER
+        MorningScheme DefaultScheme = new MorningScheme { DefaultKey = MorningKeyDatabase.CreateKey() };
+#else
         MorningScheme DefaultScheme = new MorningScheme();
+#endif
 
         public override ResourceScheme Scheme
         {
