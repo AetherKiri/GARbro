@@ -82,7 +82,7 @@ namespace GameRes.Formats.FamilyAdvSystem
                     using (var enc_names = file.CreateStream (0x20 + index_size, names_size))
                     using (var dec_names = new InputCryptoStream (enc_names, decryptor))
                     {
-                        dec_names.Read (index, (int)index_size, (int)names_size);
+                        ReadExactly (dec_names, index, (int)index_size, (int)names_size);
                     }
                 }
                 else
@@ -143,6 +143,18 @@ namespace GameRes.Formats.FamilyAdvSystem
             return new StreamRegion (input, entry.Offset, entry.Size);
         }
 
+        internal static void ReadExactly (Stream input, byte[] buffer, int offset, int count)
+        {
+            while (count > 0)
+            {
+                int read = input.Read (buffer, offset, count);
+                if (read <= 0)
+                    throw new EndOfStreamException ("Unexpected end of CSAF encrypted data.");
+                offset += read;
+                count -= read;
+            }
+        }
+
         internal string QueryEncryptionKey (ArcView file)
         {
             var title = FormatCatalog.Instance.LookupGame (file.Name);
@@ -154,7 +166,11 @@ namespace GameRes.Formats.FamilyAdvSystem
             return key;
         }
 
+#if NET10_0_OR_GREATER
+        FamilyAdvScheme DefaultScheme = new FamilyAdvScheme { KnownKeys = CsafKeyDatabase.CreateSchemeKeys() };
+#else
         FamilyAdvScheme DefaultScheme = new FamilyAdvScheme { KnownKeys = new Dictionary<string, string>() };
+#endif
 
         internal IDictionary<string, string> KnownKeys { get { return DefaultScheme.KnownKeys; } }
 
@@ -315,7 +331,7 @@ namespace GameRes.Formats.FamilyAdvSystem
             using (var decryptor = m_encryption.CreateDecryptor ((int)(m_block_start >> 12)))
             using (var enc = new BinMemoryStream (m_block))
             using (var dec = new InputCryptoStream (enc, decryptor))
-                dec.Read (m_block, 0, m_block_length);
+                CsafOpener.ReadExactly (dec, m_block, 0, m_block_length);
             return true;
         }
 

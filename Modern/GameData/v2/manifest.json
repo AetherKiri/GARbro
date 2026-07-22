@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.10",
+  "dataVersion": "2026.07.22.11",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -57,6 +57,13 @@
       "kind": "key-map",
       "path": "GameData/v2/pkg/keys.json",
       "sha256": "f6d7bfdaec7165a50836b1603c5a584a52f6baf8f6a0c6b055e8f8e4ca7cdb2b"
+    },
+    {
+      "id": "csaf-keys",
+      "format": "CSAF",
+      "kind": "key-map",
+      "path": "GameData/v2/csaf/keys.json",
+      "sha256": "be24fe705eca5e41ab3f26492faf13d28dc9339346a1632807fd20e6a1b47a79"
     }
   ]
 }

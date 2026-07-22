@@ -4,6 +4,7 @@ using System.Linq;
 using System.IO;
 using System.IO.Compression;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using GameRes;
 using System.Windows.Media;
@@ -14,6 +15,7 @@ using GameRes.Formats.MoonhirGames;
 using GameRes.Formats.PkWare;
 using GameRes.Formats.Yatagarasu;
 using GameRes.Formats.TopCat;
+using GameRes.Formats.FamilyAdvSystem;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -265,6 +267,41 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("PKG fixture data", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Csaf_format_loads_migrated_keys_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "CSAF");
+            Assert.IsType<CsafOpener> (format);
+            var scheme = Assert.IsType<FamilyAdvScheme> (format.Scheme);
+            Assert.Single (scheme.KnownKeys);
+            Assert.Equal ("招子", scheme.KnownKeys["Nanairo * Clip ~Saigo no Stage~"]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.csaf");
+                CreateCsafFixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("CSAF", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated CSAF fixture", input.ReadToEnd());
             }
             finally
             {
@@ -828,6 +865,30 @@ namespace GARbro.Core.Tests
                 output.Write (index);
                 output.Write (encryptedPayload);
             }
+        }
+
+        static void CreateCsafFixture (string path)
+        {
+            const int indexSize = 0xFE0;
+            const int dataOffset = 0x2000;
+            const string content = "migrated CSAF fixture";
+            var nameBytes = Encoding.Unicode.GetBytes ("sample.txt");
+            var namesSize = nameBytes.Length + 2 + 8;
+            var index = new byte[indexSize + namesSize];
+            Buffer.BlockCopy (nameBytes, 0, index, indexSize, nameBytes.Length);
+            BitConverter.GetBytes ((uint)(dataOffset >> 12)).CopyTo (index, 0x10);
+            BitConverter.GetBytes ((uint)Encoding.UTF8.GetByteCount (content)).CopyTo (index, 0x14);
+            var payload = Encoding.UTF8.GetBytes (content);
+            var file = new byte[dataOffset + payload.Length];
+            Buffer.BlockCopy (index, 0, file, 0x20, index.Length);
+            Buffer.BlockCopy (payload, 0, file, dataOffset, payload.Length);
+            BitConverter.GetBytes (0x46415343u).CopyTo (file, 0);
+            BitConverter.GetBytes (0x10000u).CopyTo (file, 4);
+            BitConverter.GetBytes (1).CopyTo (file, 8);
+            BitConverter.GetBytes ((uint)namesSize).CopyTo (file, 12);
+            using (var md5 = MD5.Create())
+                Buffer.BlockCopy (md5.ComputeHash (index), 0, file, 0x10, 0x10);
+            File.WriteAllBytes (path, file);
         }
 
         static void XorPkgWords (byte[] data, uint[] key, int mask)
