@@ -61,6 +61,11 @@ namespace GARbro.Core.Tests
             Assert.Equal (7, zipKeys.Count);
             Assert.Equal ("trendri0da0", zipKeys["Choir"]);
 
+            var tcdKeys = LegacyXp3Exporter.ExportTcdKeys (database);
+            Assert.Equal (3, tcdKeys.Count);
+            Assert.Equal (327047585, tcdKeys["Atori no Sora to Shinchuu no Tsuki"]);
+            Assert.Equal (-982448593, tcdKeys["Favorite Sweet!"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
