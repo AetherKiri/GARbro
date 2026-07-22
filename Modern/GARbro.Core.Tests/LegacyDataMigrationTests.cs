@@ -172,6 +172,10 @@ namespace GARbro.Core.Tests
             Assert.Equal ("5WW6Gj3Gf55GFYk=", Convert.ToBase64String (mgpkKeys["Cartagra"]));
             Assert.Equal ("omW6Gi3Gf5NGFYQ=", Convert.ToBase64String (mgpkKeys["Kara no Shoujo 2"]));
 
+            var rctKeys = LegacyXp3Exporter.ExportRctKeys (database);
+            Assert.Equal (33, rctKeys.Count);
+            Assert.Equal ("\u59C9\u30CB\u30E2\u30DE\u30B1\u30BA", rctKeys["Ane ni mo Makezu"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

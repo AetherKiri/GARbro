@@ -31,6 +31,7 @@ using GameRes.Formats.Actgs;
 using GameRes.Formats.BlackRainbow;
 using GameRes.Formats.Will;
 using GameRes.Formats.Mg;
+using GameRes.Formats.Majiro;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -294,6 +295,41 @@ namespace GARbro.Core.Tests
                     VFS.ChDir ("..");
                 Directory.SetCurrentDirectory (previousDirectory);
                 Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Rct_format_loads_migrated_password_and_reads_encrypted_fixture ()
+        {
+            var format = FormatCatalog.Instance.ImageFormats.OfType<RctFormat> ().Single ();
+            var scheme = Assert.IsType<RctScheme> (format.Scheme);
+            Assert.Equal (33, scheme.KnownKeys.Count);
+            Assert.Equal ("\u59C9\u30CB\u30E2\u30DE\u30B1\u30BA", scheme.KnownKeys["Ane ni mo Makezu"]);
+
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.rct"] = "Ane ni mo Makezu" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                using (var input = new BinaryStream (
+                    new MemoryStream (CreateRctFixture (scheme.KnownKeys["Ane ni mo Makezu"])), "sample.rct"))
+                {
+                    var decoded = ImageFormat.Read (input);
+                    Assert.NotNull (decoded);
+                    Assert.Equal ((uint)1, decoded.Width);
+                    Assert.Equal ((uint)1, decoded.Height);
+                    var pixels = new byte[3];
+                    decoded.Bitmap.CopyPixels (pixels, 3, 0);
+                    Assert.Equal (new byte[] { 0x10, 0x20, 0x30 }, pixels);
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
             }
         }
 
@@ -1558,6 +1594,39 @@ namespace GARbro.Core.Tests
                 data[i] ^= key[i % key.Length];
                 key[i % key.Length] += 27;
             }
+        }
+
+        static byte[] CreateRctFixture (string password)
+        {
+            var pixels = new byte[] { 0x10, 0x20, 0x30 };
+            var key = CreateRctKey (password);
+            for (var i = 0; i < pixels.Length; ++i)
+                pixels[i] ^= key[i];
+
+            var result = new byte[0x14 + pixels.Length];
+            BitConverter.GetBytes (0x9A925A98u).CopyTo (result, 0);
+            result[4] = (byte)'T';
+            result[5] = (byte)'S';
+            result[6] = (byte)'0';
+            result[7] = (byte)'0';
+            BitConverter.GetBytes (1u).CopyTo (result, 8);
+            BitConverter.GetBytes (1u).CopyTo (result, 12);
+            BitConverter.GetBytes (pixels.Length).CopyTo (result, 16);
+            pixels.CopyTo (result, 0x14);
+            return result;
+        }
+
+        static byte[] CreateRctKey (string password)
+        {
+            var bytes = Encodings.cp932.GetBytes (password);
+            var crc = Crc32.Compute (bytes, 0, bytes.Length);
+            var key = new byte[0x400];
+            for (var i = 0; i < 0x100; ++i)
+            {
+                var value = crc ^ Crc32.Table[(int)((i + crc) & 0xFF)];
+                BitConverter.GetBytes (value).CopyTo (key, i * 4);
+            }
+            return key;
         }
 
         static void EncryptAdsBytes (byte[] data, byte[] key)

@@ -181,6 +181,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownKeys { get; set; }
     }
 
+    internal sealed class RctKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, string> KnownKeys { get; set; }
+    }
+
 
     internal sealed class Xp3SkippedProfile
     {
@@ -579,6 +585,14 @@ namespace GARbro.LegacyDataMigration
             if (scheme == null || !scheme.HasMember ("KnownKeys"))
                 throw new InvalidDataException ("Legacy MGPK scheme has no KnownKeys member.");
             return ReadByteDictionary (ReadRaw (scheme, "KnownKeys") as ClassRecord, "Legacy MGPK key map");
+        }
+
+        internal static Dictionary<string, string> ExportRctKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "RCT");
+            if (scheme == null || !scheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy RCT scheme has no KnownKeys member.");
+            return ReadStringDictionary (ReadRaw (scheme, "KnownKeys") as ClassRecord, "Legacy RCT key map");
         }
 
 
