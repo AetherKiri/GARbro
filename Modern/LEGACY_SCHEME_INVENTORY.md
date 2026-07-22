@@ -21,6 +21,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `MBL` | `GameRes.Formats.Marble.MblScheme` | `KnownKeys` |
 | `NPK` | `GameRes.Formats.NitroPlus.Npk2Scheme` | `KnownKeys` |
 | `PCK/TAMAMO` | `GameRes.Formats.Tamamo.PckScheme` | `KnownKeys` |
+| `NS2` | `GameRes.Formats.NScripter.NsaScheme` | `KnownKeys` |
 
 `KnownKeys` is serialized as a string-to-string dictionary. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -43,3 +44,5 @@ The `MBL` record is safely exportable with `export-mbl-keys`. Its 58 title-to-st
 The `NPK` record is safely exportable with `export-npk-keys`. Its four 32-byte title-to-AES-key records are validated by `NpkKeyDatabase`; `FormatCatalogTests.Nitroplus_npk_format_uses_migrated_key_for_fixture` verifies encrypted index and entry extraction. The modern port reads encrypted indexes with exact-fill loops because `CryptoStream` can legally return short reads on .NET 10.
 
 The `PCK/TAMAMO` record is safely exportable with `export-pck-keys`. Its four title-to-Blowfish-key records are validated by `PckKeyDatabase`; `FormatCatalogTests.Tamamo_pck_format_uses_migrated_key_for_fixture` verifies Blowfish index and entry extraction. The modern port intentionally omits the legacy WPF texture post-processing path; archive data access remains cross-platform.
+
+The `NS2` record is safely exportable with `export-ns2-keys`. Its six title-to-password records are validated by `Ns2KeyDatabase`; `FormatCatalogTests.Ns2_format_loads_migrated_keys_and_opens_fixture` verifies unencrypted index and extraction. The separate `NSA` map is retained as a distinct pending slice because its ten records and archive/compression implementation are different.

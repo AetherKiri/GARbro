@@ -19,6 +19,7 @@ using GameRes.Formats.TopCat;
 using GameRes.Formats.FamilyAdvSystem;
 using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
+using GameRes.Formats.NScripter;
 using GameRes.Formats.Tamamo;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
@@ -455,6 +456,41 @@ namespace GARbro.Core.Tests
             finally
             {
                 gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Ns2_format_loads_migrated_keys_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "NS2");
+            Assert.IsType<Ns2Opener> (format);
+            var scheme = Assert.IsType<NsaScheme> (format.Scheme);
+            Assert.Equal (6, scheme.KnownKeys.Count);
+            Assert.Contains ("Daydream Believer", scheme.KnownKeys.Keys);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.ns2");
+                CreateNs2Fixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("NS2", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated NS2 fixture", input.ReadToEnd());
+            }
+            finally
+            {
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 Directory.SetCurrentDirectory (previousDirectory);
@@ -1155,6 +1191,20 @@ namespace GARbro.Core.Tests
                 output.Write (index);
                 output.Write ((byte)1);
                 output.Write (encryptedPayload);
+            }
+        }
+
+        static void CreateNs2Fixture (string path)
+        {
+            const int baseOffset = 0x20;
+            var payload = Encoding.UTF8.GetBytes ("migrated NS2 fixture");
+            using (var output = new BinaryWriter (File.Create (path), Encoding.GetEncoding (932)))
+            {
+                output.Write ((uint)baseOffset);
+                output.Write (Encoding.ASCII.GetBytes ("\"sample.txt\""));
+                output.Write ((uint)payload.Length);
+                output.Write (new byte[baseOffset - 4 - 16]);
+                output.Write (payload);
             }
         }
 

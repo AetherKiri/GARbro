@@ -42,7 +42,11 @@ namespace GameRes.Formats.NScripter
         public override bool  IsHierarchic { get { return true; } }
         public override bool      CanWrite { get { return false; } }
 
+#if NET10_0_OR_GREATER
+        public static Dictionary<string, string> KnownKeys = Ns2KeyDatabase.CreateSchemeKeys ();
+#else
         public static Dictionary<string, string> KnownKeys = new Dictionary<string, string>();
+#endif
 
         public override ResourceScheme Scheme
         {
@@ -70,7 +74,7 @@ namespace GameRes.Formats.NScripter
             if (!file.Name.HasExtension (".ns2"))
                 return null;
 
-            var password = QueryPassword();
+            var password = QueryPassword (file.Name);
             if (string.IsNullOrEmpty (password))
                 return null;
             var key = Encoding.ASCII.GetBytes (password);
@@ -141,28 +145,47 @@ namespace GameRes.Formats.NScripter
                 return new Ns2Stream (file, key);
         }
 
-        private string QueryPassword ()
+        private string QueryPassword (string archiveName)
         {
+#if NET10_0_OR_GREATER
+            var title = FormatCatalog.Instance.LookupGame (archiveName);
+            if (!string.IsNullOrEmpty (title) && KnownKeys.TryGetValue (title, out var password))
+                return password;
+            return null;
+#else
             var options = Query<NsaOptions> (arcStrings.ArcEncryptedNotice);
             return options.Password;
+#endif
         }
 
         public override ResourceOptions GetDefaultOptions ()
         {
+#if NET10_0_OR_GREATER
+            return new NsaOptions ();
+#else
             return new NsaOptions { Password = Properties.Settings.Default.NSAPassword };
+#endif
         }
 
         public override ResourceOptions GetOptions (object widget)
         {
+#if NET10_0_OR_GREATER
+            return GetDefaultOptions ();
+#else
             var w = widget as GUI.WidgetNSA;
             if (null != w)
                 Properties.Settings.Default.NSAPassword = w.Password.Text;
             return GetDefaultOptions();
+#endif
         }
 
         public override object GetAccessWidget ()
         {
+#if NET10_0_OR_GREATER
+            return null;
+#else
             return new GUI.WidgetNSA (KnownKeys);
+#endif
         }
     }
 
@@ -170,7 +193,7 @@ namespace GameRes.Formats.NScripter
     {
         byte[]          m_key;
 
-        readonly Cryptography.MD5 MD5 = new Cryptography.MD5();
+        readonly HashAlgorithm MD5 = System.Security.Cryptography.MD5.Create ();
 
         const int BlockSize   = 32;
 
@@ -194,9 +217,7 @@ namespace GameRes.Formats.NScripter
                 Buffer.BlockCopy (m_current_block, src2, m_seed, 0,  16);
                 Buffer.BlockCopy (m_key,           key1, m_seed, 16, 48);
 
-                MD5.Initialize();
-                MD5.Update (m_seed, 0, m_seed.Length);
-                Buffer.BlockCopy (MD5.State, 0, hash, 0, 16);
+                Buffer.BlockCopy (MD5.ComputeHash (m_seed), 0, hash, 0, 16);
 
                 for (int j = 0; j < 16; ++j)
                 {
@@ -205,9 +226,7 @@ namespace GameRes.Formats.NScripter
 
                 Buffer.BlockCopy (m_key, key2, m_seed, 16, 48);
 
-                MD5.Initialize();
-                MD5.Update (m_seed, 0, m_seed.Length);
-                Buffer.BlockCopy (MD5.State, 0, hash, 0, 16);
+                Buffer.BlockCopy (MD5.ComputeHash (m_seed), 0, hash, 0, 16);
                 
                 for (int j = 0; j < 16; ++j)
                 {
@@ -216,9 +235,7 @@ namespace GameRes.Formats.NScripter
 
                 Buffer.BlockCopy (m_key, key1, m_seed, 16, 48);
 
-                MD5.Initialize();
-                MD5.Update (m_seed, 0, m_seed.Length);
-                Buffer.BlockCopy (MD5.State, 0, hash, 0, 16);
+                Buffer.BlockCopy (MD5.ComputeHash (m_seed), 0, hash, 0, 16);
 
                 Buffer.BlockCopy (temp, 16, m_current_block, src, 16);
                 for (int j = 0; j < 16; ++j)
