@@ -17,6 +17,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `FPK/MOONHIR` | `GameRes.Formats.MoonhirGames.Fpk0100Scheme` | `KnownKeys` |
 | `CMP` | `GameRes.Formats.GameSystem.CmpScheme` | `KnownKeys` |
 | `PKG/2` | `GameRes.Formats.Yatagarasu.PkgScheme` | `KnownKeys` |
+| `CSAF` | `GameRes.Formats.FamilyAdvSystem.FamilyAdvScheme` | `KnownKeys` |
 
 `KnownKeys` is serialized as a string-to-string dictionary. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -31,3 +32,5 @@ The `FPK/MOONHIR` record is safely exportable with `export-fpk-keys`. Its 28-ent
 The `CMP` record is safely exportable with `export-cmp-keys`. Its two 16-byte title keys are validated by `CmpKeyDatabase`; `FormatCatalogTests.GameSystem_cmp_format_loads_migrated_keys_and_opens_fixture` verifies compressed-index parsing and extraction.
 
 The `PKG/2` record is safely exportable with `export-pkg-keys`. Its single eight-word title key is validated by `PkgKeyDatabase`; `FormatCatalogTests.Yatagarasu_pkg_format_uses_migrated_key_to_open_fixture` verifies encrypted index and data extraction.
+
+The `CSAF` record is safely exportable with `export-csaf-keys`. Its single title-to-string key is validated by `CsafKeyDatabase`; `FormatCatalogTests.Csaf_format_loads_migrated_keys_and_opens_fixture` verifies unencrypted index parsing and extraction. The same runtime port retains CSAF's legacy AES/MD5 path for encrypted archives.
