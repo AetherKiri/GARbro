@@ -85,6 +85,13 @@ namespace GARbro.Core.Tests
             Assert.Equal ("2C43729D693F01F9415897FEB439B08FFF8E33CE23AA55D17E5C0357E393A63C",
                 Convert.ToHexString (SHA256.HashData (cmpKeys["Imouto de Ikou!"])));
 
+            var pkgKeys = LegacyXp3Exporter.ExportPkgKeys (database);
+            Assert.Single (pkgKeys);
+            var pkgKey = pkgKeys["Seisai no Resonance"];
+            Assert.Equal (8, pkgKey.Length);
+            Assert.Equal (2705044775u, pkgKey[0]);
+            Assert.Equal (4159235687u, pkgKey[^1]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
