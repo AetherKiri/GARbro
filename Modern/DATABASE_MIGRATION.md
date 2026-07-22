@@ -61,6 +61,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add MBL key-map validation and a deterministic encrypted-script extraction fixture.
 - [x] Migrate the NitroPlus NPK title-to-AES-key map as a standalone v2 dataset and load it in the modern NPK port.
 - [x] Add NPK key-shape validation and a deterministic encrypted-index/entry fixture, including short-read-safe index parsing.
+- [x] Migrate the TamamoSystem PCK title-to-Blowfish-key map as a standalone v2 dataset and load it in the modern PCK port.
+- [x] Add PCK key-map validation and a deterministic Blowfish index/entry fixture.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
 The current SchemeMap inventory and the ZIP migration boundary are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.

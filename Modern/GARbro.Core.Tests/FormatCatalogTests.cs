@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using GameRes;
+using GameRes.Cryptography;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.GameSystem;
@@ -18,6 +19,7 @@ using GameRes.Formats.TopCat;
 using GameRes.Formats.FamilyAdvSystem;
 using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
+using GameRes.Formats.Tamamo;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -391,6 +393,64 @@ namespace GARbro.Core.Tests
                 Assert.Equal (32u, entry.Size);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated NPK fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Tamamo_pck_format_uses_migrated_key_for_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "PCK/TAMAMO");
+            Assert.IsType<PckOpener> (format);
+            var scheme = Assert.IsType<PckScheme> (format.Scheme);
+            var key = scheme.KnownKeys["Boukensha no Machi o Tsukurou! 2"];
+            Assert.Equal (4, scheme.KnownKeys.Count);
+            Assert.Equal (10, key.Length);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.pck"] = "Boukensha no Machi o Tsukurou! 2" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.pck");
+                CreatePckFixture (archivePath, key);
+                Assert.Equal ("Boukensha no Machi o Tsukurou! 2", FormatCatalog.Instance.LookupGame (archivePath));
+                using (var view = new ArcView (archivePath))
+                {
+                    Assert.Equal (0x4B434150u, view.View.ReadUInt32 (0));
+                    Assert.True (view.View.AsciiEqual (4, "_FILE001"));
+                    Assert.Equal (1, view.View.ReadInt32 (0xC));
+                    Assert.Equal (24u, view.View.ReadUInt32 (0x10));
+                    var decodedIndex = view.View.ReadBytes (0x14, 24);
+                    new Blowfish (key).Decipher (decodedIndex, decodedIndex.Length);
+                    Assert.Equal ((uint)20, decodedIndex.ToUInt32 (0));
+                    Assert.Equal ((uint)24, decodedIndex.ToUInt32 (15));
+                    using (var parsed = format.TryOpen (view))
+                        Assert.NotNull (parsed);
+                }
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("PCK/TAMAMO", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated PCK fixture", input.ReadToEnd());
             }
             finally
             {
@@ -1062,6 +1122,59 @@ namespace GARbro.Core.Tests
                 output.Write (encryptedIndex);
                 output.Write (new byte[dataOffset - headerSize - encryptedIndex.Length]);
                 output.Write (encryptedPayload);
+            }
+        }
+
+        static void CreatePckFixture (string path, byte[] key)
+        {
+            const string content = "migrated PCK fixture";
+            var payload = Encoding.UTF8.GetBytes (content);
+            var encryptedPayload = new byte[(payload.Length + 7) & ~7];
+            Buffer.BlockCopy (payload, 0, encryptedPayload, 0, payload.Length);
+            var bf = new Blowfish (key);
+            EncipherPckBytes (bf, encryptedPayload);
+
+            byte[] index;
+            using (var indexStream = new MemoryStream())
+            using (var indexOutput = new BinaryWriter (indexStream, Encoding.UTF8, true))
+            {
+                indexOutput.Write ((uint)payload.Length);
+                indexOutput.Write (Encoding.ASCII.GetBytes ("sample.txt\0"));
+                indexOutput.Write ((uint)encryptedPayload.Length);
+                index = indexStream.ToArray ();
+            }
+            Array.Resize (ref index, (index.Length + 7) & ~7);
+            EncipherPckBytes (bf, index);
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (0x4B434150u);
+                output.Write (Encoding.ASCII.GetBytes ("_FILE001"));
+                output.Write (1);
+                output.Write ((uint)index.Length);
+                output.Write (index);
+                output.Write ((byte)1);
+                output.Write (encryptedPayload);
+            }
+        }
+
+        static void EncipherPckBytes (Blowfish bf, byte[] data)
+        {
+            ReverseWords (data);
+            bf.Encipher (data, data.Length);
+            ReverseWords (data);
+        }
+
+        static void ReverseWords (byte[] data)
+        {
+            for (var i = 0; i < data.Length; i += 4)
+            {
+                var b0 = data[i];
+                var b1 = data[i + 1];
+                data[i] = data[i + 3];
+                data[i + 1] = data[i + 2];
+                data[i + 2] = b1;
+                data[i + 3] = b0;
             }
         }
 
