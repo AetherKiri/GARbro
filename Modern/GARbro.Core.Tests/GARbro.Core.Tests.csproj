@@ -10,5 +10,9 @@
   <ItemGroup>
     <ProjectReference Include="../GARbro.Core/GARbro.Core.csproj" />
     <ProjectReference Include="../GARbro.Formats/GARbro.Formats.csproj" />
+    <ProjectReference Include="../GARbro.LegacyDataMigration/GARbro.LegacyDataMigration.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="../../ArcFormats/Resources/Formats.dat" Link="Fixtures/Formats.dat" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

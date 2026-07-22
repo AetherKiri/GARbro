@@ -307,5 +307,131 @@ namespace GARbro.Core.Tests
             Assert.IsType<SenrenCxCrypt> (senren);
             Assert.Equal ("Senren Banka", Xp3Opener.GetModernSchemeDisplayName ("senren-test"));
         }
+
+        [Fact]
+        public void Xp3_v2_profiles_use_algorithm_specific_parameters ()
+        {
+            const string profiles = @"{
+              ""schemaVersion"": 1,
+              ""profiles"": [
+                {
+                  ""id"": ""v2-hx-lite-test"",
+                  ""algorithm"": ""hx-lite"",
+                  ""parameters"": {
+                    ""cx"": {
+                      ""mask"": 0,
+                      ""offset"": 0,
+                      ""prologOrder"": [],
+                      ""oddBranchOrder"": [],
+                      ""evenBranchOrder"": [],
+                      ""controlBlock"": []
+                    },
+                    ""randomType"": 0,
+                    ""fileCryptFlag"": false
+                  }
+                },
+                {
+                  ""id"": ""v2-senren-test"",
+                  ""title"": ""Senren Banka v2"",
+                  ""algorithm"": ""senren-cx"",
+                  ""parameters"": {
+                    ""cx"": {
+                      ""mask"": 0,
+                      ""offset"": 0,
+                      ""prologOrder"": [],
+                      ""oddBranchOrder"": [],
+                      ""evenBranchOrder"": [],
+                      ""controlBlock"": []
+                    }
+                  }
+                }
+              ]
+            }";
+            using (var input = new MemoryStream (Encoding.UTF8.GetBytes (profiles)))
+                Xp3SchemeProfiles.Load (input);
+
+            Assert.True (Xp3Opener.TryGetScheme ("v2-hx-lite-test", out var hx));
+            Assert.IsType<HxCryptLite> (hx);
+            Assert.True (Xp3Opener.TryGetScheme ("v2-senren-test", out var senren));
+            Assert.IsType<SenrenCxCrypt> (senren);
+            Assert.Equal ("Senren Banka v2", Xp3Opener.GetModernSchemeDisplayName ("v2-senren-test"));
+        }
+
+        [Fact]
+        public void Xp3_v2_profiles_reject_parameters_for_another_algorithm ()
+        {
+            const string profiles = @"{
+              ""schemaVersion"": 1,
+              ""profiles"": [
+                {
+                  ""id"": ""invalid-profile"",
+                  ""algorithm"": ""senren-cx"",
+                  ""parameters"": {
+                    ""cx"": {
+                      ""mask"": 0,
+                      ""offset"": 0,
+                      ""prologOrder"": [],
+                      ""oddBranchOrder"": [],
+                      ""evenBranchOrder"": [],
+                      ""controlBlock"": []
+                    },
+                    ""seed"": 1
+                  }
+                }
+              ]
+            }";
+
+            using (var input = new MemoryStream (Encoding.UTF8.GetBytes (profiles)))
+                Assert.Throws<InvalidDataException> (() => Xp3SchemeProfiles.Load (input));
+        }
+
+        [Fact]
+        public void Bundled_xp3_title_registry_loads_from_verified_v2_game_data ()
+        {
+            Assert.True (Xp3Opener.TryGetScheme ("Fate/stay night", out var scheme));
+            Assert.IsType<FateCrypt> (scheme);
+            Assert.Contains ("Fate/stay night", Xp3Opener.ModernSchemeNames);
+        }
+
+        [Fact]
+        public void Bundled_xp3_profiles_survive_external_profile_loading ()
+        {
+            Assert.True (Xp3Opener.TryGetScheme ("11eyes", out var bundled));
+            Assert.IsType<CxEncryption> (bundled);
+
+            const string profiles = @"{
+              ""schemaVersion"": 1,
+              ""profiles"": [
+                {
+                  ""id"": ""external-merge-test"",
+                  ""algorithm"": ""senren-cx"",
+                  ""parameters"": {
+                    ""cx"": {
+                      ""mask"": 0,
+                      ""offset"": 0,
+                      ""prologOrder"": [],
+                      ""oddBranchOrder"": [],
+                      ""evenBranchOrder"": [],
+                      ""controlBlock"": []
+                    }
+                  }
+                }
+              ]
+            }";
+            using (var input = new MemoryStream (Encoding.UTF8.GetBytes (profiles)))
+                Xp3SchemeProfiles.Load (input);
+
+            Assert.True (Xp3Opener.TryGetScheme ("external-merge-test", out var external));
+            Assert.IsType<SenrenCxCrypt> (external);
+            Assert.True (Xp3Opener.TryGetScheme ("11eyes", out _));
+        }
+
+        [Fact]
+        public void Modern_formats_assembly_does_not_embed_legacy_formats_database ()
+        {
+            var resources = typeof(Xp3Opener).Assembly.GetManifestResourceNames();
+
+            Assert.DoesNotContain (resources, name => name.EndsWith ("Formats.dat", System.StringComparison.Ordinal));
+        }
     }
 }

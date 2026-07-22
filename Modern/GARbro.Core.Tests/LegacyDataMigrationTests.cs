@@ -1,0 +1,61 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using GARbro.LegacyDataMigration;
+using GameRes.Formats.KiriKiri;
+using Xunit;
+
+namespace GARbro.Core.Tests
+{
+    public class LegacyDataMigrationTests
+    {
+        [Fact]
+        public void Legacy_reader_rejects_a_file_without_the_GARbro_header ()
+        {
+            var path = Path.GetTempFileName();
+            try
+            {
+                File.WriteAllText (path, "not a GARbro database", Encoding.UTF8);
+
+                Assert.Throws<InvalidDataException> (() => LegacyFormatsReader.Read (path));
+            }
+            finally
+            {
+                File.Delete (path);
+            }
+        }
+
+        [Fact]
+        public void Trusted_legacy_database_exports_valid_v2_xp3_profiles ()
+        {
+            var database = LegacyFormatsReader.Read (FixturePath);
+
+            Assert.Equal (148, database.Version);
+            Assert.Equal ("GameRes.SchemeDataBase", database.Root.TypeName.FullName);
+            Assert.Equal (18510, database.Records.Count);
+
+            var document = LegacyXp3Exporter.Export (database, out var report);
+
+            Assert.Equal (1, document.SchemaVersion);
+            Assert.Equal (453, report.SourceKnownSchemeCount);
+            Assert.Equal (144, report.ExportedProfileCount);
+            Assert.Equal (309, report.SkippedProfiles.Count);
+            Assert.Equal (21, document.Profiles.Count (profile => profile.Algorithm == "hx"));
+            Assert.DoesNotContain (report.SkippedProfiles,
+                profile => profile.LegacyType == "GameRes.Formats.KiriKiri.HxCrypt");
+
+            foreach (var profile in document.Profiles)
+            {
+                Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
+                Assert.NotNull (scheme);
+            }
+
+            var hxProfile = document.Profiles.First (profile => profile.Algorithm == "hx");
+            Assert.True (Xp3Opener.TryGetScheme (hxProfile.Id, out var hxScheme));
+            Assert.IsType<HxCrypt> (hxScheme);
+        }
+
+        static string FixturePath => Path.Combine (AppContext.BaseDirectory, "Fixtures", "Formats.dat");
+    }
+}

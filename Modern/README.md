@@ -55,8 +55,8 @@ Hx and Senren family schemes use safe, data-only JSON profiles instead of the le
 dotnet run --project Modern/GARbro.Cli -- list encrypted.xp3 --xp3-profile game-profiles.json --xp3-scheme my-game
 ```
 
-Each profile declares a name, one of `CxEncryption`, `SenrenCxCrypt`, `CabbageCxCrypt`, `NanaCxCrypt`, `RiddleCxCrypt`, `HxCrypt`, or `HxCryptLite`, and the required `cx` data. No type names are deserialized from profile input.
+The original JSON array remains accepted for compatibility. New profiles use a versioned document with an `id`, stable algorithm ID (`cx-encryption`, `senren-cx`, `cabbage-cx`, `nana-cx`, `riddle-cx`, `hx`, or `hx-lite`), and an algorithm-specific `parameters` object. No type names are deserialized from profile input, and fields for another algorithm are rejected.
 
 ## Current limits
 
-The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Game-specific profile data is therefore not bundled yet, but Hx, Senren, and related helper implementations are available through explicit JSON profiles. See [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.
+The modern runtime intentionally rejects the legacy `Formats.dat` BinaryFormatter database. Its v2 data under `Modern/GameData/v2` now includes the checksum-verified XP3 title registry and exported parameterized Hx, Senren, and related profiles. Real archive fixture coverage and automatic game-to-profile bindings remain in progress. See [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md) for the execution checklist and [PORTING_STATUS.md](PORTING_STATUS.md) for the full status.

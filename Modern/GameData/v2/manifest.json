@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "dataVersion": "2026.07.22.2",
+  "datasets": [
+    {
+      "id": "xp3-title-registry",
+      "format": "XP3",
+      "kind": "title-registry",
+      "path": "GameData/v2/xp3/title-registry.json",
+      "sha256": "49a21600a9d8924a103e078bc1e7fb36063cbbb38ca382d599e541570d5411ae"
+    },
+    {
+      "id": "xp3-profiles",
+      "format": "XP3",
+      "kind": "algorithm-profiles",
+      "path": "GameData/v2/xp3/profiles.json",
+      "sha256": "4d2c8f86b19353ed84c974e0291068a77def61e44acd207f8a63116848607635"
+    }
+  ]
+}

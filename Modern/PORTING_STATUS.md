@@ -10,11 +10,11 @@
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime until the safe v2 database converter lands.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. The first safe v2 dataset is the bundled XP3 title registry; the remaining format-specific records still require explicit migration adapters.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
-- Hx, Senren, and related Cx XP3 helpers are available through a safe JSON profile supplied with `--xp3-profile <file> --xp3-scheme <name>`. Game-specific profile data has not yet been bundled because the legacy `Formats.dat` database remains intentionally unreadable.
+- Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. The exported profiles still need real archive fixture coverage and automatic game bindings.
 - Other archive formats remain in the legacy solution while their WPF option controls are replaced with data-driven option definitions.
 
 ## Next slice
 
-Migrate the archive option schema, then extend XP3 with its game-specific encryption helpers before adding the next archive-format slice.
+Migrate parameterized XP3 profiles into v2 data, then create the offline legacy exporter and add the next archive-format slice. The detailed work order lives in [DATABASE_MIGRATION.md](DATABASE_MIGRATION.md).
