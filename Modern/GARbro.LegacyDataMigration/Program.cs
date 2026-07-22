@@ -137,6 +137,11 @@ namespace GARbro.LegacyDataMigration
                     ExportRctKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-mcg-keys")
+                {
+                    ExportMcgKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-ns2-keys")
                 {
                     ExportNs2Keys (args[1], args[2]);
@@ -168,6 +173,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-arcg-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-mgpk-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-rct-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-mcg-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ns2-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -397,6 +403,15 @@ namespace GARbro.LegacyDataMigration
             WriteJson (outputPath, new RctKeysDocument { KnownKeys = keys });
             Console.WriteLine ("rctKeyCount={0}", keys.Count);
         }
+
+        static void ExportMcgKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportMcgKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new McgKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("mcgKeyCount={0}", keys.Count);
+        }
+
 
         static void ExportNs2Keys (string inputPath, string outputPath)
         {

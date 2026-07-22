@@ -89,6 +89,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add MGPK key-map validation and a deterministic encrypted entry/LZF fixture.
 - [x] Migrate the RCT title-to-password map as a standalone v2 dataset and load it in the modern RCT reader.
 - [x] Add RCT password-map validation and a deterministic encrypted RGB fixture.
+- [x] Migrate the MCG title-to-byte-key map as a standalone v2 dataset and load it in the modern MCG reader.
+- [x] Add MCG key-map validation and a deterministic encrypted v101 RGB fixture.
 - [ ] Port NOA ERISA and SimpleCrypt variants before claiming complete encrypted-format coverage.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 

@@ -32,6 +32,7 @@ using GameRes.Formats.BlackRainbow;
 using GameRes.Formats.Will;
 using GameRes.Formats.Mg;
 using GameRes.Formats.Majiro;
+using GameRes.Formats.FC01;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -325,6 +326,41 @@ namespace GARbro.Core.Tests
                     var pixels = new byte[3];
                     decoded.Bitmap.CopyPixels (pixels, 3, 0);
                     Assert.Equal (new byte[] { 0x10, 0x20, 0x30 }, pixels);
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+            }
+        }
+
+        [Fact]
+        public void Mcg_format_loads_migrated_key_and_reads_encrypted_fixture ()
+        {
+            var format = FormatCatalog.Instance.ImageFormats.OfType<McgFormat> ().Single ();
+            var scheme = Assert.IsType<McgScheme> (format.Scheme);
+            Assert.Equal (24, scheme.KnownKeys.Count);
+            Assert.Equal ((byte)1, scheme.KnownKeys["Echo"]);
+
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.mcg"] = "Echo" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                using (var input = new BinaryStream (
+                    new MemoryStream (CreateMcgFixture (scheme.KnownKeys["Echo"])), "sample.mcg"))
+                {
+                    var decoded = ImageFormat.Read (input);
+                    Assert.NotNull (decoded);
+                    Assert.Equal ((uint)1, decoded.Width);
+                    Assert.Equal ((uint)1, decoded.Height);
+                    var pixels = new byte[4];
+                    decoded.Bitmap.CopyPixels (pixels, 4, 0);
+                    Assert.Equal (new byte[] { 0x10, 0x20, 0x30, 0 }, pixels);
                 }
             }
             finally
@@ -1627,6 +1663,31 @@ namespace GARbro.Core.Tests
                 BitConverter.GetBytes (value).CopyTo (key, i * 4);
             }
             return key;
+        }
+
+        static byte[] CreateMcgFixture (byte key)
+        {
+            var packed = new byte[] { 0x0F, 0x10, 0x20, 0x30, 0x00, 0x00 };
+            var remaining = packed.Length - 1;
+            for (var i = 0; i < packed.Length - 1; ++i)
+            {
+                packed[i] = Binary.RotByteR ((byte)(packed[i] ^ key), 1);
+                key = (byte)(key + remaining--);
+            }
+
+            var result = new byte[0x40 + packed.Length];
+            BitConverter.GetBytes (0x2047434Du).CopyTo (result, 0);
+            result[4] = (byte)'1';
+            result[5] = (byte)'.';
+            result[6] = (byte)'0';
+            result[7] = (byte)'1';
+            BitConverter.GetBytes (0x40).CopyTo (result, 0x10);
+            BitConverter.GetBytes (1u).CopyTo (result, 0x1C);
+            BitConverter.GetBytes (1u).CopyTo (result, 0x20);
+            BitConverter.GetBytes (24).CopyTo (result, 0x24);
+            BitConverter.GetBytes (result.Length).CopyTo (result, 0x38);
+            packed.CopyTo (result, 0x40);
+            return result;
         }
 
         static void EncryptAdsBytes (byte[] data, byte[] key)

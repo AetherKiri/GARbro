@@ -176,6 +176,10 @@ namespace GARbro.Core.Tests
             Assert.Equal (33, rctKeys.Count);
             Assert.Equal ("\u59C9\u30CB\u30E2\u30DE\u30B1\u30BA", rctKeys["Ane ni mo Makezu"]);
 
+            var mcgKeys = LegacyXp3Exporter.ExportMcgKeys (database);
+            Assert.Equal (24, mcgKeys.Count);
+            Assert.Equal ((byte)1, mcgKeys["Echo"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
