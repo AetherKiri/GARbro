@@ -101,6 +101,13 @@ namespace GARbro.Core.Tests
             Assert.Equal ("amai_seikatu", mblKeys["Amai Seikatsu"]);
             Assert.Equal ("", mblKeys["Candy Toys"]);
 
+            var npkKeys = LegacyXp3Exporter.ExportNpkKeys (database);
+            Assert.Equal (4, npkKeys.Count);
+            Assert.All (npkKeys.Values, value => Assert.NotEmpty (value));
+            Assert.All (npkKeys.Values, value => Assert.Equal (32, value.Length));
+            Assert.Equal ("D73FE8D142818BDF2A6B2AED6C0170F4085A1D6D81A2A2A083DB3631E2CEFCED",
+                Convert.ToHexString (SHA256.HashData (npkKeys["Sonicomi"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
