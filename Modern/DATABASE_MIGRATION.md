@@ -45,6 +45,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [ ] Inventory every `ResourceScheme` implementation and classify it as scalar-key, structured-key, polymorphic-algorithm, or game-identification data.
 - [x] Migrate the ZIP scalar title-to-password map as a standalone v2 dataset and use it before interactive password lookup.
 - [x] Add ZIP-specific semantic validation and a ZipCrypto fixture covering migrated-password lookup before the interactive prompt.
+- [x] Migrate the TCD scalar title-to-integer key map as a standalone v2 dataset and load it when the TopCat port is discovered.
+- [x] Add TCD-specific semantic validation and a deterministic TCD3 listing/extraction fixture.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
 The current SchemeMap inventory and the ZIP migration boundary are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.

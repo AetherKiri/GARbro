@@ -9,6 +9,7 @@ using GameRes;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.PkWare;
+using GameRes.Formats.TopCat;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -86,6 +87,47 @@ namespace GARbro.Core.Tests
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 File.Delete (archivePath);
+            }
+        }
+
+        [Fact]
+        public void Tcd_format_is_discovered_with_migrated_key_map ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "TCD");
+
+            Assert.IsType<TcdOpener> (format);
+            Assert.Equal (3, TcdOpener.KnownKeys.Count);
+            Assert.Equal (327047585, TcdOpener.KnownKeys["Atori no Sora to Shinchuu no Tsuki"]);
+            Assert.Equal (-982448593, TcdOpener.KnownKeys["Favorite Sweet!"]);
+            Assert.Equal (-987080510, TcdOpener.KnownKeys["Nanapuri"]);
+        }
+
+        [Fact]
+        public void Tcd_format_opens_a_minimal_v3_fixture ()
+        {
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.tcd");
+                CreateTcd3Fixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("TCD", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("dir/sample.WAV", entry.Name.Replace ('\\', '/'));
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated TCD fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
             }
         }
 
@@ -476,6 +518,59 @@ namespace GARbro.Core.Tests
                 zip.Write (data, 0, data.Length);
                 zip.CloseEntry();
             }
+        }
+
+        static void CreateTcd3Fixture (string path)
+        {
+            const byte sectionKey = 1;
+            const int sectionCount = 5;
+            const int headerSize = 8 + sectionCount * 0x20;
+            const int indexOffset = headerSize;
+            var directoryName = EncodeTcdName ("dir", 4, sectionKey);
+            var fileName = EncodeTcdName ("sample", 7, sectionKey);
+            var payload = Encoding.UTF8.GetBytes ("migrated TCD fixture");
+            var dataOffset = indexOffset + directoryName.Length + 0x10 + fileName.Length + 8;
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("TCD3"));
+                output.Write (1);
+                for (var i = 0; i < sectionCount; ++i)
+                {
+                    if (i != 4)
+                    {
+                        output.Write (new byte[0x20]);
+                        continue;
+                    }
+                    output.Write ((uint)payload.Length);
+                    output.Write ((uint)indexOffset);
+                    output.Write (1);
+                    output.Write (directoryName.Length);
+                    output.Write (1);
+                    output.Write (fileName.Length);
+                    output.Write (new byte[8]);
+                }
+
+                output.Write (directoryName);
+                output.Write (1);
+                output.Write (0);
+                output.Write (0);
+                output.Write (0);
+                output.Write (fileName);
+                output.Write ((uint)dataOffset);
+                output.Write ((uint)(dataOffset + payload.Length));
+                output.Write (payload);
+            }
+        }
+
+        static byte[] EncodeTcdName (string name, int length, byte key)
+        {
+            var result = new byte[length];
+            var bytes = Encoding.ASCII.GetBytes (name);
+            Array.Copy (bytes, result, Math.Min (bytes.Length, length - 1));
+            for (var i = 0; i < result.Length; ++i)
+                result[i] += key;
+            return result;
         }
 
         [Fact]

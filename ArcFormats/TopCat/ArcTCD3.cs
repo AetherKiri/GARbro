@@ -88,7 +88,11 @@ namespace GameRes.Formats.TopCat
             Signatures = new uint[] { 0x32444354, 0x33444354 }; // 'TCD2', 'TCD3'
         }
 
+#if NET10_0_OR_GREATER
+        public static Dictionary<string, int> KnownKeys = TcdKeyDatabase.CreateSchemeKeys();
+#else
         public static Dictionary<string, int> KnownKeys = new Dictionary<string, int>();
+#endif
 
         public override ResourceScheme Scheme
         {
