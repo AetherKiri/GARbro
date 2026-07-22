@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.7",
+  "dataVersion": "2026.07.22.8",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -36,6 +36,13 @@
       "kind": "default-key",
       "path": "GameData/v2/morning/default-key.json",
       "sha256": "f8780c83eb33191e4414450f5d8ae7f0fc9a1e4c4628a66d5c3ff06c57b93a0a"
+    },
+    {
+      "id": "fpk-keys",
+      "format": "FPK/MOONHIR",
+      "kind": "key-list",
+      "path": "GameData/v2/fpk/keys.json",
+      "sha256": "10870a23153cefb9c21025a235be003c32a023c79d99a3f209d3e513cb3b1cc9"
     }
   ]
 }

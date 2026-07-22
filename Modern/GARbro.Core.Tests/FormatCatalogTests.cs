@@ -9,6 +9,7 @@ using GameRes;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.Morning;
+using GameRes.Formats.MoonhirGames;
 using GameRes.Formats.PkWare;
 using GameRes.Formats.TopCat;
 using ICSharpCode.SharpZipLib.Zip;
@@ -156,6 +157,42 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated Morning fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Moonhir_fpk_format_loads_migrated_keys_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "FPK/MOONHIR");
+            Assert.IsType<FpkOpener> (format);
+            var scheme = Assert.IsType<Fpk0100Scheme> (format.Scheme);
+            Assert.Equal (28, scheme.KnownKeys.Length);
+            Assert.Equal (0u, scheme.KnownKeys[0]);
+            Assert.Equal (4064587902u, scheme.KnownKeys[^1]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.fpk");
+                CreateFpkFixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("FPK/MOONHIR", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated FPK fixture", input.ReadToEnd());
             }
             finally
             {
@@ -630,6 +667,30 @@ namespace GARbro.Core.Tests
                 output.Write (0x58668F8Bu);
                 output.Write (1u);
                 output.Write (index);
+                output.Write (payload);
+            }
+        }
+
+        static void CreateFpkFixture (string path)
+        {
+            const int indexOffset = 0x20;
+            const int dataOffset = 0x40;
+            var payload = Encoding.UTF8.GetBytes ("migrated FPK fixture");
+            var name = new byte[12];
+            Array.Copy (Encoding.ASCII.GetBytes ("sample.txt"), name, 10);
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("FPK\0"));
+                output.Write (Encoding.ASCII.GetBytes ("0100"));
+                output.Write ((uint)indexOffset);
+                output.Write (1);
+                output.Write (new byte[indexOffset - 0x10]);
+                output.Write (0u);
+                output.Write ((uint)dataOffset);
+                output.Write ((uint)payload.Length);
+                output.Write (name);
+                output.Write (new byte[dataOffset - (indexOffset + 0x18)]);
                 output.Write (payload);
             }
         }

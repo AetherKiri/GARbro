@@ -64,7 +64,11 @@ namespace GameRes.Formats.MoonhirGames
         public override bool  IsHierarchic { get { return false; } }
         public override bool      CanWrite { get { return false; } }
 
+#if NET10_0_OR_GREATER
+        public static uint[] KnownKeys = FpkKeyDatabase.CreateSchemeKeys();
+#else
         public static uint[] KnownKeys = { 0 };
+#endif
 
         public override ResourceScheme Scheme
         {
@@ -126,7 +130,7 @@ namespace GameRes.Formats.MoonhirGames
                     throw new UnknownEncryptionScheme();
                 input = arc.File.CreateStream (entry.Offset, entry.Size);
                 header = new byte[0x10];
-                input.Read (header, 0, 0x10);
+                ReadSome (input, header, 0, header.Length);
                 input.Position = 0;
             }
             else
@@ -213,7 +217,7 @@ namespace GameRes.Formats.MoonhirGames
                     if (-1 == count)
                         return output;
                     count = Math.Min (count + 2, output.Length - dst);
-                    input.Read (output, dst, count);
+                    ReadSome (input, output, dst, count);
                     dst += count;
                     break;
                 case 2:
@@ -238,7 +242,7 @@ namespace GameRes.Formats.MoonhirGames
                         if (-1 == count)
                             return output;
                         count = Math.Min (count + 0x102, output.Length - dst);
-                        input.Read (output, dst, count);
+                        ReadSome (input, output, dst, count);
                         dst += count;
                         break;
                     case 1:
@@ -262,6 +266,19 @@ namespace GameRes.Formats.MoonhirGames
                 ctl >>= 2;
             }
             return output;
+        }
+
+        static int ReadSome (Stream input, byte[] output, int offset, int count)
+        {
+            int read = 0;
+            while (read < count)
+            {
+                int value = input.ReadByte();
+                if (-1 == value)
+                    break;
+                output[offset + read++] = (byte)value;
+            }
+            return read;
         }
     }
 }

@@ -49,6 +49,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add TCD-specific semantic validation and a deterministic TCD3 listing/extraction fixture.
 - [x] Migrate the Morning scalar default byte key as a standalone v2 dataset and load it in the modern PAK/MORNING port.
 - [x] Add Morning key-shape validation and a deterministic encrypted-index PAK fixture.
+- [x] Migrate the Moonhir FPK scalar key list as a standalone v2 dataset and load it in the modern FPK port.
+- [x] Add FPK key-list validation and a deterministic index/extraction fixture.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
 The current SchemeMap inventory and the ZIP migration boundary are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.
