@@ -18,6 +18,8 @@
     <Compile Include="../../ArcFormats/KiriKiri/HxCrypt.cs" Link="KiriKiri/HxCrypt.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/HxCryptLite.cs" Link="KiriKiri/HxCryptLite.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/YuzCrypt.cs" Link="KiriKiri/YuzCrypt.cs" />
+    <Compile Include="../../ArcFormats/AudioOGG.cs" Link="AudioOGG.cs" />
+    <Compile Include="../../ArcFormats/AudioMP3.cs" Link="AudioMP3.cs" />
     <Compile Include="../../ArcFormats/CommonStreams.cs" Link="CommonStreams.cs" />
     <Compile Include="../../ArcFormats/Lz4Stream.cs" Link="Lz4Stream.cs" />
     <Compile Include="../../ArcFormats/ExeFile.cs" Link="ExeFile.cs" />
@@ -29,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../GARbro.Core/GARbro.Core.csproj" />
+    <PackageReference Include="NVorbis" Version="0.10.4" />
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
   </ItemGroup>
 </Project>

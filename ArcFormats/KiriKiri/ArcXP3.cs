@@ -148,16 +148,22 @@ namespace GameRes.Formats.KiriKiri
             get
             {
 #if NET10_0_OR_GREATER
-                return ModernSchemes.Keys.Concat (Xp3SchemeProfiles.Names)
+                // Match the original XP3 widget: selectable values are game titles, not
+                // implementation class names.  The latter remain an internal detail.
+                return new[] { "NoCrypt" }
+                    .Concat (Xp3TitleDatabase.SchemeTitles.Where (HasModernAlgorithm))
+                    .Concat (Xp3SchemeProfiles.Names)
                     .OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
 #else
-                return ModernSchemes.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
+                return KnownSchemes.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
 #endif
             }
         }
 
         public static string GetModernSchemeDisplayName (string scheme)
         {
+            if ("NoCrypt" == scheme)
+                return "No encryption";
 #if NET10_0_OR_GREATER
             if (Xp3SchemeProfiles.TryGet (scheme, out _))
                 return Xp3SchemeProfiles.GetTitle (scheme);
@@ -543,7 +549,9 @@ NextEntry:
             var selectedScheme = ModernSchemeName;
             try
             {
-                foreach (var scheme in ModernSchemeNames)
+                // Detection operates on the internal algorithm identifiers so aliases
+                // for different game titles do not repeat the same attempt.
+                foreach (var scheme in ModernSchemes.Keys.Concat (Xp3SchemeProfiles.Names))
                 {
                     if ("NoCrypt" == scheme)
                         continue;
@@ -627,9 +635,30 @@ NextEntry:
             if (!string.IsNullOrEmpty (scheme) && KnownSchemes.TryGetValue (scheme, out algorithm))
                 return true;
 #if NET10_0_OR_GREATER
+            string algorithmName;
+            if (!string.IsNullOrEmpty (scheme)
+                && Xp3TitleDatabase.TryGetAlgorithm (scheme, out algorithmName)
+                && TryGetModernAlgorithm (algorithmName, out algorithm))
+                return true;
             if (!string.IsNullOrEmpty (scheme) && Xp3SchemeProfiles.TryGet (scheme, out algorithm))
                 return true;
 #endif
+            return TryGetModernAlgorithm (scheme, out algorithm);
+        }
+
+        static bool HasModernAlgorithm (string title)
+        {
+#if NET10_0_OR_GREATER
+            string algorithm;
+            return Xp3TitleDatabase.TryGetAlgorithm (title, out algorithm)
+                && ModernSchemes.ContainsKey (algorithm);
+#else
+            return false;
+#endif
+        }
+
+        static bool TryGetModernAlgorithm (string scheme, out ICrypt algorithm)
+        {
             Func<ICrypt> factory;
             if (!string.IsNullOrEmpty (scheme) && ModernSchemes.TryGetValue (scheme, out factory))
             {
@@ -951,11 +980,21 @@ NextEntry:
         {
             var title = FormatCatalog.Instance.LookupGame (file.Name);
             if (string.IsNullOrEmpty (title))
+                Xp3TitleDatabase.TryGetGameTitle (file.Name, out title);
+            if (string.IsNullOrEmpty (title))
                 title = FormatCatalog.Instance.LookupGame (file.Name, @"..\*.exe");
+            if (string.IsNullOrEmpty (title))
+            {
+                foreach (var candidate in VFS.GetFiles (VFS.CombinePath (VFS.GetDirectoryName (file.Name), @"..\*.exe")))
+                {
+                    if (Xp3TitleDatabase.TryGetGameTitle (candidate.Name, out title))
+                        break;
+                }
+            }
             if (string.IsNullOrEmpty (title))
                 return null;
             ICrypt algorithm;
-            if (!KnownSchemes.TryGetValue (title, out algorithm) && NoCryptTitles.Contains (title))
+            if (!TryGetScheme (title, out algorithm) && NoCryptTitles.Contains (title))
                 algorithm = NoCryptAlgorithm;
             return algorithm;
         }

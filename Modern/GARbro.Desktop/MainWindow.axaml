@@ -5,12 +5,13 @@
         Title="GARbro">
   <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource SystemControlBackgroundBaseLowBrush}">
     <Border Grid.Row="0" Padding="12" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,0,1">
-      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="8">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="8">
         <Button Grid.Column="0" Click="Back_Click" ToolTip.Tip="Back">Back</Button>
         <TextBox Grid.Column="1" Text="{Binding PathText, Mode=TwoWay}" PlaceholderText="Folder or archive path" />
         <Button Grid.Column="2" Click="LoadXp3Profiles_Click" ToolTip.Tip="Load XP3 profiles">Profiles</Button>
         <Button Grid.Column="3" Click="OpenPath_Click">Open</Button>
-        <Button Grid.Column="4" Click="Extract_Click" IsEnabled="{Binding HasArchive}">Extract selected</Button>
+        <Button Grid.Column="4" Click="ExtractSelected_Click" IsEnabled="{Binding CanExtractSelected}">Extract selected</Button>
+        <Button Grid.Column="5" Click="ExtractAll_Click" IsEnabled="{Binding CanExtractAll}">Extract all</Button>
       </Grid>
     </Border>
 
@@ -50,9 +51,18 @@
       </Border>
 
       <Border Grid.Column="2" Padding="16">
-        <Grid RowDefinitions="Auto,*" RowSpacing="12">
+        <Grid RowDefinitions="Auto,Auto,*" RowSpacing="12">
           <TextBlock Text="Preview" FontWeight="SemiBold" />
-          <Grid Grid.Row="1">
+          <Border Grid.Row="1" Padding="12" Background="{DynamicResource SystemControlBackgroundBaseMediumLowBrush}" IsVisible="{Binding HasPreviewAudio}">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+              <TextBlock Text="{Binding AudioPreviewText}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+              <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="6">
+                <Button Click="PlayAudio_Click" Content="{Binding AudioPlayButtonText}" />
+                <Button Click="StopAudio_Click">Stop</Button>
+              </StackPanel>
+            </Grid>
+          </Border>
+          <Grid Grid.Row="2">
             <Image Source="{Binding PreviewBitmap}" Stretch="Uniform" IsVisible="{Binding HasPreviewImage}" />
             <TextBox Text="{Binding PreviewText}" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" IsVisible="{Binding HasPreviewText}" />
           </Grid>

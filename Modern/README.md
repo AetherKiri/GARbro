@@ -6,6 +6,8 @@
 
 - Windows, macOS, and Linux builds through .NET 10.
 - Avalonia desktop browser for folders, ZIP archives, and XP3 archives.
+- Desktop previews for supported images, text files, and WAV, OGG, and MP3 audio.
+- Desktop extraction for one selected archive entry or the complete archive.
 - CLI listing and safe extraction for ZIP and XP3.
 - Standard unencrypted XP3 archives, plus explicitly selected migrated generic encryption schemes.
 - PNG, JPEG, and BMP regression coverage through the platform-neutral image layer.
@@ -25,6 +27,15 @@ dotnet run --project Modern/GARbro.Cli -- formats
 dotnet run --project Modern/GARbro.Cli -- list archive.zip
 dotnet run --project Modern/GARbro.Cli -- extract archive.zip --output extracted
 ```
+
+## Desktop browser
+
+Select an image, text, or audio entry to preview it. XP3 entries are presented
+as a navigable directory tree. Audio plays in the desktop application through
+the built-in cross-platform playback engine, with play/pause and stop controls.
+Use `Extract selected` to save the current archive entry or `Extract all` to
+save every file. Existing destination files are left untouched and reported as
+skipped.
 
 For encrypted XP3 archives, select a migrated scheme explicitly:
 

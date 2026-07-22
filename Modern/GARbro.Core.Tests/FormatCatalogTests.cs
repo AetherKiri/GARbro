@@ -22,6 +22,16 @@ namespace GARbro.Core.Tests
             Assert.Contains ("TGA", tags);
         }
 
+        [Fact]
+        public void Desktop_audio_preview_formats_are_available ()
+        {
+            var tags = FormatCatalog.Instance.AudioFormats.Select (format => format.Tag).ToArray();
+
+            Assert.Contains ("WAV", tags);
+            Assert.Contains ("OGG", tags);
+            Assert.Contains ("MP3", tags);
+        }
+
         [Theory]
         [InlineData("PNG")]
         [InlineData("JPEG")]
@@ -95,13 +105,63 @@ namespace GARbro.Core.Tests
                 var archive = VFS.CurrentArchive;
                 var entry = Assert.Single (archive.Dir);
                 Assert.Equal ("sample.txt", entry.Name);
-                using (var input = new StreamReader (archive.OpenEntry (entry), Encoding.UTF8))
+                using (var binary = archive.OpenBinaryEntry (entry))
+                {
+                    Assert.True (binary.CanSeek);
+                    using var input = new StreamReader (binary.AsStream, Encoding.UTF8, true, 1024, true);
                     Assert.Equal ("cross-platform XP3", input.ReadToEnd());
+                }
             }
             finally
             {
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Xp3_image_entry_decodes_after_yuzu_decryption ()
+        {
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            var previousScheme = Xp3Opener.ModernSchemeName;
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var metadata = new ImageMetaData { Width = 2, Height = 2 };
+                var pixels = new byte[] {
+                    0, 0, 255, 255, 0, 255, 0, 255,
+                    255, 0, 0, 255, 255, 255, 255, 255,
+                };
+                var image = ImageData.Create (metadata, PixelFormats.Bgra32, null, pixels, 8);
+                using (var output = File.Create ("sample.png"))
+                    ImageFormat.FindByTag ("PNG").Write (output, image);
+
+                var archivePath = Path.Combine (tempDirectory, "sample.xp3");
+                var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>().Single (item => item.Tag == "XP3");
+                var options = new Xp3Options { Version = 1, Scheme = new YuzuCrypt(), CompressIndex = true, CompressContents = true };
+                using (var output = File.Create (archivePath))
+                    format.Create (output, new[] { new Entry { Name = "images/sample.png" } }, options);
+
+                Xp3Opener.ModernSchemeName = "YuzuCrypt";
+                VFS.ChDir (archivePath);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                using (var input = VFS.CurrentArchive.OpenBinaryEntry (entry))
+                {
+                    var decoded = ImageFormat.Read (input);
+                    Assert.NotNull (decoded);
+                    Assert.Equal ((uint)2, decoded.Width);
+                    Assert.Equal ((uint)2, decoded.Height);
+                }
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Xp3Opener.ModernSchemeName = previousScheme;
                 Directory.SetCurrentDirectory (previousDirectory);
                 Directory.Delete (tempDirectory, true);
             }

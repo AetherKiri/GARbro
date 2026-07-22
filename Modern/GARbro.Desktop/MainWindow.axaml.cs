@@ -25,6 +25,12 @@ namespace GARbro.Desktop
         private ResourceItem m_selectedItem;
         private Bitmap m_previewBitmap;
         private string m_previewText;
+        private string m_audioPreviewPath;
+        private string m_audioPreviewText;
+        private string m_archivePath;
+        private string m_archiveDirectory;
+        private bool m_isExtracting;
+        private readonly AudioPreviewPlayer m_audioPlayer = new AudioPreviewPlayer();
         private string m_pathText = Directory.GetCurrentDirectory();
         private string m_status = "Open a folder or archive to begin.";
         private string m_openingPath;
@@ -34,7 +40,11 @@ namespace GARbro.Desktop
             InitializeComponent();
             DataContext = this;
             FormatCatalog.Instance.ParametersRequest += OnParametersRequest;
-            Closed += (sender, args) => FormatCatalog.Instance.ParametersRequest -= OnParametersRequest;
+            Closed += (sender, args) => {
+                FormatCatalog.Instance.ParametersRequest -= OnParametersRequest;
+                ClearPreview();
+                m_audioPlayer.Dispose();
+            };
             LoadDirectory (PathText);
         }
 
@@ -44,10 +54,29 @@ namespace GARbro.Desktop
         public string Status { get => m_status; private set => SetField (ref m_status, value); }
         public Bitmap PreviewBitmap { get => m_previewBitmap; private set { SetField (ref m_previewBitmap, value); OnPropertyChanged (nameof (HasPreviewImage)); } }
         public string PreviewText { get => m_previewText; private set { SetField (ref m_previewText, value); OnPropertyChanged (nameof (HasPreviewText)); } }
+        public string AudioPreviewText { get => m_audioPreviewText; private set => SetField (ref m_audioPreviewText, value); }
+        public string AudioPlayButtonText => m_audioPlayer.IsPlaying ? "Pause" : "Play";
         public bool HasPreviewImage => PreviewBitmap != null;
         public bool HasPreviewText => !string.IsNullOrEmpty (PreviewText);
+        public bool HasPreviewAudio => !string.IsNullOrEmpty (m_audioPreviewPath);
         public bool HasArchive => m_archive != null;
-        public ResourceItem SelectedItem { get => m_selectedItem; set => SetField (ref m_selectedItem, value); }
+        public string ArchiveLocation => string.IsNullOrEmpty (m_archiveDirectory) ? "/" : "/" + m_archiveDirectory;
+        public bool HasSelectedArchiveEntry => m_archive != null && m_selectedItem?.Entry != null;
+        public bool CanExtractAll => HasArchive && !m_isExtracting;
+        public bool CanExtractSelected => HasSelectedArchiveEntry && !m_isExtracting;
+        public ResourceItem SelectedItem
+        {
+            get => m_selectedItem;
+            set
+            {
+                if (SetField (ref m_selectedItem, value))
+                {
+                    OnPropertyChanged (nameof (HasSelectedArchiveEntry));
+                    OnPropertyChanged (nameof (CanExtractSelected));
+                    PreviewSelectedItem();
+                }
+            }
+        }
 
         private void OpenPath_Click (object sender, RoutedEventArgs e) => OpenPath (PathText);
         private void Home_Click (object sender, RoutedEventArgs e) => OpenPath (Environment.GetFolderPath (Environment.SpecialFolder.UserProfile));
@@ -76,12 +105,29 @@ namespace GARbro.Desktop
 
         private void Back_Click (object sender, RoutedEventArgs e)
         {
+            if (m_isExtracting)
+            {
+                Status = "Extraction is in progress.";
+                return;
+            }
             if (m_archive != null)
             {
+                if (!string.IsNullOrEmpty (m_archiveDirectory))
+                {
+                    LoadArchiveDirectory (GetArchiveParentDirectory (m_archiveDirectory));
+                    return;
+                }
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 m_archive = null;
+                m_archivePath = null;
+                m_archiveDirectory = null;
                 OnPropertyChanged (nameof (HasArchive));
+                OnPropertyChanged (nameof (ArchiveLocation));
+                OnPropertyChanged (nameof (HasSelectedArchiveEntry));
+                OnPropertyChanged (nameof (CanExtractAll));
+                OnPropertyChanged (nameof (CanExtractSelected));
+                SelectedItem = null;
             }
             var parent = Directory.GetParent (PathText);
             if (parent != null)
@@ -92,10 +138,22 @@ namespace GARbro.Desktop
 
         private async void OpenPath (string path)
         {
+            if (m_isExtracting)
+            {
+                Status = "Extraction is in progress.";
+                return;
+            }
             if (Directory.Exists (path))
             {
                 m_archive = null;
+                m_archivePath = null;
+                m_archiveDirectory = null;
                 OnPropertyChanged (nameof (HasArchive));
+                OnPropertyChanged (nameof (ArchiveLocation));
+                OnPropertyChanged (nameof (HasSelectedArchiveEntry));
+                OnPropertyChanged (nameof (CanExtractAll));
+                OnPropertyChanged (nameof (CanExtractSelected));
+                SelectedItem = null;
                 LoadDirectory (Path.GetFullPath (path));
                 return;
             }
@@ -131,13 +189,11 @@ namespace GARbro.Desktop
                     Status = "Unsupported archive: " + path;
                     return;
                 }
-                ClearPreview();
-                Entries.Clear();
-                foreach (var entry in m_archive.Dir.OrderBy (entry => entry.Name, StringComparer.OrdinalIgnoreCase))
-                    Entries.Add (ResourceItem.FromArchiveEntry (entry));
+                m_archivePath = path;
+                m_archiveDirectory = string.Empty;
                 PathText = path;
                 OnPropertyChanged (nameof (HasArchive));
-                Status = m_archive.Tag + " archive, " + Entries.Count + " entries";
+                LoadArchiveDirectory (m_archiveDirectory);
             }
             catch (OperationCanceledException)
             {
@@ -222,6 +278,11 @@ namespace GARbro.Desktop
                 return;
             if (SelectedItem.IsDirectory)
             {
+                if (m_archive != null && SelectedItem.ArchiveDirectory != null)
+                {
+                    LoadArchiveDirectory (SelectedItem.ArchiveDirectory);
+                    return;
+                }
                 OpenPath (SelectedItem.FullPath);
                 return;
             }
@@ -233,6 +294,70 @@ namespace GARbro.Desktop
                 return;
             }
             TryPreviewArchiveEntry (SelectedItem.Entry);
+        }
+
+        private void PreviewSelectedItem ()
+        {
+            ClearPreview();
+            if (SelectedItem == null || SelectedItem.IsDirectory)
+                return;
+            if (m_archive == null)
+            {
+                TryPreviewFile (SelectedItem.FullPath);
+                return;
+            }
+            TryPreviewArchiveEntry (SelectedItem.Entry);
+        }
+
+        private void LoadArchiveDirectory (string directory)
+        {
+            m_archiveDirectory = NormalizeArchivePath (directory);
+            var prefix = string.IsNullOrEmpty (m_archiveDirectory) ? string.Empty : m_archiveDirectory + "/";
+            var folders = new System.Collections.Generic.SortedDictionary<string, string> (StringComparer.OrdinalIgnoreCase);
+            var files = new System.Collections.Generic.List<Entry>();
+
+            foreach (var entry in m_archive.Dir)
+            {
+                var path = NormalizeArchivePath (entry.Name);
+                if (!path.StartsWith (prefix, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                var child = path.Substring (prefix.Length);
+                if (string.IsNullOrEmpty (child))
+                    continue;
+                var separator = child.IndexOf ('/');
+                if (separator >= 0)
+                {
+                    var name = child.Substring (0, separator);
+                    if (!folders.ContainsKey (name))
+                        folders.Add (name, prefix + name);
+                }
+                else
+                    files.Add (entry);
+            }
+
+            ClearPreview();
+            Entries.Clear();
+            foreach (var folder in folders)
+                Entries.Add (ResourceItem.FromArchiveDirectory (folder.Key, folder.Value));
+            foreach (var entry in files.OrderBy (entry => entry.Name, StringComparer.OrdinalIgnoreCase))
+                Entries.Add (ResourceItem.FromArchiveEntry (entry));
+            SelectedItem = null;
+            OnPropertyChanged (nameof (ArchiveLocation));
+            OnPropertyChanged (nameof (HasSelectedArchiveEntry));
+            OnPropertyChanged (nameof (CanExtractAll));
+            OnPropertyChanged (nameof (CanExtractSelected));
+            Status = m_archive.Tag + " archive " + ArchiveLocation + ", " + Entries.Count + " items";
+        }
+
+        private static string NormalizeArchivePath (string path)
+        {
+            return string.IsNullOrEmpty (path) ? string.Empty : path.Replace ('\\', '/').Trim ('/');
+        }
+
+        private static string GetArchiveParentDirectory (string directory)
+        {
+            var separator = NormalizeArchivePath (directory).LastIndexOf ('/');
+            return separator < 0 ? string.Empty : directory.Substring (0, separator);
         }
 
         private bool TryPreviewFile (string path)
@@ -252,12 +377,10 @@ namespace GARbro.Desktop
         {
             try
             {
-                using (var input = m_archive.OpenEntry (entry))
-                using (var binary = new BinaryStream (input, entry.Name))
-                {
-                    if (!TryPreviewStream (binary, entry.Name))
+                // XP3 streams are sequential. Decoders and preview retries require seeking.
+                using (var input = m_archive.OpenBinaryEntry (entry))
+                    if (!TryPreviewStream (input, entry.Name))
                         Status = "No preview for " + entry.Name;
-                }
             }
             catch (Exception error)
             {
@@ -268,6 +391,22 @@ namespace GARbro.Desktop
         private bool TryPreviewStream (IBinaryStream input, string name)
         {
             input.Position = 0;
+            try
+            {
+                PreviewBitmap = new Bitmap (input.AsStream);
+                PreviewText = null;
+                DeleteAudioPreview();
+                AudioPreviewText = null;
+                OnPropertyChanged (nameof (HasPreviewAudio));
+                Status = name;
+                return true;
+            }
+            catch
+            {
+                input.Position = 0;
+            }
+
+            input.Position = 0;
             var image = ImageFormat.Read (input);
             if (image != null)
             {
@@ -277,9 +416,35 @@ namespace GARbro.Desktop
                     png.Position = 0;
                     PreviewBitmap = new Bitmap (png);
                     PreviewText = null;
+                    DeleteAudioPreview();
+                    AudioPreviewText = null;
+                    OnPropertyChanged (nameof (HasPreviewAudio));
                     Status = name + " (" + image.Width + " x " + image.Height + ")";
                     return true;
                 }
+            }
+
+            input.Position = 0;
+            using (var sound = AudioFormat.Read (input))
+            {
+                if (sound != null)
+                {
+                    SetAudioPreview (sound, name);
+                    PreviewBitmap = null;
+                    PreviewText = null;
+                    Status = name + " (" + sound.SourceFormat + ", " + sound.Format.SamplesPerSecond + " Hz)";
+                    return true;
+                }
+            }
+
+            input.Position = 0;
+            if (IsNativeAudioFile (name))
+            {
+                SetRawAudioPreview (input.AsStream, name);
+                PreviewBitmap = null;
+                PreviewText = null;
+                Status = name + " (audio)";
+                return true;
             }
 
             input.Position = 0;
@@ -291,30 +456,166 @@ namespace GARbro.Desktop
                     return false;
                 PreviewText = new string (buffer, 0, count);
                 PreviewBitmap = null;
+                DeleteAudioPreview();
+                AudioPreviewText = null;
+                OnPropertyChanged (nameof (HasPreviewAudio));
                 Status = name;
                 return true;
             }
         }
 
-        private async void Extract_Click (object sender, RoutedEventArgs e)
+        private void SetAudioPreview (SoundInput sound, string name)
+        {
+            var extension = sound.SourceFormat is "wav" or "ogg" or "mp3" ? sound.SourceFormat : "wav";
+            var path = CreateAudioPreviewPath (extension);
+            using (var output = File.Create (path))
+            {
+                if (extension == sound.SourceFormat && sound.Source.CanSeek)
+                {
+                    sound.Source.Position = 0;
+                    sound.Source.CopyTo (output);
+                }
+                else
+                    AudioFormat.Wav.Write (sound, output);
+            }
+
+            DeleteAudioPreview();
+            m_audioPreviewPath = path;
+            AudioPreviewText = name + " - " + sound.Format.SamplesPerSecond + " Hz, " + sound.Format.Channels + " ch";
+            OnPropertyChanged (nameof (HasPreviewAudio));
+        }
+
+        private void SetRawAudioPreview (Stream input, string name)
+        {
+            var extension = Path.GetExtension (name).TrimStart ('.').ToLowerInvariant();
+            var path = CreateAudioPreviewPath (extension);
+            using (var output = File.Create (path))
+                input.CopyTo (output);
+            DeleteAudioPreview();
+            m_audioPreviewPath = path;
+            AudioPreviewText = name + " - audio";
+            OnPropertyChanged (nameof (HasPreviewAudio));
+        }
+
+        private static string CreateAudioPreviewPath (string extension)
+        {
+            var directory = Path.Combine (Path.GetTempPath(), "GARbro", "audio-preview");
+            Directory.CreateDirectory (directory);
+            return Path.Combine (directory, Guid.NewGuid().ToString ("N") + "." + extension);
+        }
+
+        private static bool IsNativeAudioFile (string name)
+        {
+            var extension = Path.GetExtension (name);
+            return extension.Equals (".wav", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals (".ogg", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals (".mp3", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals (".flac", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals (".m4a", StringComparison.OrdinalIgnoreCase)
+                || extension.Equals (".aac", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void PlayAudio_Click (object sender, RoutedEventArgs e)
+        {
+            if (string.IsNullOrEmpty (m_audioPreviewPath) || !File.Exists (m_audioPreviewPath))
+                return;
+            try
+            {
+                m_audioPlayer.Toggle (m_audioPreviewPath);
+                OnPropertyChanged (nameof (AudioPlayButtonText));
+                Status = m_audioPlayer.IsPlaying ? "Playing audio." : "Audio paused.";
+            }
+            catch (Exception error)
+            {
+                Status = "Unable to play audio: " + error.Message;
+            }
+        }
+
+        private void StopAudio_Click (object sender, RoutedEventArgs e)
+        {
+            m_audioPlayer.Stop();
+            OnPropertyChanged (nameof (AudioPlayButtonText));
+            Status = "Audio stopped.";
+        }
+
+        private async void ExtractSelected_Click (object sender, RoutedEventArgs e)
         {
             if (m_archive == null || SelectedItem?.Entry == null)
                 return;
+            await ExtractEntriesAsync (new[] { SelectedItem.Entry });
+        }
+
+        private async void ExtractAll_Click (object sender, RoutedEventArgs e)
+        {
+            if (m_archive == null)
+                return;
+            await ExtractEntriesAsync (m_archive.Dir);
+        }
+
+        private async Task ExtractEntriesAsync (System.Collections.Generic.IEnumerable<Entry> entries)
+        {
+            var selectedEntries = entries.Where (entry => entry.Offset >= 0).ToArray();
+            if (selectedEntries.Length == 0)
+            {
+                Status = "No archive entries to extract.";
+                return;
+            }
             var folders = await StorageProvider.OpenFolderPickerAsync (new FolderPickerOpenOptions { AllowMultiple = false, Title = "Extract to" });
             var target = folders.FirstOrDefault()?.TryGetLocalPath();
             if (string.IsNullOrEmpty (target))
                 return;
-            var destination = GetSafeDestination (target, SelectedItem.Entry.Name);
-            if (destination == null)
+            var archive = m_archive;
+            Status = "Extracting " + selectedEntries.Length + " files...";
+            m_isExtracting = true;
+            OnPropertyChanged (nameof (CanExtractAll));
+            OnPropertyChanged (nameof (CanExtractSelected));
+            try
             {
-                Status = "Unsafe archive entry path.";
-                return;
+                var result = await Task.Run (() => ExtractEntries (archive, target, selectedEntries));
+                Status = "Extracted " + result.Extracted + " files" + (result.Skipped > 0 ? "; " + result.Skipped + " skipped" : "")
+                    + (result.Failed > 0 ? "; " + result.Failed + " failed" : "") + ".";
             }
-            Directory.CreateDirectory (Path.GetDirectoryName (destination));
-            using (var input = m_archive.OpenEntry (SelectedItem.Entry))
-            using (var output = File.Create (destination))
-                await input.CopyToAsync (output);
-            Status = "Extracted " + SelectedItem.Entry.Name;
+            catch (Exception error)
+            {
+                Status = "Extraction failed: " + error.Message;
+            }
+            finally
+            {
+                m_isExtracting = false;
+                OnPropertyChanged (nameof (CanExtractAll));
+                OnPropertyChanged (nameof (CanExtractSelected));
+            }
+        }
+
+        private static ExtractionResult ExtractEntries (ArcFile archive, string root, System.Collections.Generic.IEnumerable<Entry> entries)
+        {
+            var result = new ExtractionResult();
+            foreach (var entry in entries)
+            {
+                var destination = GetSafeDestination (root, entry.Name);
+                if (destination == null)
+                {
+                    ++result.Skipped;
+                    continue;
+                }
+                try
+                {
+                    Directory.CreateDirectory (Path.GetDirectoryName (destination));
+                    using (var input = archive.OpenEntry (entry))
+                    using (var output = new FileStream (destination, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                        input.CopyTo (output);
+                    ++result.Extracted;
+                }
+                catch (IOException) when (File.Exists (destination))
+                {
+                    ++result.Skipped;
+                }
+                catch
+                {
+                    ++result.Failed;
+                }
+            }
+            return result;
         }
 
         private static string GetSafeDestination (string root, string entryName)
@@ -327,9 +628,24 @@ namespace GARbro.Desktop
 
         private void ClearPreview ()
         {
+            m_audioPlayer.Stop();
+            OnPropertyChanged (nameof (AudioPlayButtonText));
             PreviewBitmap?.Dispose();
             PreviewBitmap = null;
             PreviewText = null;
+            DeleteAudioPreview();
+            AudioPreviewText = null;
+            OnPropertyChanged (nameof (HasPreviewAudio));
+        }
+
+        private void DeleteAudioPreview ()
+        {
+            if (!string.IsNullOrEmpty (m_audioPreviewPath))
+            {
+                try { File.Delete (m_audioPreviewPath); }
+                catch (IOException) { }
+                m_audioPreviewPath = null;
+            }
         }
 
         private event PropertyChangedEventHandler ViewModelPropertyChanged;
@@ -348,16 +664,88 @@ namespace GARbro.Desktop
         }
     }
 
+    internal sealed class ExtractionResult
+    {
+        public int Extracted;
+        public int Skipped;
+        public int Failed;
+    }
+
+    internal sealed class AudioPreviewPlayer : IDisposable
+    {
+        SoundFlow.Backends.MiniAudio.MiniAudioEngine m_engine;
+        SoundFlow.Abstracts.Devices.AudioPlaybackDevice m_device;
+        SoundFlow.Components.SoundPlayer m_player;
+        string m_path;
+
+        public bool IsPlaying => m_player?.State == SoundFlow.Enums.PlaybackState.Playing;
+
+        public void Toggle (string path)
+        {
+            if (m_player != null && string.Equals (path, m_path, StringComparison.Ordinal))
+            {
+                if (IsPlaying)
+                    m_player.Pause();
+                else
+                    m_player.Play();
+                return;
+            }
+
+            Stop();
+            m_engine ??= new SoundFlow.Backends.MiniAudio.MiniAudioEngine();
+            m_engine.UpdateAudioDevicesInfo();
+            var device = m_engine.PlaybackDevices.FirstOrDefault (item => item.IsDefault);
+            if (string.IsNullOrEmpty (device.Name))
+                throw new InvalidOperationException ("No audio output device is available.");
+
+            var format = SoundFlow.Structs.AudioFormat.DvdHq;
+            m_device = m_engine.InitializePlaybackDevice (device, format);
+            m_player = new SoundFlow.Components.SoundPlayer (m_engine, format,
+                new SoundFlow.Providers.StreamDataProvider (m_engine, File.OpenRead (path)));
+            m_device.MasterMixer.AddComponent (m_player);
+            m_device.Start();
+            m_player.Play();
+            m_path = path;
+        }
+
+        public void Stop ()
+        {
+            if (m_player != null)
+            {
+                m_player.Stop();
+                m_device?.MasterMixer.RemoveComponent (m_player);
+                m_player.Dispose();
+                m_player = null;
+            }
+            if (m_device != null)
+            {
+                m_device.Stop();
+                m_device.Dispose();
+                m_device = null;
+            }
+            m_path = null;
+        }
+
+        public void Dispose ()
+        {
+            Stop();
+            m_engine?.Dispose();
+            m_engine = null;
+        }
+    }
+
     public sealed class ResourceItem
     {
         public string Name { get; private set; }
         public string Type { get; private set; }
         public string SizeText { get; private set; }
         public string FullPath { get; private set; }
+        public string ArchiveDirectory { get; private set; }
         public Entry Entry { get; private set; }
         public bool IsDirectory { get; private set; }
 
         public static ResourceItem FromDirectory (DirectoryInfo directory) => new ResourceItem { Name = directory.Name, Type = "Folder", FullPath = directory.FullName, IsDirectory = true };
+        public static ResourceItem FromArchiveDirectory (string name, string path) => new ResourceItem { Name = name, Type = "Folder", ArchiveDirectory = path, IsDirectory = true };
         public static ResourceItem FromFile (FileInfo file) => new ResourceItem { Name = file.Name, Type = "File", FullPath = file.FullName, SizeText = FormatSize (file.Length) };
         public static ResourceItem FromArchiveEntry (Entry entry) => new ResourceItem { Name = entry.Name, Type = entry.Type, Entry = entry, SizeText = FormatSize (entry.Size) };
 

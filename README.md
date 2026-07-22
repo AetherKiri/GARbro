@@ -9,7 +9,7 @@ This repository now has two development paths:
 - **Legacy Windows application**: the established .NET Framework/WPF application and the reference for broad format compatibility.
 - **Modern cross-platform application**: the active .NET 10 port for Windows, macOS, and Linux. It uses Avalonia for the desktop shell and is being migrated format by format.
 
-The modern port is currently focused on reliable archive access rather than full legacy format parity. Its first supported archive formats are ZIP and KiriKiri XP3.
+The modern port is currently focused on reliable archive access rather than full legacy format parity. Its first supported archive formats are ZIP and KiriKiri XP3. In the desktop browser, selecting a supported image, text file, or WAV, OGG, or MP3 entry opens its preview. XP3 contents are shown as a navigable directory tree, and audio plays inside the application. Archives can be extracted either entry by entry or in full; existing destination files are skipped.
 
 ## Modern quick start
 

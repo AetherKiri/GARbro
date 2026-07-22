@@ -132,12 +132,16 @@ namespace GameRes.Formats
         public override uint     Signature { get { return 0x5367674f; } } // 'OggS'
         public override bool      CanWrite { get { return false; } }
 
+#if !NET10_0_OR_GREATER
         LocalResourceSetting FixCrc = new LocalResourceSetting ("OGGFixCrc");
+#endif
 
         public OggAudio ()
         {
             Signatures = new uint[] { 0x5367674F, 0 };
+#if !NET10_0_OR_GREATER
             Settings = new[] { FixCrc };
+#endif
         }
 
         public override SoundInput TryOpen (IBinaryStream file)
@@ -173,8 +177,10 @@ namespace GameRes.Formats
             }
             else if (file.Signature != this.Signature)
                 return null;
+#if !NET10_0_OR_GREATER
             if (FixCrc.Get<bool>())
                 input = new SeekableStream (new OggRestoreStream (input));
+#endif
             return new OggInput (input);
         }
 
@@ -183,6 +189,7 @@ namespace GameRes.Formats
         static readonly ResourceInstance<AudioFormat> s_OggFormat = new ResourceInstance<AudioFormat> ("OGG");
     }
 
+#if !NET10_0_OR_GREATER
     /// <summary>
     /// Restore CRC checksums of the OGG stream pages.
     /// </summary>
@@ -267,4 +274,5 @@ namespace GameRes.Formats
             LittleEndian.Pack (crc, m_page, 0x16);
         }
     }
+#endif
 }
