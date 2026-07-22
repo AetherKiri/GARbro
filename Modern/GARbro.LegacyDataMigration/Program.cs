@@ -27,10 +27,16 @@ namespace GARbro.LegacyDataMigration
                     ExportXp3GameMap (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-scheme-inventory")
+                {
+                    ExportSchemeInventory (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3-game-map <trusted-Formats.dat> <game-map.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-scheme-inventory <trusted-Formats.dat> <inventory.json>");
                 return 2;
             }
             catch (Exception error)
@@ -81,6 +87,15 @@ namespace GARbro.LegacyDataMigration
             var map = LegacyXp3Exporter.ExportGameMap (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new Xp3GameMapDocument { GameMap = map });
             Console.WriteLine ("exportedGameBindings={0}", map.Count);
+        }
+
+        static void ExportSchemeInventory (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var inventory = LegacyXp3Exporter.ExportSchemeInventory (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, inventory);
+            Console.WriteLine ("schemeCount={0}", inventory.Schemes.Count);
+            Console.WriteLine ("schemeTypeCount={0}", inventory.Types.Count);
         }
 
         static void EnsureNewFile (string path)

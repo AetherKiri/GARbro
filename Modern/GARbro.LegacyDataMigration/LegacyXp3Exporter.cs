@@ -35,6 +35,26 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, string> GameMap { get; set; }
     }
 
+    internal sealed class LegacySchemeInventoryDocument
+    {
+        public int SourceDatabaseVersion { get; set; }
+        public List<LegacySchemeInventoryEntry> Schemes { get; set; }
+        public List<LegacySchemeTypeSummary> Types { get; set; }
+    }
+
+    internal sealed class LegacySchemeInventoryEntry
+    {
+        public string Tag { get; set; }
+        public string LegacyType { get; set; }
+        public List<string> Members { get; set; }
+    }
+
+    internal sealed class LegacySchemeTypeSummary
+    {
+        public string LegacyType { get; set; }
+        public int Count { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -178,6 +198,54 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException ("Legacy game map contains a duplicate executable: " + executable);
             }
             return result;
+        }
+
+        internal static LegacySchemeInventoryDocument ExportSchemeInventory (LegacyFormatsDatabase database)
+        {
+            if (database == null || database.Root == null || !database.Root.HasMember ("SchemeMap"))
+                throw new InvalidDataException ("Legacy database has no scheme map.");
+            var dictionary = database.Root.GetRawValue ("SchemeMap") as ClassRecord;
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException ("Legacy scheme map is not a dictionary.");
+            var entries = new List<LegacySchemeInventoryEntry>();
+            if (dictionary.HasMember ("KeyValuePairs"))
+            {
+                var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+                if (rawPairs != null)
+                {
+                    var pairs = rawPairs as ArrayRecord;
+                    if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                        throw new InvalidDataException ("Legacy scheme map has invalid entries.");
+                    foreach (var record in GetRecordArray (pairs))
+                    {
+                        var entry = record as ClassRecord;
+                        if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                            throw new InvalidDataException ("Legacy scheme map contains an invalid entry.");
+                        var tag = ReadRaw (entry, "key") as string;
+                        var scheme = ReadRaw (entry, "value") as ClassRecord;
+                        if (string.IsNullOrWhiteSpace (tag) || scheme == null)
+                            throw new InvalidDataException ("Legacy scheme map contains an incomplete entry.");
+                        entries.Add (new LegacySchemeInventoryEntry {
+                            Tag = tag,
+                            LegacyType = scheme.TypeName.FullName,
+                            Members = scheme.MemberNames.OrderBy (name => name, StringComparer.Ordinal).ToList(),
+                        });
+                    }
+                }
+            }
+            entries = entries.OrderBy (entry => entry.Tag, StringComparer.OrdinalIgnoreCase).ToList();
+            var duplicate = entries.GroupBy (entry => entry.Tag, StringComparer.OrdinalIgnoreCase).FirstOrDefault (group => group.Count() > 1);
+            if (duplicate != null)
+                throw new InvalidDataException ("Legacy scheme map contains a duplicate format tag: " + duplicate.Key);
+            var types = entries.GroupBy (entry => entry.LegacyType, StringComparer.Ordinal)
+                .Select (group => new LegacySchemeTypeSummary { LegacyType = group.Key, Count = group.Count() })
+                .OrderBy (entry => entry.LegacyType, StringComparer.Ordinal)
+                .ToList();
+            return new LegacySchemeInventoryDocument {
+                SourceDatabaseVersion = database.Version,
+                Schemes = entries,
+                Types = types,
+            };
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)

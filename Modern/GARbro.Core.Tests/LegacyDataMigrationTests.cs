@@ -49,6 +49,14 @@ namespace GARbro.Core.Tests
             Assert.Equal (1129, gameMap.Count);
             Assert.Contains (gameMap, item => item.Key == "SenrenBanka.exe" && item.Value == "Senren＊Banka");
 
+            var inventory = LegacyXp3Exporter.ExportSchemeInventory (database);
+            Assert.Equal (148, inventory.SourceDatabaseVersion);
+            Assert.Equal (77, inventory.Schemes.Count);
+            Assert.Equal (64, inventory.Types.Count);
+            Assert.Contains (inventory.Schemes, scheme => scheme.Tag == "ZIP"
+                && scheme.LegacyType == "GameRes.Formats.PkWare.ZipScheme"
+                && scheme.Members.SequenceEqual (new[] { "KnownKeys" }));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
