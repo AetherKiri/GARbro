@@ -92,6 +92,10 @@ namespace GARbro.Core.Tests
             Assert.Equal (2705044775u, pkgKey[0]);
             Assert.Equal (4159235687u, pkgKey[^1]);
 
+            var csafKeys = LegacyXp3Exporter.ExportCsafKeys (database);
+            Assert.Single (csafKeys);
+            Assert.Equal ("招子", csafKeys["Nanairo * Clip ~Saigo no Stage~"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

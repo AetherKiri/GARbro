@@ -91,6 +91,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, uint[]> KnownKeys { get; set; }
     }
 
+    internal sealed class CsafKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, string> KnownKeys { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -334,6 +340,15 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy PKG/2 scheme has no KnownKeys member.");
             var dictionary = ReadRaw (pkgScheme, "KnownKeys") as ClassRecord;
             return ReadUIntArrayDictionary (dictionary, "Legacy PKG/2 key map");
+        }
+
+        internal static Dictionary<string, string> ExportCsafKeys (LegacyFormatsDatabase database)
+        {
+            var csafScheme = FindScheme (database, "CSAF");
+            if (csafScheme == null || !csafScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy CSAF scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (csafScheme, "KnownKeys") as ClassRecord;
+            return ReadStringDictionary (dictionary, "Legacy CSAF key map");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
