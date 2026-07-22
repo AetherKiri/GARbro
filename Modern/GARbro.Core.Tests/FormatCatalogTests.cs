@@ -1,11 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.IO;
 using System.IO.Compression;
+using System.Reflection;
 using System.Text;
 using GameRes;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.PkWare;
+using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
 namespace GARbro.Core.Tests
@@ -409,6 +413,69 @@ namespace GARbro.Core.Tests
             Assert.True (ZipOpener.TryGetKnownPassword ("Choir", out var password));
             Assert.Equal ("trendri0da0", password);
             Assert.False (ZipOpener.TryGetKnownPassword ("unknown-zip-title", out _));
+        }
+
+        [Fact]
+        public void Encrypted_zip_uses_migrated_title_password_before_prompt ()
+        {
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory (tempDirectory);
+            var prompted = false;
+            var parametersHandler = new ParametersRequestEventHandler ((sender, args) => {
+                prompted = true;
+                args.Options = new ZipOptions { Password = "wrong-password" };
+                args.InputResult = true;
+            });
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                File.WriteAllText ("Choir.exe", string.Empty);
+                var archivePath = Path.Combine (tempDirectory, "sample.zip");
+                CreateEncryptedZip (archivePath, "trendri0da0");
+                var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.NotNull (gameMapField);
+                var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+                var testGameMap = new Dictionary<string, string> (originalGameMap,
+                    StringComparer.OrdinalIgnoreCase) { ["Choir.exe"] = "Choir" };
+                gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+                FormatCatalog.Instance.ParametersRequest += parametersHandler;
+                try
+                {
+                    VFS.ChDir (archivePath);
+                    var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                    using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                        Assert.Equal ("migrated ZIP password", input.ReadToEnd());
+                }
+                finally
+                {
+                    FormatCatalog.Instance.ParametersRequest -= parametersHandler;
+                    gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                }
+                Assert.False (prompted);
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        static void CreateEncryptedZip (string path, string password)
+        {
+            using (var output = File.Create (path))
+            using (var zip = new ZipOutputStream (output))
+            {
+                zip.Password = password;
+                var entry = new ICSharpCode.SharpZipLib.Zip.ZipEntry ("sample.txt");
+                zip.PutNextEntry (entry);
+                var data = Encoding.UTF8.GetBytes ("migrated ZIP password");
+                zip.Write (data, 0, data.Length);
+                zip.CloseEntry();
+            }
         }
 
         [Fact]
