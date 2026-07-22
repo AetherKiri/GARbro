@@ -34,6 +34,7 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Give the supported XP3 parameterized algorithms explicit export adapters, including archive-specific Hx index keys.
 - [x] Produce a conversion report: source version, record counts, unsupported types, and output hashes.
 - [x] Add fixture-based regression tests for legacy header validation, root validation, stable XP3 export counts, and v2 profile parsing.
+- [x] Add the first staged non-XP3 export adapter for the `TCD` string-to-integer key map, with stable count/value assertions.
 - [ ] Give each remaining `ResourceScheme` family an explicit export adapter.
 - [ ] Compare exported data against known archive fixtures before accepting a generated change.
 - [ ] During transition, generate legacy `Formats.dat` from v2 source if legacy releases still need updates. Never edit both sources manually.
