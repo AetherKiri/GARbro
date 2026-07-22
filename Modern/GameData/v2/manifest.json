@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.23.21",
+  "dataVersion": "2026.07.23.22",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -134,6 +134,13 @@
       "kind": "key-map",
       "path": "GameData/v2/crz/keys.json",
       "sha256": "2be89d571312ad6a5c211829dd66a4131a9ea286c1757b60da495ad13b6aebd5"
+    },
+    {
+      "id": "actgs-keys",
+      "format": "CG/ACTGS;DAT/ACTGS",
+      "kind": "key-list",
+      "path": "GameData/v2/actgs/keys.json",
+      "sha256": "be589d9296450f988fbed1d5e2007748a9323af45caf36171a2edb793474c5dc"
     }
   ]
 }

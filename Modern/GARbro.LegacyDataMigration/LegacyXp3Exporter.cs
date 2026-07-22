@@ -157,6 +157,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownKeys { get; set; }
     }
 
+    internal sealed class ActgsKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public byte[][] KnownKeys { get; set; }
+    }
+
 
     internal sealed class Xp3SkippedProfile
     {
@@ -491,6 +497,44 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy CRZ scheme has no KnownKeys member.");
             var dictionary = ReadRaw (crzScheme, "KnownKeys") as ClassRecord;
             return ReadByteDictionary (dictionary, "Legacy CRZ key map");
+        }
+
+        internal static byte[][] ExportActgsKeys (LegacyFormatsDatabase database)
+        {
+            var actgsScheme = FindScheme (database, "DAT/ACTGS");
+            if (actgsScheme == null || !actgsScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy ACTGS scheme has no KnownKeys member.");
+            var raw = ReadRaw (actgsScheme, "KnownKeys") as ArrayRecord;
+            if (raw == null || raw.Rank != 1 || raw.Lengths[0] > 4096)
+                throw new InvalidDataException ("Legacy ACTGS key list is invalid.");
+            byte[][] values;
+            try
+            {
+                var array = raw.GetArray (typeof (byte[][]), false);
+                var records = array as ArrayRecord[];
+                if (records == null)
+                    throw new InvalidDataException ("returned " + (array == null ? "null" : array.GetType ().FullName));
+                values = new byte[records.Length][];
+                for (var i = 0; i < records.Length; ++i)
+                {
+                    var key = records[i] as SZArrayRecord<byte>;
+                    if (key == null)
+                        throw new InvalidDataException ("element " + i + " is " + records[i]?.GetType ().FullName);
+                    values[i] = key.GetArray (false);
+                }
+            }
+            catch (Exception error)
+            {
+                throw new InvalidDataException ("Legacy ACTGS key list cannot be read: " + error.Message, error);
+            }
+            if (values == null)
+                throw new InvalidDataException ("Legacy ACTGS key list has an invalid element type.");
+            foreach (var key in values)
+            {
+                if (key == null || key.Length == 0)
+                    throw new InvalidDataException ("Legacy ACTGS key list contains an empty key.");
+            }
+            return values;
         }
 
 

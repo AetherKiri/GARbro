@@ -27,6 +27,7 @@ using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
 using GameRes.Formats.LiveMaker;
 using GameRes.Formats.Crowd;
+using GameRes.Formats.Actgs;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -145,6 +146,40 @@ namespace GARbro.Core.Tests
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 File.Delete (archivePath);
+            }
+        }
+
+        [Fact]
+        public void Actgs_dat_format_loads_migrated_keys_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "DAT/ACTGS");
+            var scheme = Assert.IsType<ActressScheme> (format.Scheme);
+            Assert.Equal (6, scheme.KnownKeys.Length);
+            Assert.True (scheme.KnownKeys[0].Length >= 4);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.dat");
+                File.WriteAllBytes (archivePath, CreateActgsFixture (scheme.KnownKeys[0]));
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("DAT/ACTGS", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("hello", input.ReadToEnd ());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
             }
         }
 
@@ -1313,6 +1348,33 @@ namespace GARbro.Core.Tests
                 result[2] = (byte)'D';
                 result[3] = (byte)'D';
                 return result;
+            }
+        }
+
+        static byte[] CreateActgsFixture (byte[] key)
+        {
+            const int firstOffset = 0x30;
+            var index = new byte[0x20];
+            BitConverter.GetBytes ((uint)firstOffset).CopyTo (index, 0);
+            BitConverter.GetBytes (5u).CopyTo (index, 4);
+            Encoding.ASCII.GetBytes ("sample.txt").CopyTo (index, 8);
+            for (var i = 0; i < index.Length; ++i)
+                index[i] ^= key[i % key.Length];
+            var payload = Encoding.ASCII.GetBytes ("hello");
+            for (var i = 0; i < payload.Length; ++i)
+                payload[i] ^= key[i % key.Length];
+
+            using (var output = new MemoryStream ())
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (1);
+                writer.Write (0);
+                writer.Write (0);
+                writer.Write (0);
+                writer.Write (index);
+                writer.Write (payload);
+                writer.Flush ();
+                return output.ToArray ();
             }
         }
 

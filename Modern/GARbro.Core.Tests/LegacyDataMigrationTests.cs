@@ -150,6 +150,12 @@ namespace GARbro.Core.Tests
             Assert.Equal ("55C90ACAEE17F959B622659EEFE9769889056A20BFA5C2A49F36562300755627",
                 Convert.ToHexString (SHA256.HashData (crzKeys["(C)CROWD MissYou"])));
 
+            var actgsKeys = LegacyXp3Exporter.ExportActgsKeys (database);
+            Assert.Equal (6, actgsKeys.Length);
+            Assert.All (actgsKeys, value => Assert.True (value.Length >= 4));
+            Assert.Equal ("E69468362728969614674D892D49CFA4B6CC2720F3E5D6C3137A614E04138674",
+                Convert.ToHexString (SHA256.HashData (actgsKeys[0])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

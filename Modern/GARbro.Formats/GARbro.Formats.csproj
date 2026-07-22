@@ -18,6 +18,8 @@
     <Compile Include="../../ArcFormats/Yatagarasu/ArcPKG2.cs" Link="Yatagarasu/ArcPKG2.cs" />
     <Compile Include="../../ArcFormats/FamilyAdvSystem/ArcCSAF.cs" Link="FamilyAdvSystem/ArcCSAF.cs" />
     <Compile Include="../../ArcFormats/NitroPlus/ArcNPK.cs" Link="NitroPlus/ArcNPK.cs" />
+    <Compile Include="../../ArcFormats/Actgs/ArcDAT.cs" Link="Actgs/ArcDAT.cs" />
+    <Compile Include="../../ArcFormats/Actgs/ArcCG.cs" Link="Actgs/ArcCG.cs" />
     <Compile Include="../../ArcFormats/Blowfish.cs" Link="Blowfish.cs" />
     <Compile Include="../../ArcFormats/NScripter/ArcNS2.cs" Link="NScripter/ArcNS2.cs" />
     <Compile Include="../../ArcFormats/NScripter/EncryptedStream.cs" Link="NScripter/EncryptedStream.cs" />

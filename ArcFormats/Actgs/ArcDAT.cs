@@ -66,7 +66,11 @@ namespace GameRes.Formats.Actgs
 
         internal static byte[][] KnownKeys { get { return DefaultScheme.KnownKeys; } }
 
+#if NET10_0_OR_GREATER
+        static ActressScheme DefaultScheme = new ActressScheme { KnownKeys = ActgsKeyDatabase.CreateSchemeKeys () };
+#else
         static ActressScheme DefaultScheme = new ActressScheme { KnownKeys = Array.Empty<byte[]>() };
+#endif
 
         public override ArcFile TryOpen (ArcView file)
         {
