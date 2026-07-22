@@ -52,6 +52,11 @@ namespace GARbro.LegacyDataMigration
                     ExportFpkKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-cmp-keys")
+                {
+                    ExportCmpKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -61,6 +66,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-tcd-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-morning-key <trusted-Formats.dat> <key.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-fpk-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-cmp-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -152,6 +158,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportFpkKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new FpkKeysDocument { KnownKeys = keys });
             Console.WriteLine ("fpkKeyCount={0}", keys.Length);
+        }
+
+        static void ExportCmpKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportCmpKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new CmpKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("cmpKeyCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

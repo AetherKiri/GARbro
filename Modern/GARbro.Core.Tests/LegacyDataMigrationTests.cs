@@ -78,6 +78,13 @@ namespace GARbro.Core.Tests
             Assert.Equal (86494307u, fpkKeys[1]);
             Assert.Equal (4064587902u, fpkKeys[^1]);
 
+            var cmpKeys = LegacyXp3Exporter.ExportCmpKeys (database);
+            Assert.Equal (2, cmpKeys.Count);
+            Assert.Equal ("AC00C467493B0633599D49B681CCDA0BB1A7E3D281E69FD8434CE7AFACBC8DDE",
+                Convert.ToHexString (SHA256.HashData (cmpKeys["Summer Radish Vacation!! 2"])));
+            Assert.Equal ("2C43729D693F01F9415897FEB439B08FFF8E33CE23AA55D17E5C0357E393A63C",
+                Convert.ToHexString (SHA256.HashData (cmpKeys["Imouto de Ikou!"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
