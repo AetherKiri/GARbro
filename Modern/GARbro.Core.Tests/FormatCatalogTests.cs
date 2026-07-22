@@ -149,6 +149,66 @@ namespace GARbro.Core.Tests
         }
 
         [Fact]
+        public void Xp3_format_automatically_detects_a_scheme_when_requested ()
+        {
+            var tempDirectory = Path.Combine (Path.GetTempPath(), Path.GetRandomFileName());
+            var previousDirectory = Directory.GetCurrentDirectory();
+            var previousScheme = Xp3Opener.ModernSchemeName;
+            Directory.CreateDirectory (tempDirectory);
+            var requested = false;
+            var parametersHandler = new ParametersRequestEventHandler ((sender, args) => {
+                requested = true;
+                Assert.IsType<Xp3Opener> (sender);
+                args.Options = new Xp3Options { AutoDetect = true };
+                args.InputResult = true;
+            });
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                File.WriteAllText ("sample.txt", "queried XP3", Encoding.UTF8);
+                var archivePath = Path.Combine (tempDirectory, "queried.xp3");
+                var format = (Xp3Opener)FormatCatalog.Instance.Formats.OfType<ArchiveFormat>().Single (item => item.Tag == "XP3");
+                var options = new Xp3Options {
+                    Version = 1,
+                    Scheme = new FateCrypt(),
+                    CompressIndex = true,
+                    CompressContents = true,
+                    RetainDirs = true,
+                };
+
+                using (var output = File.Create (archivePath))
+                    format.Create (output, new[] { new Entry { Name = "sample.txt" } }, options, null);
+
+                var previousForceEncryptionQuery = format.ForceEncryptionQuery;
+                format.ForceEncryptionQuery = true;
+                Xp3Opener.ModernSchemeName = null;
+                FormatCatalog.Instance.ParametersRequest += parametersHandler;
+                try
+                {
+                    VFS.ChDir (archivePath);
+                    var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                    using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                        Assert.Equal ("queried XP3", input.ReadToEnd());
+                }
+                finally
+                {
+                    FormatCatalog.Instance.ParametersRequest -= parametersHandler;
+                    format.ForceEncryptionQuery = previousForceEncryptionQuery;
+                }
+
+                Assert.True (requested);
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Xp3Opener.ModernSchemeName = previousScheme;
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
         public void Xp3_profiles_load_hx_and_senren_schemes_without_binaryformatter ()
         {
             const string profiles = @"[
@@ -166,6 +226,7 @@ namespace GARbro.Core.Tests
               },
               {
                 ""name"": ""senren-test"",
+                ""title"": ""Senren Banka"",
                 ""algorithm"": ""SenrenCxCrypt"",
                 ""cx"": {
                   ""mask"": 0,
@@ -184,6 +245,7 @@ namespace GARbro.Core.Tests
             Assert.IsType<HxCryptLite> (hx);
             Assert.True (Xp3Opener.TryGetScheme ("senren-test", out var senren));
             Assert.IsType<SenrenCxCrypt> (senren);
+            Assert.Equal ("Senren Banka", Xp3Opener.GetModernSchemeDisplayName ("senren-test"));
         }
     }
 }

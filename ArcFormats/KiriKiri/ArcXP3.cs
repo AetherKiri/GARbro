@@ -63,6 +63,7 @@ namespace GameRes.Formats.KiriKiri
     {
         public int              Version { get; set; }
         public ICrypt            Scheme { get; set; }
+        public bool        AutoDetect { get; set; }
         public bool       CompressIndex { get; set; }
         public bool    CompressContents { get; set; }
         public bool          RetainDirs { get; set; }
@@ -153,6 +154,15 @@ namespace GameRes.Formats.KiriKiri
                 return ModernSchemes.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
 #endif
             }
+        }
+
+        public static string GetModernSchemeDisplayName (string scheme)
+        {
+#if NET10_0_OR_GREATER
+            if (Xp3SchemeProfiles.TryGet (scheme, out _))
+                return Xp3SchemeProfiles.GetTitle (scheme);
+#endif
+            return scheme;
         }
 
 #if NET10_0_OR_GREATER
@@ -515,7 +525,95 @@ NextEntry:
             if (null != alg)
                 return alg;
             var options = Query<Xp3Options> (arcStrings.XP3EncryptedNotice);
+            if (options.AutoDetect)
+            {
+                alg = DetectCryptAlgorithm (file);
+                if (null != alg)
+                    return alg;
+                options = Query<Xp3Options> ("Automatic detection was inconclusive. Choose a scheme manually.");
+                if (options.AutoDetect)
+                    throw new UnknownEncryptionScheme ("Automatic detection was inconclusive.");
+            }
             return options.Scheme;
+        }
+
+        ICrypt DetectCryptAlgorithm (ArcView file)
+        {
+#if NET10_0_OR_GREATER
+            var selectedScheme = ModernSchemeName;
+            try
+            {
+                foreach (var scheme in ModernSchemeNames)
+                {
+                    if ("NoCrypt" == scheme)
+                        continue;
+                    ModernSchemeName = scheme;
+                    ArcFile candidate = null;
+                    try
+                    {
+                        candidate = TryOpen (file);
+                        if (null != candidate && HasPlausibleEntries (candidate.Dir)
+                            && HasPlausibleContents (candidate))
+                            return GetScheme (scheme);
+                    }
+                    catch (Exception)
+                    {
+                        // A non-matching candidate is expected to fail while reading the index.
+                    }
+                }
+            }
+            finally
+            {
+                ModernSchemeName = selectedScheme;
+            }
+#endif
+            return null;
+        }
+
+        static bool HasPlausibleEntries (IEnumerable<Entry> entries)
+        {
+            var names = entries.Select (entry => entry.Name).ToArray();
+            return names.Length > 0
+                && names.All (name => !string.IsNullOrWhiteSpace (name)
+                    && name.Length <= 260
+                    && name.IndexOf ('\0') < 0
+                    && name.IndexOf ('\ufffd') < 0
+                    && !name.Any (char.IsControl))
+                && names.Any (name => {
+                    var extension = Path.GetExtension (name);
+                    return extension.Length > 1 && extension.Length <= 12;
+                });
+        }
+
+        static bool HasPlausibleContents (ArcFile arc)
+        {
+            foreach (var entry in arc.Dir)
+            {
+                try
+                {
+                    using (var input = arc.OpenEntry (entry))
+                    {
+                        var buffer = new byte[Math.Min (64, (int)entry.Size)];
+                        int count = input.Read (buffer, 0, buffer.Length);
+                        if (count < 4)
+                            continue;
+                        uint signature = BitConverter.ToUInt32 (buffer, 0);
+                        if (0x5367674f == signature || 0x46464952 == signature || 0x474e5089 == signature
+                            || 0xe0ffd8ff == signature || 0x30474c54 == signature || 0x35474c54 == signature
+                            || 0x36474c54 == signature || 0x584d4b4a == signature)
+                            return true;
+
+                        int printable = buffer.Take (count).Count (b => b == 9 || b == 10 || b == 13 || (b >= 0x20 && b <= 0x7e));
+                        if (printable * 4 >= count * 3)
+                            return true;
+                    }
+                }
+                catch (Exception)
+                {
+                    // A failed candidate may not be able to decode a compressed or encrypted entry.
+                }
+            }
+            return false;
         }
 
         public static ICrypt GetScheme (string scheme)

@@ -13,6 +13,7 @@ namespace GameRes.Formats.KiriKiri
     public sealed class Xp3SchemeProfile
     {
         public string Name { get; set; }
+        public string Title { get; set; }
         public string Algorithm { get; set; }
         public CxScheme Cx { get; set; }
         public uint Seed { get; set; }
@@ -34,6 +35,8 @@ namespace GameRes.Formats.KiriKiri
     {
         static readonly Dictionary<string, ICrypt> s_profiles =
             new Dictionary<string, ICrypt> (StringComparer.OrdinalIgnoreCase);
+        static readonly Dictionary<string, string> s_titles =
+            new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
 
         public static IEnumerable<string> Names => s_profiles.Keys.OrderBy (name => name, StringComparer.OrdinalIgnoreCase);
 
@@ -52,21 +55,32 @@ namespace GameRes.Formats.KiriKiri
                 throw new InvalidDataException ("XP3 profile file contains no profiles.");
 
             var loaded = new Dictionary<string, ICrypt> (StringComparer.OrdinalIgnoreCase);
+            var titles = new Dictionary<string, string> (StringComparer.OrdinalIgnoreCase);
             foreach (var profile in profiles)
             {
                 if (string.IsNullOrWhiteSpace (profile.Name))
                     throw new InvalidDataException ("An XP3 profile is missing its name.");
                 if (!loaded.TryAdd (profile.Name, Create (profile)))
                     throw new InvalidDataException ("Duplicate XP3 profile: " + profile.Name);
+                titles.Add (profile.Name, string.IsNullOrWhiteSpace (profile.Title) ? profile.Name : profile.Title);
             }
             s_profiles.Clear();
+            s_titles.Clear();
             foreach (var item in loaded)
                 s_profiles.Add (item.Key, item.Value);
+            foreach (var item in titles)
+                s_titles.Add (item.Key, item.Value);
         }
 
         public static bool TryGet (string name, out ICrypt scheme)
         {
             return s_profiles.TryGetValue (name, out scheme);
+        }
+
+        public static string GetTitle (string name)
+        {
+            string title;
+            return s_titles.TryGetValue (name, out title) ? title : name;
         }
 
         static ICrypt Create (Xp3SchemeProfile profile)
