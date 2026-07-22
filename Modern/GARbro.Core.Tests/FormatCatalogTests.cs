@@ -16,6 +16,7 @@ using GameRes.Formats.PkWare;
 using GameRes.Formats.Yatagarasu;
 using GameRes.Formats.TopCat;
 using GameRes.Formats.FamilyAdvSystem;
+using GameRes.Formats.Marble;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -305,6 +306,49 @@ namespace GARbro.Core.Tests
             }
             finally
             {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Marble_mbl_format_uses_migrated_key_for_script_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "MBL");
+            Assert.IsType<MblOpener> (format);
+            var scheme = Assert.IsType<MblScheme> (format.Scheme);
+            Assert.Equal (58, scheme.KnownKeys.Count);
+            Assert.Equal ("amai_seikatu", scheme.KnownKeys["Amai Seikatsu"]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.mbl"] = "Amai Seikatsu" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.mbl");
+                CreateMblFixture (archivePath, scheme.KnownKeys["Amai Seikatsu"]);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("MBL", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.s", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated MBL fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 while (VFS.IsVirtual)
                     VFS.ChDir ("..");
                 Directory.SetCurrentDirectory (previousDirectory);
@@ -889,6 +933,31 @@ namespace GARbro.Core.Tests
             using (var md5 = MD5.Create())
                 Buffer.BlockCopy (md5.ComputeHash (index), 0, file, 0x10, 0x10);
             File.WriteAllBytes (path, file);
+        }
+
+        static void CreateMblFixture (string path, string password)
+        {
+            const int indexOffset = 8;
+            const int filenameLength = 0x10;
+            const int dataOffset = 0x20;
+            const string content = "migrated MBL fixture";
+            var payload = Encoding.UTF8.GetBytes (content);
+            var key = Encoding.ASCII.GetBytes (password);
+            for (var i = 0; i < payload.Length; ++i)
+                payload[i] ^= key[i % key.Length];
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (1);
+                output.Write (filenameLength);
+                var name = new byte[filenameLength];
+                Array.Copy (Encoding.ASCII.GetBytes ("sample.s"), name, 8);
+                output.Write (name);
+                output.Write ((uint)dataOffset);
+                output.Write ((uint)payload.Length);
+                output.Write (new byte[dataOffset - (indexOffset + filenameLength + 8)]);
+                output.Write (payload);
+            }
         }
 
         static void XorPkgWords (byte[] data, uint[] key, int mask)

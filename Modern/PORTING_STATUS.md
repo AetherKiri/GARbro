@@ -11,12 +11,13 @@
 - GameSystem CMP discovery, listing, and extraction are available through the modern port with its two migrated title keys.
 - Yatagarasu PKG/2 discovery, listing, and extraction are available through the modern port with its migrated eight-word title key.
 - Family Adv System CSAF discovery, listing, and extraction are available through the modern port with its migrated title key map.
+- Marble MBL discovery, listing, and title-keyed script extraction are available through the modern port with its migrated 58-entry key map.
 - KiriKiri XP3 creation, listing, and extraction are available for standard and explicitly selected encrypted schemes, including compressed index and content streams.
 - Modern builds use platform APIs for memory mapping and register legacy code pages.
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, and CSAF records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, and MBL records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
 - Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. Migrated executable bindings are available for automatic XP3 detection; real archive fixture coverage is still pending.
 - ZIP now consumes its seven migrated title-to-password entries before falling back to the interactive password prompt; an encrypted ZipCrypto fixture covers that path.

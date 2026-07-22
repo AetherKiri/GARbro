@@ -57,6 +57,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add PKG/2 key-array validation and an encrypted index/data fixture.
 - [x] Migrate the CSAF title-to-string key map as a standalone v2 dataset and load it in the modern CSAF port.
 - [x] Add CSAF key-map validation and a deterministic unencrypted listing/extraction fixture.
+- [x] Migrate the Marble MBL title-to-string key map as a standalone v2 dataset and load it in the modern MBL port.
+- [x] Add MBL key-map validation and a deterministic encrypted-script extraction fixture.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
 The current SchemeMap inventory and the ZIP migration boundary are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.
