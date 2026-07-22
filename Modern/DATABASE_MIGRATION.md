@@ -70,6 +70,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [ ] Port NSA SPB/LZSS/NBZ decompression before claiming support for compressed entries.
 - [x] Migrate the FJSYS MSD password map as a standalone v2 dataset and load it in the modern FJSYS port.
 - [x] Add FJSYS password-map validation and a deterministic encrypted `.msd` extraction fixture.
+- [x] Migrate the INT structured title-to-key map as a standalone v2 dataset and load it in the modern INT port.
+- [x] Add INT key-map validation and deterministic plain/encrypted index and entry fixtures.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 
 The current SchemeMap inventory and the ZIP migration boundary are described in [LEGACY_SCHEME_INVENTORY.md](LEGACY_SCHEME_INVENTORY.md). The inventory command intentionally records member names and types only; it does not expose key values.

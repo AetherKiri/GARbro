@@ -12,6 +12,7 @@ using GameRes.Utility;
 using System.Windows.Media;
 using GameRes.Formats.KiriKiri;
 using GameRes.Formats.GameSystem;
+using GameRes.Formats.CatSystem;
 using GameRes.Formats.Morning;
 using GameRes.Formats.MoonhirGames;
 using GameRes.Formats.PkWare;
@@ -601,6 +602,82 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.msd", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("migrated FJSYS fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Int_format_loads_migrated_key_map_and_opens_plain_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "INT");
+            Assert.IsType<IntOpener> (format);
+            var scheme = Assert.IsType<IntScheme> (format.Scheme);
+            Assert.Equal (24, scheme.KnownKeys.Count);
+            Assert.Equal (4081182131u, scheme.KnownKeys["Amakano"].Key);
+            Assert.Equal ("NXT-M81ERGNE", scheme.KnownKeys["Amakano"].Passphrase);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.int");
+                CreateIntPlainFixture (archivePath);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("INT", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("migrated INT fixture", input.ReadToEnd());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Int_format_uses_migrated_key_for_encrypted_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
+                .Single (item => item.Tag == "INT");
+            var scheme = Assert.IsType<IntScheme> (format.Scheme);
+            var mainKey = scheme.KnownKeys["Amakano"].Key;
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof(FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.int"] = "Amakano" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.int");
+                CreateIntEncryptedFixture (archivePath, mainKey);
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("INT", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.ASCII))
+                    Assert.Equal ("migrated INT ok!", input.ReadToEnd());
             }
             finally
             {
@@ -1367,6 +1444,102 @@ namespace GARbro.Core.Tests
             name.CopyTo (data, indexOffset + 0x10);
             encrypted.CopyTo (data, dataOffset);
             File.WriteAllBytes (path, data);
+        }
+
+        static void CreateIntPlainFixture (string path)
+        {
+            const int indexOffset = 8;
+            const int nameSize = 0x20;
+            var payload = Encoding.UTF8.GetBytes ("migrated INT fixture");
+            var dataOffset = indexOffset + nameSize + 8;
+            var data = new byte[dataOffset + payload.Length];
+            BitConverter.GetBytes (0x0046494Bu).CopyTo (data, 0);
+            BitConverter.GetBytes (1).CopyTo (data, 4);
+            Encoding.ASCII.GetBytes ("sample.txt").CopyTo (data, indexOffset);
+            BitConverter.GetBytes ((uint)dataOffset).CopyTo (data, indexOffset + nameSize);
+            BitConverter.GetBytes ((uint)payload.Length).CopyTo (data, indexOffset + nameSize + 4);
+            payload.CopyTo (data, dataOffset);
+            File.WriteAllBytes (path, data);
+        }
+
+        static void CreateIntEncryptedFixture (string path, uint mainKey)
+        {
+            const uint seed = 0x12345678;
+            const int firstEntryOffset = 8;
+            const int secondEntryOffset = firstEntryOffset + 0x48;
+            const int dataOffset = 0xA0;
+            var plainPayload = Encoding.ASCII.GetBytes ("migrated INT ok!");
+            var twister = new MersenneTwister (seed);
+            var blowfishKey = BitConverter.GetBytes (twister.Rand ());
+            var blowfish = new Blowfish (blowfishKey);
+            var encryptedPayload = EncipherBlowfish (blowfish, plainPayload);
+            var data = new byte[dataOffset + encryptedPayload.Length];
+            BitConverter.GetBytes (0x0046494Bu).CopyTo (data, 0);
+            BitConverter.GetBytes (2).CopyTo (data, 4);
+            Encoding.ASCII.GetBytes ("__key__.dat\0").CopyTo (data, firstEntryOffset);
+            BitConverter.GetBytes (seed).CopyTo (data, firstEntryOffset + 0x44);
+
+            twister.SRand (mainKey + 1);
+            var nameKey = twister.Rand ();
+            EncipherIntName ("sample.txt", nameKey).CopyTo (data, secondEntryOffset);
+            uint encodedOffset = dataOffset;
+            var encodedSize = (uint)encryptedPayload.Length;
+            EncipherBlowfishWords (blowfish, ref encodedOffset, ref encodedSize);
+            encodedOffset -= 1;
+            BitConverter.GetBytes (encodedOffset).CopyTo (data, secondEntryOffset + 0x40);
+            BitConverter.GetBytes (encodedSize).CopyTo (data, secondEntryOffset + 0x44);
+            encryptedPayload.CopyTo (data, dataOffset);
+            File.WriteAllBytes (path, data);
+        }
+
+        static byte[] EncipherBlowfish (Blowfish blowfish, byte[] plaintext)
+        {
+            var result = (byte[])plaintext.Clone();
+            if ((result.Length & 7) != 0)
+                throw new InvalidOperationException ("INT fixture payload must be block aligned.");
+            for (var offset = 0; offset < result.Length; offset += 8)
+            {
+                var left = LittleEndian.ToUInt32 (result, offset);
+                var right = LittleEndian.ToUInt32 (result, offset + 4);
+                EncipherBlowfishWords (blowfish, ref left, ref right);
+                LittleEndian.Pack (left, result, offset);
+                LittleEndian.Pack (right, result, offset + 4);
+            }
+            return result;
+        }
+
+        static void EncipherBlowfishWords (Blowfish blowfish, ref uint left, ref uint right)
+        {
+            var method = typeof(Blowfish).GetMethod ("Encipher",
+                BindingFlags.Instance | BindingFlags.NonPublic, null,
+                new[] { typeof(uint).MakeByRefType (), typeof(uint).MakeByRefType () }, null);
+            Assert.NotNull (method);
+            var arguments = new object[] { left, right };
+            method.Invoke (blowfish, arguments);
+            left = (uint)arguments[0];
+            right = (uint)arguments[1];
+        }
+
+        static byte[] EncipherIntName (string name, uint key)
+        {
+            const string alphabet = "zyxwvutsrqponmlkjihgfedcbaZYXWVUTSRQPONMLKJIHGFEDCBA";
+            var result = new byte[0x40];
+            var source = Encoding.ASCII.GetBytes (name);
+            var shift = (byte)((key >> 24) + (key >> 16) + (key >> 8) + key);
+            for (var i = 0; i < source.Length; ++i)
+            {
+                var index = alphabet.IndexOf ((char)source[i]);
+                if (index == -1)
+                    result[i] = source[i];
+                else
+                {
+                    var decipheredIndex = alphabet.Length - 1 - index;
+                    var rawIndex = (decipheredIndex + shift % alphabet.Length) % alphabet.Length;
+                    result[i] = (byte)alphabet[rawIndex];
+                }
+                ++shift;
+            }
+            return result;
         }
 
         static byte[] EncryptMsdBytes (byte[] plaintext, string password)

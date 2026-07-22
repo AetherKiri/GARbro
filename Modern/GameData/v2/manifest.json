@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.22.17",
+  "dataVersion": "2026.07.22.18",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -106,6 +106,13 @@
       "kind": "key-map",
       "path": "GameData/v2/fjsys/keys.json",
       "sha256": "1b0e4a0cb67a204bc8acc6aa269b6ee406f6d6d7ea1b79e76cfa24cb76be87ad"
+    },
+    {
+      "id": "int-keys",
+      "format": "INT",
+      "kind": "key-map",
+      "path": "GameData/v2/int/keys.json",
+      "sha256": "03b895ce854ac1210ee2eace881aee8ad6764c1dbaca3af677fcede60ffc6362"
     }
   ]
 }
