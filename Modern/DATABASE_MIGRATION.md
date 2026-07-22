@@ -81,6 +81,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add CRZ key-map validation and a deterministic compressed image fixture.
 - [x] Migrate the ACTGS byte-key list as a standalone v2 dataset and load it in the modern DAT/CG readers.
 - [x] Add ACTGS key-list validation and a deterministic encrypted DAT index/entry fixture.
+- [x] Migrate the ADS title-to-byte-key map as a standalone v2 dataset and load it in the modern ADS reader.
+- [x] Add ADS key-map validation and a deterministic encrypted index/entry fixture.
 - [ ] Port NOA ERISA and SimpleCrypt variants before claiming complete encrypted-format coverage.
 - [ ] Remove each modern build dependency on `Formats.dat` once its data is covered by v2.
 

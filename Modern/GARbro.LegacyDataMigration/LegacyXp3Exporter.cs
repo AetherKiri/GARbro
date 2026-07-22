@@ -163,6 +163,12 @@ namespace GARbro.LegacyDataMigration
         public byte[][] KnownKeys { get; set; }
     }
 
+    internal sealed class AdsKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownKeys { get; set; }
+    }
+
 
     internal sealed class Xp3SkippedProfile
     {
@@ -535,6 +541,15 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException ("Legacy ACTGS key list contains an empty key.");
             }
             return values;
+        }
+
+        internal static Dictionary<string, byte[]> ExportAdsKeys (LegacyFormatsDatabase database)
+        {
+            var adsScheme = FindScheme (database, "ADS");
+            if (adsScheme == null || !adsScheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy ADS scheme has no KnownKeys member.");
+            var dictionary = ReadRaw (adsScheme, "KnownKeys") as ClassRecord;
+            return ReadByteDictionary (dictionary, "Legacy ADS key map");
         }
 
 

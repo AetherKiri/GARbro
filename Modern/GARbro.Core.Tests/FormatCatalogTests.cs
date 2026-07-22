@@ -28,6 +28,7 @@ using GameRes.Formats.Tamamo;
 using GameRes.Formats.LiveMaker;
 using GameRes.Formats.Crowd;
 using GameRes.Formats.Actgs;
+using GameRes.Formats.BlackRainbow;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -173,6 +174,40 @@ namespace GARbro.Core.Tests
                 Assert.Equal ("sample.txt", entry.Name);
                 using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
                     Assert.Equal ("hello", input.ReadToEnd ());
+            }
+            finally
+            {
+                while (VFS.IsVirtual)
+                    VFS.ChDir ("..");
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Ads_format_loads_migrated_keys_and_opens_encrypted_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ADS");
+            var scheme = Assert.IsType<AdsScheme> (format.Scheme);
+            Assert.Equal (2, scheme.KnownKeys.Count);
+            Assert.Equal (256, scheme.KnownKeys["Soukan Yuugi 2"].Length);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.ads");
+                File.WriteAllBytes (archivePath, CreateAdsFixture (scheme.KnownKeys["Soukan Yuugi 2"]));
+
+                VFS.ChDir (archivePath);
+                Assert.Equal ("ADS", VFS.CurrentArchive.Tag);
+                var entry = Assert.Single (VFS.CurrentArchive.Dir);
+                Assert.Equal ("sample.txt", entry.Name);
+                using (var input = new StreamReader (VFS.CurrentArchive.OpenEntry (entry), Encoding.UTF8))
+                    Assert.Equal ("ads fixture", input.ReadToEnd ());
             }
             finally
             {
@@ -1375,6 +1410,71 @@ namespace GARbro.Core.Tests
                 writer.Write (payload);
                 writer.Flush ();
                 return output.ToArray ();
+            }
+        }
+
+        static byte[] CreateAdsFixture (byte[] key)
+        {
+            var plaintext = new byte[0x4F];
+            BitConverter.GetBytes (2u).CopyTo (plaintext, 0);
+            BitConverter.GetBytes (1).CopyTo (plaintext, 8);
+            BitConverter.GetBytes (0x20u).CopyTo (plaintext, 12);
+            BitConverter.GetBytes (0u).CopyTo (plaintext, 16);
+            Encoding.ASCII.GetBytes ("sample.txt").CopyTo (plaintext, 0x20);
+            BitConverter.GetBytes (11u).CopyTo (plaintext, 0x40);
+            Encoding.ASCII.GetBytes ("ads fixture").CopyTo (plaintext, 0x44);
+            EncryptAdsBytes (plaintext, key);
+            return plaintext;
+        }
+
+        static void EncryptAdsBytes (byte[] data, byte[] key)
+        {
+            for (var block = 0; block < data.Length; block += 1024)
+            {
+                var blockNumber = block / 1024;
+                var number = new byte[8];
+                BitConverter.GetBytes (blockNumber).CopyTo (number, 0);
+                var md5 = MD5.HashData (number);
+                var sha1 = SHA1.HashData (number);
+                var hmacKey = new byte[16];
+                for (var i = 0; i < hmacKey.Length; ++i)
+                    hmacKey[i] = (byte)(md5[i] ^ sha1[i]);
+                byte[] hmac;
+                using (var hash = new HMACSHA512 (hmacKey))
+                    hmac = hash.ComputeHash (key);
+
+                var map = Enumerable.Range (0, 256).ToArray ();
+                byte index = 0;
+                var h = 0;
+                for (var i = 0; i < 256; ++i)
+                {
+                    if (h == hmac.Length)
+                        h = 0;
+                    var tmp = map[i];
+                    index = (byte)(tmp + hmac[h++] + index);
+                    map[i] = map[index];
+                    map[index] = tmp;
+                }
+                var i0 = 0;
+                var i1 = 0;
+                for (var i = 0; i < 300; ++i)
+                {
+                    i0 = (i0 + 1) & 0xFF;
+                    var tmp = map[i0];
+                    i1 = (i1 + tmp) & 0xFF;
+                    map[i0] = map[i1];
+                    map[i1] = tmp;
+                }
+                var length = Math.Min (1024, data.Length - block);
+                for (var i = 0; i < length; ++i)
+                {
+                    i0 = (i0 + 1) & 0xFF;
+                    var tmp = map[i0];
+                    i1 = (i1 + tmp) & 0xFF;
+                    map[i0] = map[i1];
+                    map[i1] = tmp;
+                    data[block + i] ^= (byte)map[(map[i0] + tmp) & 0xFF];
+                }
             }
         }
 

@@ -156,6 +156,12 @@ namespace GARbro.Core.Tests
             Assert.Equal ("E69468362728969614674D892D49CFA4B6CC2720F3E5D6C3137A614E04138674",
                 Convert.ToHexString (SHA256.HashData (actgsKeys[0])));
 
+            var adsKeys = LegacyXp3Exporter.ExportAdsKeys (database);
+            Assert.Equal (2, adsKeys.Count);
+            Assert.Equal (256, adsKeys["Soukan Yuugi 2"].Length);
+            Assert.Equal ("D95D2856332D51E913377C58AB6B4CD39120F3E4C3CC3EB687164D6B44CEFA6B",
+                Convert.ToHexString (SHA256.HashData (adsKeys["Soukan Yuugi 2"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

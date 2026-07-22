@@ -117,6 +117,11 @@ namespace GARbro.LegacyDataMigration
                     ExportActgsKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-ads-keys")
+                {
+                    ExportAdsKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-ns2-keys")
                 {
                     ExportNs2Keys (args[1], args[2]);
@@ -144,6 +149,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-gal-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-crz-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-actgs-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-ads-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ns2-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -340,6 +346,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportActgsKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new ActgsKeysDocument { KnownKeys = keys });
             Console.WriteLine ("actgsKeyCount={0}", keys.Length);
+        }
+
+        static void ExportAdsKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportAdsKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new AdsKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("adsKeyCount={0}", keys.Count);
         }
 
 

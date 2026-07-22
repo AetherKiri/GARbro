@@ -53,7 +53,11 @@ namespace GameRes.Formats.BlackRainbow
             Signatures = new uint[] { 0x84D9514E, 0 };
         }
 
+#if NET10_0_OR_GREATER
+        public static Dictionary<string, byte[]> KnownKeys = AdsKeyDatabase.CreateSchemeKeys ();
+#else
         public static Dictionary<string, byte[]> KnownKeys = new Dictionary<string, byte[]>();
+#endif
 
         public override ResourceScheme Scheme
         {
