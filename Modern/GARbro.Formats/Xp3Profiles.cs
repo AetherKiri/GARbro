@@ -130,6 +130,18 @@ namespace GameRes.Formats.KiriKiri
         public byte[] KeyTable { get; set; }
     }
 
+    public sealed class Xp3ListFileParameters
+    {
+        public string ListFileName { get; set; }
+    }
+
+    public sealed class Xp3PureMoreParameters
+    {
+        public string FileListName { get; set; }
+        public string CharMap { get; set; }
+        public string LayerNameSuffix { get; set; }
+    }
+
     /// <summary>
     /// Compatibility DTO for the pre-v2 profile array. New data must use Xp3ProfileDocument.
     /// </summary>
@@ -338,6 +350,29 @@ namespace GameRes.Formats.KiriKiri
                     || (puca.HashTable != null && puca.HashTable.Length != puca.KeyTable.Length))
                     throw new InvalidDataException ("XP3 PuCa profile has mismatched hash/key tables: " + profile.Id);
                 return new PuCaCrypt { HashTable = puca.HashTable, KeyTable = puca.KeyTable };
+            case "chain-reaction":
+                return new ChainReactionCrypt (RequireListFile (ReadParameters<Xp3ListFileParameters> (profile), profile.Id));
+            case "chocolat":
+                return new ChocolatCrypt (RequireListFile (ReadParameters<Xp3ListFileParameters> (profile), profile.Id));
+            case "hachukano":
+                return new HachukanoCrypt (RequireListFile (ReadParameters<Xp3ListFileParameters> (profile), profile.Id));
+            case "xanadu":
+                return new XanaduCrypt (RequireListFile (ReadParameters<Xp3ListFileParameters> (profile), profile.Id));
+            case "sis-miko":
+                return new SisMikoCrypt (RequireListFile (ReadParameters<Xp3ListFileParameters> (profile), profile.Id));
+            case "rhapsody":
+                var rhapsody = ReadParameters<Xp3ListFileParameters> (profile);
+                return new RhapsodyCrypt { FileListName = rhapsody.ListFileName };
+            case "pure-more":
+                var pureMore = ReadParameters<Xp3PureMoreParameters> (profile);
+                var pureMoreCrypt = new PureMoreCrypt();
+                if (pureMore.FileListName != null)
+                    pureMoreCrypt.FileListName = pureMore.FileListName;
+                if (pureMore.CharMap != null)
+                    pureMoreCrypt.CharMap = pureMore.CharMap;
+                if (pureMore.LayerNameSuffix != null)
+                    pureMoreCrypt.LayerNameSuffix = pureMore.LayerNameSuffix;
+                return pureMoreCrypt;
             case "altered-pink":
                 return new AlteredPinkCrypt();
             case "applique":
@@ -429,6 +464,13 @@ namespace GameRes.Formats.KiriKiri
             {
                 throw new InvalidDataException ("XP3 v2 profile parameters are invalid: " + profile.Id, error);
             }
+        }
+
+        static string RequireListFile (Xp3ListFileParameters parameters, string id)
+        {
+            if (parameters == null || string.IsNullOrWhiteSpace (parameters.ListFileName))
+                throw new InvalidDataException ("XP3 list-file profile is missing its list file: " + id);
+            return parameters.ListFileName;
         }
 
         static CxScheme CreateCx (Xp3CxData data, string id)

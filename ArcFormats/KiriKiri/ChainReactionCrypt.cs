@@ -126,7 +126,16 @@ namespace GameRes.Formats.KiriKiri
                 return null;
             var bin = new byte[list_bin.UnpackedSize];
             using (var input = arc.OpenEntry (list_bin))
-                input.Read (bin, 0, bin.Length);
+            {
+                int offset = 0;
+                while (offset < bin.Length)
+                {
+                    int read = input.Read (bin, offset, bin.Length - offset);
+                    if (read <= 0)
+                        throw new EndOfStreamException ("Unexpected end of XP3 list file.");
+                    offset += read;
+                }
+            }
             return bin;
         }
 
@@ -243,6 +252,11 @@ namespace GameRes.Formats.KiriKiri
             StartupTjsNotEncrypted = true;
         }
 
+        public HachukanoCrypt (string list_file) : base (list_file)
+        {
+            StartupTjsNotEncrypted = true;
+        }
+
         protected override uint GetEncryptionLimit (Xp3Entry entry)
         {
             uint limit = base.GetEncryptionLimit (entry);
@@ -265,6 +279,11 @@ namespace GameRes.Formats.KiriKiri
             StartupTjsNotEncrypted = true;
         }
 
+        public ChocolatCrypt (string list_file) : base (list_file)
+        {
+            StartupTjsNotEncrypted = true;
+        }
+
         protected override uint GetEncryptionLimit (Xp3Entry entry)
         {
             uint limit = base.GetEncryptionLimit (entry);
@@ -281,6 +300,11 @@ namespace GameRes.Formats.KiriKiri
     public class XanaduCrypt : ChainReactionCrypt
     {
         public XanaduCrypt () : base ("plugins/list.txt")
+        {
+            StartupTjsNotEncrypted = true;
+        }
+
+        public XanaduCrypt (string list_file) : base (list_file)
         {
             StartupTjsNotEncrypted = true;
         }
@@ -330,6 +354,14 @@ namespace GameRes.Formats.KiriKiri
     [Serializable]
     public class SisMikoCrypt : XanaduCrypt
     {
+        public SisMikoCrypt () : base ()
+        {
+        }
+
+        public SisMikoCrypt (string list_file) : base (list_file)
+        {
+        }
+
         public override void Decrypt (Xp3Entry entry, long offset, byte[] values, int pos, int count)
         {
             uint limit = GetEncryptionLimit (entry);

@@ -13,10 +13,7 @@ The offline `GARbro.LegacyDataMigration` tool safely reads NRBF records and expo
 - `hx-lite`: 2 profiles
 - simple algorithms: 228 source records, producing 227 unique profiles across 26 algorithm classes
 
-This is `442` unique exported profiles (one case-insensitive duplicate title was merged). The remaining `10` profiles are deliberately retained in the conversion report until their parameter schemas and fixture coverage exist:
-
-- `ChainReactionCrypt` (3), `ChocolatCrypt` (1), `HachukanoCrypt` (1)
-- `PureMoreCrypt` (2), `RhapsodyCrypt` (1), `SisMikoCrypt` (1), `XanaduCrypt` (1)
+All `452` unique XP3 profiles are now exported (one case-insensitive duplicate title was merged). The conversion report has no skipped profiles. The exported set includes the list-file algorithms and PureMore/Rhapsody file-name mapping parameters; archive fixture coverage remains a separate release gate.
 
 To generate a report against a trusted local database:
 
@@ -25,6 +22,6 @@ dotnet run --project Modern/GARbro.LegacyDataMigration/GARbro.LegacyDataMigratio
   export-xp3 ArcFormats/Resources/Formats.dat profiles.json report.json
 ```
 
-The command refuses to overwrite output files. The generated profile document is bundled under `Modern/GameData/v2/xp3/profiles.json` after schema and export-count validation. Simple and key-parameterized profiles now load through the modern factory map; the remaining list-file profiles and archive fixture coverage still require follow-up before being treated as release-complete data.
+The command refuses to overwrite output files. The generated profile document is bundled under `Modern/GameData/v2/xp3/profiles.json` after schema and export-count validation. Every source profile now has a data-only modern adapter; real archive fixture coverage and human review remain before release-complete claims.
 
 The legacy game map was merged into `Modern/GameData/v2/xp3/title-registry.json` after checking all 236 existing executable keys for conflicts. No conflicting values were found; 36 migrated profile titles now have executable bindings and can be resolved automatically by XP3 detection.

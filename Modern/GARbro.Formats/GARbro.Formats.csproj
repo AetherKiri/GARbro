@@ -31,6 +31,8 @@
     <Compile Include="../../ArcFormats/BitStream.cs" Link="BitStream.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/ArcXP3.cs" Link="KiriKiri/ArcXP3.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/CryptAlgorithms.cs" Link="KiriKiri/CryptAlgorithms.cs" />
+    <Compile Include="../../ArcFormats/KiriKiri/ChainReactionCrypt.cs" Link="KiriKiri/ChainReactionCrypt.cs" />
+    <Compile Include="../../ArcFormats/KiriKiri/MoreCrypt.cs" Link="KiriKiri/MoreCrypt.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/CzCrypt.cs" Link="KiriKiri/CzCrypt.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/KiriKiriCx.cs" Link="KiriKiri/KiriKiriCx.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/HxCrypt.cs" Link="KiriKiri/HxCrypt.cs" />

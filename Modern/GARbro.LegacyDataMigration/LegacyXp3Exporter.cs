@@ -568,6 +568,18 @@ namespace GARbro.LegacyDataMigration
         public byte[] KeyTable { get; set; }
     }
 
+    internal sealed class Xp3ExportListFileParameters
+    {
+        public string ListFileName { get; set; }
+    }
+
+    internal sealed class Xp3ExportPureMoreParameters
+    {
+        public string FileListName { get; set; }
+        public string CharMap { get; set; }
+        public string LayerNameSuffix { get; set; }
+    }
+
     internal static class LegacyXp3Exporter
     {
         const string KnownSchemePairType = "[GameRes.Formats.KiriKiri.ICrypt,";
@@ -1404,6 +1416,50 @@ namespace GARbro.LegacyDataMigration
                 parameters = new Xp3ExportPuCaParameters {
                     HashTable = pucaHashTable,
                     KeyTable = pucaKeyTable,
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.ChainReactionCrypt":
+                algorithm = "chain-reaction";
+                parameters = new Xp3ExportListFileParameters {
+                    ListFileName = ReadRequired<string> (crypt, "m_list_bin"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.ChocolatCrypt":
+                algorithm = "chocolat";
+                parameters = new Xp3ExportListFileParameters {
+                    ListFileName = ReadRequired<string> (crypt, "ChainReactionCrypt+m_list_bin"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.HachukanoCrypt":
+                algorithm = "hachukano";
+                parameters = new Xp3ExportListFileParameters {
+                    ListFileName = ReadRequired<string> (crypt, "ChainReactionCrypt+m_list_bin"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.XanaduCrypt":
+                algorithm = "xanadu";
+                parameters = new Xp3ExportListFileParameters {
+                    ListFileName = ReadRequired<string> (crypt, "ChainReactionCrypt+m_list_bin"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.SisMikoCrypt":
+                algorithm = "sis-miko";
+                parameters = new Xp3ExportListFileParameters {
+                    ListFileName = ReadRequired<string> (crypt, "ChainReactionCrypt+m_list_bin"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.RhapsodyCrypt":
+                algorithm = "rhapsody";
+                parameters = new Xp3ExportListFileParameters {
+                    ListFileName = ReadOptional<string> (crypt, "<FileListName>k__BackingField"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.PureMoreCrypt":
+                algorithm = "pure-more";
+                parameters = new Xp3ExportPureMoreParameters {
+                    FileListName = ReadOptional<string> (crypt, "<FileListName>k__BackingField"),
+                    CharMap = ReadOptional<string> (crypt, "<CharMap>k__BackingField"),
+                    LayerNameSuffix = ReadOptional<string> (crypt, "<LayerNameSuffix>k__BackingField"),
                 };
                 break;
             case "GameRes.Formats.KiriKiri.CxEncryption":

@@ -40,9 +40,9 @@ namespace GARbro.Core.Tests
 
             Assert.Equal (1, document.SchemaVersion);
             Assert.Equal (453, report.SourceKnownSchemeCount);
-            Assert.Equal (442, report.ExportedProfileCount);
+            Assert.Equal (452, report.ExportedProfileCount);
             Assert.Equal (1, report.DuplicateProfileCount);
-            Assert.Equal (10, report.SkippedProfiles.Count);
+            Assert.Empty (report.SkippedProfiles);
             Assert.Equal (21, document.Profiles.Count (profile => profile.Algorithm == "hx"));
             Assert.Equal (101, document.Profiles.Count (profile => profile.Algorithm == "hash"));
             Assert.Equal (28, document.Profiles.Count (profile => profile.Algorithm == "flying-shine"));
@@ -57,6 +57,13 @@ namespace GARbro.Core.Tests
             Assert.Equal (9, document.Profiles.Count (profile => profile.Algorithm == "neko-works"));
             Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "ninki-seiyuu"));
             Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "puca"));
+            Assert.Equal (3, document.Profiles.Count (profile => profile.Algorithm == "chain-reaction"));
+            Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "chocolat"));
+            Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "hachukano"));
+            Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "xanadu"));
+            Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "sis-miko"));
+            Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "rhapsody"));
+            Assert.Equal (2, document.Profiles.Count (profile => profile.Algorithm == "pure-more"));
             Assert.DoesNotContain (report.SkippedProfiles,
                 profile => profile.LegacyType == "GameRes.Formats.KiriKiri.HxCrypt");
             Assert.DoesNotContain (report.SkippedProfiles,

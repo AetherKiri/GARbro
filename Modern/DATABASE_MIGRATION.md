@@ -19,10 +19,10 @@ This is the execution checklist for replacing the legacy `Formats.dat` BinaryFor
 - [x] Preserve the existing generic XP3 title registry as `xp3/title-registry.json`.
 - [x] Load that registry through the v2 manifest and checksum verification.
 - [x] Replace the broad `Xp3SchemeProfile` DTO for new data with per-algorithm profile records while retaining legacy array JSON compatibility.
-- [x] Bundle the exported Hx, Senren, and related parameterized XP3 profiles after schema and count validation.
+- [x] Bundle all 452 unique exported XP3 profiles, including Hx, Senren, simple algorithms, table parameters, and list-file mappings, after schema and count validation.
 - [ ] Review every bundled profile against a real archive fixture before release.
 - [ ] Add fixture-based open/extract tests for every bundled XP3 profile.
-- [ ] Document unsupported legacy XP3 algorithms and migrate them only after their implementations are ported.
+- [x] Inventory legacy XP3 algorithms and provide a data-only adapter for every source profile; remaining fixture limitations are documented separately.
 
 Current export coverage for the checked-in database is recorded in [LEGACY_XP3_EXPORT_STATUS.md](LEGACY_XP3_EXPORT_STATUS.md). The v2 profile dataset is now bundled and validated by the modern parser; archive fixture tests are still required before release claims are made.
 
