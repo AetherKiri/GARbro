@@ -309,6 +309,13 @@
       "kind": "scheme-array",
       "path": "GameData/v2/avc/keys.json",
       "sha256": "f6b24ceafa6e6759d5d84420bcf4f4fedf3b418623bc8c25cbcf771a1d5bf2ee"
+    },
+    {
+      "id": "dpk-keys",
+      "format": "DPK",
+      "kind": "scheme-array",
+      "path": "GameData/v2/dpk/keys.json",
+      "sha256": "5e5395da97271608596ba6beecabd940fbeebcd53003d0c3e87e035e74b7ea83"
     }
   ]
 }

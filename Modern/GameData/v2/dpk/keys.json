@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": [
+    {
+      "key1": 65432,
+      "key2": 1139247708,
+      "name": "\u9ED8\u8BA4",
+      "originalTitle": null
+    },
+    {
+      "key1": 50109,
+      "key2": 1467828321,
+      "name": "Inbou no Wakusei",
+      "originalTitle": "\u6DEB\u66B4\u306E\u60D1\u661F\uFF5E\u7834\u58CA\u3068\u6B32\u671B\u306E\u885D\u52D5\uFF5E"
+    },
+    {
+      "key1": 19785,
+      "key2": 963719149,
+      "name": "Ryoshuu",
+      "originalTitle": "\u865C\u56DA -RYOSYU-"
+    },
+    {
+      "key1": 73391,
+      "key2": 3113705746,
+      "name": "Ryobaku ~Haitoku no Atelier~",
+      "originalTitle": "\u865C\u7E1B\uFF5E\u80CC\u5FB3\u306E\u30A2\u30C8\u30EA\u30A8\uFF5E"
+    },
+    {
+      "key1": 21119,
+      "key2": 865805935,
+      "name": "Ryoshuu ~Jogakusei Choukyou~",
+      "originalTitle": "\u865C\u8B90\uFF5E\u5973\u5B66\u751F\u8ABF\u6559\uFF5E"
+    },
+    {
+      "key1": 37998,
+      "key2": 2979358595,
+      "name": "Shirogane no Cal to Soukuu no Joou",
+      "originalTitle": "\u767D\u9280\u306E\u30AB\u30EB\u3068\u84BC\u7A7A\u306E\u5973\u738B"
+    },
+    {
+      "key1": 47953,
+      "key2": 2300531363,
+      "name": "Shiromiko",
+      "originalTitle": "\u767D\u795E\u5B50 \uFF5E\u3057\u308D\u307F\u3053\uFF5E"
+    },
+    {
+      "key1": 40793,
+      "key2": 1574869901,
+      "name": "Shoujotachi no Saezuri",
+      "originalTitle": "\u5C11\u5973\u9054\u306E\u3055\u3048\u305A\u308A"
+    },
+    {
+      "key1": 22591,
+      "key2": 3088069079,
+      "name": "Yumemiru Tsuki no Lunalutia",
+      "originalTitle": "\u5922\u307F\u308B\u6708\u306E\u30EB\u30CA\u30EB\u30C6\u30A3\u30A2"
+    }
+  ]
+}

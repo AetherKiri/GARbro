@@ -31,6 +31,7 @@ using GameRes.Formats.Tactics;
 using GameRes.Formats.Rpm;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.AVC;
+using GameRes.Formats.Dac;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -816,6 +817,47 @@ namespace GARbro.Core.Tests
             }
             finally
             {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Dpk_format_loads_migrated_scheme_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "DPK");
+            var scheme = Assert.IsType<GameRes.Formats.Dac.ArchiveScheme> (format.Scheme);
+            Assert.Equal (9, scheme.KnownSchemes.Length);
+            var encryption = scheme.KnownSchemes[0];
+            Assert.Equal ((uint)65432, encryption.Key1);
+            Assert.Equal ((uint)1139247708, encryption.Key2);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.dpk"] = "默认" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.dpk");
+                CreateDpkFixture (archivePath, encryption);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated DPK fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 Directory.Delete (tempDirectory, true);
             }
         }
@@ -2795,7 +2837,7 @@ namespace GARbro.Core.Tests
             File.WriteAllBytes (Path.Combine (directory, "Data01.dat"), data);
         }
 
-        static void CreateAvcFixture (string path, ArchiveScheme scheme)
+        static void CreateAvcFixture (string path, GameRes.Formats.AVC.ArchiveScheme scheme)
         {
             const int indexOffset = 0x80;
             const int headerOffset = 16;
@@ -2832,6 +2874,53 @@ namespace GARbro.Core.Tests
             for (var i = 0; i < payload.Length; ++i)
                 data[headerOffset + dataOffset + i] = (byte)(payload[i] ^ key[(dataOffset + i) & 7]);
             File.WriteAllBytes (path, data);
+        }
+
+        static void CreateDpkFixture (string path, DpkScheme scheme)
+        {
+            const int indexOffset = 16;
+            const int indexLength = 32;
+            const int dataOffset = indexOffset + indexLength;
+            const string name = "sample.txt";
+            var nameBytes = Encodings.cp932.GetBytes (name);
+            var payload = Encoding.UTF8.GetBytes ("migrated DPK fixture");
+            var index = new byte[indexLength];
+            LittleEndian.Pack (1, index, 0);
+            LittleEndian.Pack (0, index, 4);
+            LittleEndian.Pack (0, index, 8);
+            LittleEndian.Pack ((uint)payload.Length, index, 12);
+            LittleEndian.Pack (0, index, 16);
+            Buffer.BlockCopy (nameBytes, 0, index, 20, nameBytes.Length);
+
+            var file = new byte[dataOffset + payload.Length];
+            file[0] = (byte)'D';
+            file[1] = (byte)'P';
+            file[2] = (byte)'K';
+            file[3] = 0;
+            var header = new byte[8];
+            LittleEndian.Pack (dataOffset, header, 0);
+            for (var i = 0; i < header.Length; ++i)
+                file[8 + i] = (byte)(header[i] ^ (byte)(i - 8));
+
+            var last = file[15];
+            for (var i = 0; i < index.Length; ++i)
+            {
+                var encrypted = (byte)(index[i] ^ (byte)(indexOffset + i + last));
+                file[indexOffset + i] = encrypted;
+                last = encrypted;
+            }
+
+            uint hash = 0;
+            for (var i = nameBytes.Length - 1; i >= 0; --i)
+                hash += scheme.Key1 + scheme.Key2 * ((uint)payload.Length + nameBytes[i]);
+            var key1 = scheme.Key1;
+            for (var i = 0; i < payload.Length; ++i)
+            {
+                var key = (byte)(key1 + (key1 >> 8));
+                file[dataOffset + i] = (byte)((payload[i] + (byte)hash) ^ key);
+                key1 += scheme.Key2;
+            }
+            File.WriteAllBytes (path, file);
         }
 
         static byte DecryptYpfLength (byte[] table, byte value)

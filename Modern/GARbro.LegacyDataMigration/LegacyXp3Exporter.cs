@@ -385,6 +385,20 @@ namespace GARbro.LegacyDataMigration
         public List<AvcSchemeRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class DpkSchemeRecord
+    {
+        public uint Key1 { get; set; }
+        public uint Key2 { get; set; }
+        public string Name { get; set; }
+        public string OriginalTitle { get; set; }
+    }
+
+    internal sealed class DpkKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public List<DpkSchemeRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -1012,6 +1026,34 @@ namespace GARbro.LegacyDataMigration
                     || exported.KeyOffset < 0 || exported.KeyOffset > 0x10000
                     || exported.HeaderOffset < 0 || exported.HeaderOffset > 0x10000)
                     throw new InvalidDataException ("Legacy AVC scheme contains invalid offsets.");
+                result.Add (exported);
+            }
+            return result;
+        }
+
+        internal static List<DpkSchemeRecord> ExportDpkKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "DPK");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy DPK scheme has no KnownSchemes member.");
+            var array = ReadRaw (scheme, "KnownSchemes") as ArrayRecord;
+            if (array == null || array.Rank != 1 || array.Lengths[0] == 0 || array.Lengths[0] > 256)
+                throw new InvalidDataException ("Legacy DPK scheme array is invalid.");
+            var result = new List<DpkSchemeRecord> (array.Lengths[0]);
+            foreach (var record in GetRecordArray (array))
+            {
+                var value = record as ClassRecord;
+                if (value == null)
+                    throw new InvalidDataException ("Legacy DPK scheme array contains an invalid entry.");
+                var exported = new DpkSchemeRecord {
+                    Key1 = ReadRequired<uint> (value, "Key1", "<Key1>k__BackingField"),
+                    Key2 = ReadRequired<uint> (value, "Key2", "<Key2>k__BackingField"),
+                    Name = ReadOptional<string> (value, "Name", "<Name>k__BackingField"),
+                    OriginalTitle = ReadOptional<string> (value, "OriginalTitle", "<OriginalTitle>k__BackingField"),
+                };
+                if (exported.Name != null && exported.Name.Length > 256
+                    || exported.OriginalTitle != null && exported.OriginalTitle.Length > 256)
+                    throw new InvalidDataException ("Legacy DPK scheme contains an invalid title.");
                 result.Add (exported);
             }
             return result;

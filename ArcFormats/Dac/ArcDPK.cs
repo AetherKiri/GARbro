@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using GameRes.Formats.Strings;
 using GameRes.Utility;
 
@@ -81,7 +82,11 @@ namespace GameRes.Formats.Dac
         public override bool  IsHierarchic { get { return true; } }
         public override bool      CanWrite { get { return false; } }
 
+#if NET10_0_OR_GREATER
+        public static DpkScheme[] KnownSchemes = DpkKeyDatabase.CreateSchemes ();
+#else
         public static DpkScheme[] KnownSchemes = new DpkScheme[0];
+#endif
 
         public override ArcFile TryOpen (ArcView file)
         {
@@ -105,7 +110,14 @@ namespace GameRes.Formats.Dac
             if (count <= 0 || count > 0xfffff)
                 return null;
 
+#if NET10_0_OR_GREATER
+            var selected = SelectScheme (file.Name);
+            if (selected == null)
+                return null;
+            var options = new DpkOptions { Key1 = selected.Key1, Key2 = selected.Key2 };
+#else
             var options = Query<DpkOptions> (arcStrings.ArcEncryptedNotice);
+#endif
             var name_bytes = new byte[0x20];
             var dir = new List<Entry> (count);
             int base_offset = 4 + count * 4;
@@ -189,6 +201,7 @@ namespace GameRes.Formats.Dac
             return hash;
         }
 
+#if !NET10_0_OR_GREATER
         public override ResourceOptions GetDefaultOptions ()
         {
             return new DpkOptions {
@@ -215,6 +228,26 @@ namespace GameRes.Formats.Dac
         {
             return new GUI.WidgetDPK();
         }
+#endif
+
+#if NET10_0_OR_GREATER
+        static DpkScheme SelectScheme (string fileName)
+        {
+            var title = FormatCatalog.Instance.LookupGame (fileName);
+            if (!string.IsNullOrEmpty (title))
+            {
+                var scheme = KnownSchemes.FirstOrDefault (item =>
+                    string.Equals (item.Name, title, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals (item.OriginalTitle, title, StringComparison.OrdinalIgnoreCase));
+                if (scheme != null)
+                    return scheme;
+            }
+            var basename = Path.GetFileNameWithoutExtension (fileName);
+            return KnownSchemes.FirstOrDefault (item =>
+                string.Equals (item.Name, basename, StringComparison.OrdinalIgnoreCase)
+                || string.Equals (item.OriginalTitle, basename, StringComparison.OrdinalIgnoreCase));
+        }
+#endif
 
         public override ResourceScheme Scheme
         {

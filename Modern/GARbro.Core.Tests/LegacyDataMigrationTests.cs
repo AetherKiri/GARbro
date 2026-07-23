@@ -309,6 +309,12 @@ namespace GARbro.Core.Tests
             Assert.Equal (8, avc[0].KeyOffset);
             Assert.Equal (16, avc[0].HeaderOffset);
 
+            var dpk = LegacyXp3Exporter.ExportDpkKeys (database);
+            Assert.Equal (9, dpk.Count);
+            Assert.Equal ((uint)65432, dpk[0].Key1);
+            Assert.Equal ((uint)1139247708, dpk[0].Key2);
+            Assert.Equal ("默认", dpk[0].Name);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
