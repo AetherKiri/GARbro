@@ -58,7 +58,7 @@ namespace GameRes.Formats.Leaf
         public override bool  IsHierarchic { get { return false; } }
         public override bool      CanWrite { get { return false; } }
 
-        LeafPackOpener ()
+        public LeafPackOpener ()
         {
             ContainedFormats = new[] { "LFG", "P16", "DAT/GENERIC" };
         }
@@ -116,6 +116,9 @@ namespace GameRes.Formats.Leaf
         byte[] QueryKey (string arc_name)
         {
             var title = FormatCatalog.Instance.LookupGame (arc_name, @"*.exe");
+#if NET10_0_OR_GREATER
+            return GetTitleKey (title);
+#else
             var key = GetTitleKey (title);
             if (null == key)
             {
@@ -123,8 +126,10 @@ namespace GameRes.Formats.Leaf
                 key = options.Key;
             }
             return key;
+#endif
         }
 
+#if !NET10_0_OR_GREATER
         public override ResourceOptions GetDefaultOptions ()
         {
             return new LeafOptions {
@@ -136,6 +141,7 @@ namespace GameRes.Formats.Leaf
         {
             return new GUI.WidgetLEAF (KnownKeys.Keys);
         }
+#endif
 
         byte[] GetTitleKey (string title)
         {
@@ -149,7 +155,11 @@ namespace GameRes.Formats.Leaf
             0x71, 0x48, 0x6A, 0x55, 0x9F, 0x13, 0x58, 0xF7, 0xD1, 0x7C, 0x3E
         };
 
+#if NET10_0_OR_GREATER
+        static LeafPackScheme DefaultScheme = new LeafPackScheme { KnownSchemes = LeafKeyDatabase.CreateSchemes () };
+#else
         static LeafPackScheme DefaultScheme = new LeafPackScheme { KnownSchemes = new Dictionary<string, byte[]>() };
+#endif
 
         public IDictionary<string, byte[]> KnownKeys { get { return DefaultScheme.KnownSchemes; } }
 

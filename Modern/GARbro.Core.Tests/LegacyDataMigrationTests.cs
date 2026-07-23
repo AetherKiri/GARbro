@@ -320,6 +320,11 @@ namespace GARbro.Core.Tests
             Assert.Equal (103, agsi.Sum (item => item.Value.Count));
             Assert.Equal (8, agsi["Hitsuji-tachi no Yuuutsu"]["data2.pak"].Length);
 
+            var leaf = LegacyXp3Exporter.ExportLeafKeys (database);
+            Assert.Equal (6, leaf.Count);
+            Assert.Equal (11, leaf["Kizuato"].Length);
+            Assert.Equal (leaf["Kizuato"], leaf["Shizuku"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

@@ -323,6 +323,13 @@
       "kind": "nested-key-map",
       "path": "GameData/v2/agsi/keys.json",
       "sha256": "64a89b71c55400f71e9e4700a15a116ab17a9f9e8ad90ca917b8c8d3bac7e84c"
+    },
+    {
+      "id": "leaf-keys",
+      "format": "PAK/LEAF",
+      "kind": "key-map",
+      "path": "GameData/v2/leaf/keys.json",
+      "sha256": "afade3944b839bfcb57de54b423c8e227b38f2979a9cdba9873d079e602b09d4"
     }
   ]
 }

@@ -904,6 +904,46 @@ namespace GARbro.Core.Tests
             }
         }
 
+        [Fact]
+        public void Leaf_format_loads_migrated_key_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "PAK/LEAF");
+            var scheme = Assert.IsType<LeafPackScheme> (format.Scheme);
+            Assert.Equal (6, scheme.KnownSchemes.Count);
+            var title = "Kizuato";
+            var key = scheme.KnownSchemes[title];
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.pak"] = title };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.pak");
+                CreateLeafFixture (archivePath, key);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated Leaf fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
         [Theory]
         [InlineData("PNG")]
         [InlineData("JPEG")]
@@ -2996,6 +3036,34 @@ namespace GARbro.Core.Tests
             LittleEndian.Pack (recordSize, file, 8);
             Buffer.BlockCopy (index, 0, file, 12, index.Length);
             Buffer.BlockCopy (encrypted, 0, file, dataOffset, encrypted.Length);
+            File.WriteAllBytes (path, file);
+        }
+
+        static void CreateLeafFixture (string path, byte[] key)
+        {
+            const int dataOffset = 0x20;
+            const int recordSize = 0x18;
+            var name = Encoding.ASCII.GetBytes ("sample");
+            var extension = Encoding.ASCII.GetBytes ("txt");
+            var payload = Encoding.UTF8.GetBytes ("migrated Leaf fixture");
+            var encryptedPayload = new byte[payload.Length];
+            for (var i = 0; i < payload.Length; ++i)
+                encryptedPayload[i] = (byte)(payload[i] + key[i % key.Length]);
+
+            var index = new byte[recordSize];
+            Buffer.BlockCopy (name, 0, index, 0, name.Length);
+            Buffer.BlockCopy (extension, 0, index, 8, extension.Length);
+            LittleEndian.Pack (dataOffset, index, 0xC);
+            LittleEndian.Pack ((uint)payload.Length, index, 0x10);
+            var encryptedIndex = new byte[index.Length];
+            for (var i = 0; i < index.Length; ++i)
+                encryptedIndex[i] = (byte)(index[i] + key[i % key.Length]);
+
+            var file = new byte[dataOffset + encryptedPayload.Length + encryptedIndex.Length];
+            Buffer.BlockCopy (Encoding.ASCII.GetBytes ("LEAFPACK"), 0, file, 0, 8);
+            LittleEndian.Pack ((short)1, file, 8);
+            Buffer.BlockCopy (encryptedPayload, 0, file, dataOffset, encryptedPayload.Length);
+            Buffer.BlockCopy (encryptedIndex, 0, file, dataOffset + encryptedPayload.Length, encryptedIndex.Length);
             File.WriteAllBytes (path, file);
         }
 

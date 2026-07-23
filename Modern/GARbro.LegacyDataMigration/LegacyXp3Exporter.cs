@@ -405,7 +405,11 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, Dictionary<string, byte[]>> KnownSchemes { get; set; }
     }
 
-
+    internal sealed class LeafKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownSchemes { get; set; }
+    }
 
     internal sealed class Xp3SkippedProfile
     {
@@ -1074,6 +1078,14 @@ namespace GARbro.LegacyDataMigration
                 "Legacy AGSI title/archive key map");
         }
 
+        internal static Dictionary<string, byte[]> ExportLeafKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "PAK/LEAF");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy Leaf scheme has no KnownSchemes member.");
+            return ReadByteDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
+                "Legacy Leaf key map");
+        }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
