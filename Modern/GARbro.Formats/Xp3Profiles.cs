@@ -112,6 +112,24 @@ namespace GameRes.Formats.KiriKiri
         public byte[] KeySeq { get; set; }
     }
 
+    public sealed class Xp3NekoWorksParameters
+    {
+        public byte[] DefaultKey { get; set; }
+    }
+
+    public sealed class Xp3NinkiSeiyuuParameters
+    {
+        public ulong Key1 { get; set; }
+        public ulong Key2 { get; set; }
+        public ulong Key3 { get; set; }
+    }
+
+    public sealed class Xp3PuCaParameters
+    {
+        public uint[] HashTable { get; set; }
+        public byte[] KeyTable { get; set; }
+    }
+
     /// <summary>
     /// Compatibility DTO for the pre-v2 profile array. New data must use Xp3ProfileDocument.
     /// </summary>
@@ -306,6 +324,20 @@ namespace GameRes.Formats.KiriKiri
                 if (smx.KeySeq == null || smx.Mask < 0 || smx.KeySeq.Length <= smx.Mask + 1)
                     throw new InvalidDataException ("XP3 SMX profile has invalid key sequence: " + profile.Id);
                 return new SmxCrypt (smx.Mask, smx.KeySeq);
+            case "neko-works":
+                var neko = ReadParameters<Xp3NekoWorksParameters> (profile);
+                if (neko.DefaultKey == null || neko.DefaultKey.Length < 31 || neko.DefaultKey.Length > 32)
+                    throw new InvalidDataException ("XP3 NekoWorks profile has an invalid default key: " + profile.Id);
+                return new NekoWorksCrypt (neko.DefaultKey);
+            case "ninki-seiyuu":
+                var ninki = ReadParameters<Xp3NinkiSeiyuuParameters> (profile);
+                return new NinkiSeiyuuCrypt (ninki.Key1, ninki.Key2, ninki.Key3);
+            case "puca":
+                var puca = ReadParameters<Xp3PuCaParameters> (profile);
+                if ((puca.HashTable == null) != (puca.KeyTable == null)
+                    || (puca.HashTable != null && puca.HashTable.Length != puca.KeyTable.Length))
+                    throw new InvalidDataException ("XP3 PuCa profile has mismatched hash/key tables: " + profile.Id);
+                return new PuCaCrypt { HashTable = puca.HashTable, KeyTable = puca.KeyTable };
             case "altered-pink":
                 return new AlteredPinkCrypt();
             case "applique":

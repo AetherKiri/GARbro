@@ -550,6 +550,24 @@ namespace GARbro.LegacyDataMigration
         public byte[] KeySeq { get; set; }
     }
 
+    internal sealed class Xp3ExportNekoWorksParameters
+    {
+        public byte[] DefaultKey { get; set; }
+    }
+
+    internal sealed class Xp3ExportNinkiSeiyuuParameters
+    {
+        public ulong Key1 { get; set; }
+        public ulong Key2 { get; set; }
+        public ulong Key3 { get; set; }
+    }
+
+    internal sealed class Xp3ExportPuCaParameters
+    {
+        public uint[] HashTable { get; set; }
+        public byte[] KeyTable { get; set; }
+    }
+
     internal static class LegacyXp3Exporter
     {
         const string KnownSchemePairType = "[GameRes.Formats.KiriKiri.ICrypt,";
@@ -1359,6 +1377,33 @@ namespace GARbro.LegacyDataMigration
                 parameters = new Xp3ExportSmxParameters {
                     Mask = smxMask,
                     KeySeq = smxKeySeq,
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.NekoWorksCrypt":
+                algorithm = "neko-works";
+                var nekoKey = ReadRequiredArray<byte> (crypt, "DefaultKey");
+                if (nekoKey.Length < 31 || nekoKey.Length > 32)
+                    throw new InvalidDataException ("Legacy NekoWorks profile has an invalid default key (" + nekoKey.Length + "): " + title);
+                parameters = new Xp3ExportNekoWorksParameters { DefaultKey = nekoKey };
+                break;
+            case "GameRes.Formats.KiriKiri.NinkiSeiyuuCrypt":
+                algorithm = "ninki-seiyuu";
+                parameters = new Xp3ExportNinkiSeiyuuParameters {
+                    Key1 = ReadRequired<ulong> (crypt, "m_key1"),
+                    Key2 = ReadRequired<ulong> (crypt, "m_key2"),
+                    Key3 = ReadRequired<ulong> (crypt, "m_key3"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.PuCaCrypt":
+                algorithm = "puca";
+                var pucaHashTable = ReadOptionalArray<uint> (crypt, "HashTable");
+                var pucaKeyTable = ReadOptionalArray<byte> (crypt, "KeyTable");
+                if ((pucaHashTable == null) != (pucaKeyTable == null)
+                    || (pucaHashTable != null && pucaHashTable.Length != pucaKeyTable.Length))
+                    throw new InvalidDataException ("Legacy PuCa profile has mismatched hash/key tables: " + title);
+                parameters = new Xp3ExportPuCaParameters {
+                    HashTable = pucaHashTable,
+                    KeyTable = pucaKeyTable,
                 };
                 break;
             case "GameRes.Formats.KiriKiri.CxEncryption":
