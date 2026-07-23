@@ -295,6 +295,13 @@
       "kind": "scheme-map",
       "path": "GameData/v2/rpm/keys.json",
       "sha256": "26c61744ca3dea9153ead2588706710c72cfe25852531e1bb9461de8fc51d8fc"
+    },
+    {
+      "id": "data-csystem-keys",
+      "format": "DATA/Csystem",
+      "kind": "scheme-map",
+      "path": "GameData/v2/data_csystem/keys.json",
+      "sha256": "a9134a9264cee18c02d2dd8589ff0b3077f9613077ab4e71e292611e04563306"
     }
   ]
 }

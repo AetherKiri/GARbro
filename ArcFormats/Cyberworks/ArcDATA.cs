@@ -60,7 +60,11 @@ namespace GameRes.Formats.Cyberworks
         public override bool   IsHierarchic { get { return false; } }
         public override bool       CanWrite { get { return false; } }
 
+#if NET10_0_OR_GREATER
+        static DataSchemeMap DefaultScheme = new DataSchemeMap { KnownSchemes = DataKeyDatabase.CreateSchemes () };
+#else
         static DataSchemeMap DefaultScheme = new DataSchemeMap { KnownSchemes = new Dictionary<string, DataScheme>() };
+#endif
 
         static public Dictionary<string, DataScheme> KnownSchemes { get { return DefaultScheme.KnownSchemes; } }
 
@@ -79,6 +83,8 @@ namespace GameRes.Formats.Cyberworks
             if (!int.TryParse(arc_name.Substring(4, arc_name.IndexOf('.') - 4), out int arc_index))
                 return null;
             var scheme = QueryScheme(arc_name);
+            if (scheme == null)
+                return null;
             var dir = ScanDir(VFS.CombinePath(dir_name, "Data00.dat"), arc_index, scheme);
             if (null == dir || 0 == dir.Count)
                 return null;
@@ -217,17 +223,23 @@ namespace GameRes.Formats.Cyberworks
         DataScheme QueryScheme(string arc_name) 
         {
             var title = FormatCatalog.Instance.LookupGame(arc_name, @"..\*.exe");
-            DataScheme scheme = new DataScheme();
+            DataScheme scheme;
 
             if (!string.IsNullOrEmpty(title) && KnownSchemes.TryGetValue(title, out scheme))
                 return scheme;
+#if NET10_0_OR_GREATER
+            return null;
+#else
+            scheme = new DataScheme();
             var options = Query<DataOptions>(arcStrings.ArcEncryptedNotice);
             if (null != options)
                 KnownSchemes.TryGetValue(options.Scheme,out scheme);
             return scheme;
+#endif
 
         }
 
+#if !NET10_0_OR_GREATER
         public override object GetAccessWidget()
         {
             return new GUI.WidgetBELLDATA();
@@ -237,6 +249,7 @@ namespace GameRes.Formats.Cyberworks
         {
             return new DataOptions { Scheme = Properties.Settings.Default.BELLDATATitle }; 
         }
+#endif
 
     }
 }

@@ -298,6 +298,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ("after", rpm["After..."].Keyword);
             Assert.Equal (24, rpm["After..."].NameLength);
 
+            var data = LegacyXp3Exporter.ExportDataKeys (database);
+            Assert.Equal (3, data.Count);
+            Assert.Equal (0, data["Mujina"]);
+            Assert.Equal (4, data["Sandoku Ryouran"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

@@ -366,6 +366,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, RpmSchemeRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class DataKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, int> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -955,6 +961,18 @@ namespace GARbro.LegacyDataMigration
                 "Legacy ARC/RPM scheme map");
             if (result.Count == 0)
                 throw new InvalidDataException ("Legacy ARC/RPM scheme map is empty.");
+            return result;
+        }
+
+        internal static Dictionary<string, int> ExportDataKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "DATA/Csystem");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy DATA/Csystem scheme has no KnownSchemes member.");
+            var result = ReadDataDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
+                "Legacy DATA/Csystem scheme map");
+            if (result.Count == 0)
+                throw new InvalidDataException ("Legacy DATA/Csystem scheme map is empty.");
             return result;
         }
 
@@ -1760,6 +1778,37 @@ namespace GARbro.LegacyDataMigration
                     || exported.NameLength < 4 || exported.NameLength > 256)
                     throw new InvalidDataException (label + " contains an invalid scheme: " + title);
                 if (!result.TryAdd (title, exported))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + title);
+            }
+            return result;
+        }
+
+        static Dictionary<string, int> ReadDataDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, int> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var title = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (title) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var extraHeaderSize = ReadRequired<int> (value, "ExtraHeaderSize");
+                if (extraHeaderSize < 0 || extraHeaderSize > 0x1000)
+                    throw new InvalidDataException (label + " contains an invalid header size: " + title);
+                if (!result.TryAdd (title, extraHeaderSize))
                     throw new InvalidDataException (label + " contains a duplicate title: " + title);
             }
             return result;

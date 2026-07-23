@@ -29,6 +29,7 @@ using GameRes.Formats.ExHibit;
 using GameRes.Formats.YuRis;
 using GameRes.Formats.Tactics;
 using GameRes.Formats.Rpm;
+using GameRes.Formats.Cyberworks;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -44,7 +45,6 @@ using GameRes.Formats.Sviu;
 using GameRes.Formats.Pvns;
 using GameRes.Formats.Selene;
 using GameRes.Formats.Elf;
-using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
 using GameRes.Formats.AZSys;
 using GameRes.Formats.Jikkenshitsu;
@@ -736,6 +736,46 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.txt", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated RPM fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Data_csystem_format_loads_migrated_scheme_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "DATA/Csystem");
+            var scheme = Assert.IsType<DataSchemeMap> (format.Scheme);
+            Assert.Equal (3, scheme.KnownSchemes.Count);
+            Assert.Equal (0, scheme.KnownSchemes["Mujina"].ExtraHeaderSize);
+            Assert.Equal (4, scheme.KnownSchemes["Sandoku Ryouran"].ExtraHeaderSize);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["Data01.dat"] = "Mujina" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "Data01.dat");
+                CreateDataCsystemFixture (tempDirectory);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("0000", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated DATA fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2696,6 +2736,28 @@ namespace GARbro.Core.Tests
                 writer.Write (index);
                 writer.Write (payload);
             }
+        }
+
+        static void CreateDataCsystemFixture (string directory)
+        {
+            const int dataOffset = 0x20;
+            var payload = Encoding.UTF8.GetBytes ("migrated DATA fixture");
+            var toc = new byte[40];
+            LittleEndian.Pack (2, toc, 0);
+            LittleEndian.Pack (0, toc, 4);
+            LittleEndian.Pack (0, toc, 8);
+            LittleEndian.Pack (0, toc, 12);
+            LittleEndian.Pack (1, toc, 16);
+            LittleEndian.Pack (0, toc, 20);
+            LittleEndian.Pack ((uint)payload.Length, toc, 24);
+            LittleEndian.Pack (dataOffset, toc, 28);
+            LittleEndian.Pack (0, toc, 32);
+            LittleEndian.Pack (0, toc, 36);
+            File.WriteAllBytes (Path.Combine (directory, "Data00.dat"), toc);
+
+            var data = new byte[dataOffset + payload.Length];
+            Buffer.BlockCopy (payload, 0, data, dataOffset, payload.Length);
+            File.WriteAllBytes (Path.Combine (directory, "Data01.dat"), data);
         }
 
         static byte DecryptYpfLength (byte[] table, byte value)
