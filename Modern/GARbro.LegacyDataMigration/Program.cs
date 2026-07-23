@@ -222,6 +222,11 @@ namespace GARbro.LegacyDataMigration
                     ExportYpfKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-tactics-keys")
+                {
+                    ExportTacticsKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -265,6 +270,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-lpk-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-gyu-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ypf-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-tactics-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -631,6 +637,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportYpfKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new YpfKeysDocument { KnownSchemes = keys });
             Console.WriteLine ("ypfSchemeCount={0}", keys.Count);
+        }
+
+        static void ExportTacticsKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportTacticsKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new TacticsKeysDocument { KnownSchemes = keys });
+            Console.WriteLine ("tacticsSchemeCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

@@ -288,6 +288,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ((byte)201, ypf["Unionism Quartet"].Key);
             Assert.Equal (4u, ypf["Aikagi"].ExtraHeaderSize);
 
+            var tactics = LegacyXp3Exporter.ExportTacticsKeys (database);
+            Assert.Equal (9, tactics.Count);
+            Assert.Equal ("Puni0r4p", tactics["Maou no Kuse ni Namaiki da!"].Password);
+            Assert.False (tactics["Maou no Kuse ni Namaiki da!"].CustomLzss);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

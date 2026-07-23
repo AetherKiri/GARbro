@@ -281,6 +281,13 @@
       "kind": "scheme-map",
       "path": "GameData/v2/ypf/keys.json",
       "sha256": "1e664505d0bfe840d21ac3e93f985f44227f02a8306832591fd8ee4e12baa2e1"
+    },
+    {
+      "id": "tactics-keys",
+      "format": "ARC/Tactics/2",
+      "kind": "scheme-map",
+      "path": "GameData/v2/tactics/keys.json",
+      "sha256": "6b72a9c108583ba512f30e42a932fee41b85029d8393034a3f1313b906011fc6"
     }
   ]
 }

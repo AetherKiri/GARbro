@@ -368,18 +368,27 @@ namespace GameRes.Formats.Tactics
             }
             if (0 == dir.Count)
                 return null;
-            var scheme = QueryScheme();
+            var scheme = QueryScheme (file.Name);
             if (null == scheme)
                 return null;
             return new TacticsArcFile (file, this, dir, scheme);
         }
 
-        ArcScheme QueryScheme ()
+        ArcScheme QueryScheme (string arc_name)
         {
+#if NET10_0_OR_GREATER
+            var title = FormatCatalog.Instance.LookupGame (arc_name);
+            ArcScheme scheme;
+            if (!string.IsNullOrEmpty (title) && KnownSchemes.TryGetValue (title, out scheme))
+                return scheme;
+            return null;
+#else
             var options = Query<TacticsOptions> (arcStrings.ArcEncryptedNotice);
             return options.Scheme;
+#endif
         }
 
+#if !NET10_0_OR_GREATER
         public override ResourceOptions GetDefaultOptions ()
         {
             string title = Properties.Settings.Default.TacticsArcTitle;
@@ -393,8 +402,13 @@ namespace GameRes.Formats.Tactics
         {
             return new GUI.WidgetTactics();
         }
+#endif
 
+#if NET10_0_OR_GREATER
+        public static Dictionary<string, ArcScheme> KnownSchemes = TacticsKeyDatabase.CreateSchemeKeys ();
+#else
         public static Dictionary<string, ArcScheme> KnownSchemes = new Dictionary<string, ArcScheme>();
+#endif
 
         public override ResourceScheme Scheme
         {

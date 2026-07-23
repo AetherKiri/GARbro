@@ -114,6 +114,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add GYU nested-map validation and a deterministic encrypted 24bpp image fixture.
 - [x] Migrate the YPF title-to-scheme map as a standalone v2 dataset and load it in the modern archive reader.
 - [x] Add YPF scheme validation and a deterministic encrypted directory/entry fixture; Snappy entries remain explicitly unsupported.
+- [x] Migrate the ARC/Tactics/2 title-to-password map as a standalone v2 dataset and load it in the modern archive reader.
+- [x] Add ARC/Tactics/2 scheme validation and a deterministic encrypted archive/entry fixture.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

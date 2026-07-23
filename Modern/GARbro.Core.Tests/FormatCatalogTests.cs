@@ -27,6 +27,7 @@ using GameRes.Formats.Leaf;
 using GameRes.Formats.Lucifen;
 using GameRes.Formats.ExHibit;
 using GameRes.Formats.YuRis;
+using GameRes.Formats.Tactics;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -652,6 +653,47 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.txt", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated YPF fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Tactics_arc2_format_loads_migrated_scheme_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARC/Tactics/2");
+            var scheme = Assert.IsType<SchemeMap> (format.Scheme);
+            Assert.Equal (9, scheme.KnownSchemes.Count);
+            var encryption = scheme.KnownSchemes["Maou no Kuse ni Namaiki da!"];
+            Assert.Equal ("Puni0r4p", encryption.Password);
+            Assert.False (encryption.CustomLzss);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.arc"] = "Maou no Kuse ni Namaiki da!" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.arc");
+                CreateTacticsFixture (archivePath, encryption);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated Tactics fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2560,6 +2602,32 @@ namespace GARbro.Core.Tests
                 writer.Write (new byte[0x10]);
                 writer.Write (directory);
                 writer.Write (payload);
+            }
+        }
+
+        static void CreateTacticsFixture (string path, ArcScheme scheme)
+        {
+            const string name = "sample.txt";
+            var nameBytes = Encodings.cp932.GetBytes (name);
+            var payload = Encoding.UTF8.GetBytes ("migrated Tactics fixture");
+            var password = Encodings.cp932.GetBytes (scheme.Password);
+            for (var i = 0; i < payload.Length; ++i)
+                payload[i] ^= password[i % password.Length];
+
+            using (var output = File.Create (path))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (Encoding.ASCII.GetBytes ("TACTICS_ARC_FILE"));
+                writer.Write ((uint)payload.Length);
+                writer.Write (0u);
+                writer.Write ((uint)nameBytes.Length);
+                writer.Write (0u);
+                writer.Write (0u);
+                writer.Write (nameBytes);
+                writer.Write (payload);
+                writer.Write (0u);
+                writer.Write (0u);
+                writer.Write (0u);
             }
         }
 
