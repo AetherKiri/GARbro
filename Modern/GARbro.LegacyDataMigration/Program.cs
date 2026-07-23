@@ -152,6 +152,11 @@ namespace GARbro.LegacyDataMigration
                     ExportBinIdxKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-asb-keys")
+                {
+                    ExportAsbKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-ns2-keys")
                 {
                     ExportNs2Keys (args[1], args[2]);
@@ -186,6 +191,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-mcg-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-tink-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-bin-idx-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-asb-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ns2-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -438,6 +444,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportBinIdxKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new BinIdxKeysDocument { KnownKeys = keys });
             Console.WriteLine ("binIdxKeyCount={0}", keys.Count);
+        }
+
+        static void ExportAsbKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportAsbKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new AsbKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("asbKeyCount={0}", keys.Count);
         }
 
 

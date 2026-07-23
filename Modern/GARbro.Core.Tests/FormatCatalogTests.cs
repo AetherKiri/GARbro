@@ -35,6 +35,7 @@ using GameRes.Formats.Majiro;
 using GameRes.Formats.FC01;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
+using GameRes.Formats.AZSys;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -157,6 +158,49 @@ namespace GARbro.Core.Tests
             }
             finally
             {
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Arc_az_format_uses_migrated_key_for_encrypted_asb_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARC/AZ");
+            var scheme = Assert.IsType<AsbScheme> (format.Scheme);
+            Assert.Equal (4, scheme.KnownKeys.Count);
+            Assert.Equal (2938115999u, scheme.KnownKeys["Amaenbou"]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.arc"] = "Amaenbou" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var archivePath = Path.Combine (tempDirectory, "sample.arc");
+                CreateAsbFixture (archivePath, scheme.KnownKeys["Amaenbou"]);
+
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.asb", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated ARC/AZ fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 Directory.SetCurrentDirectory (previousDirectory);
                 Directory.Delete (tempDirectory, true);
             }
@@ -1566,6 +1610,65 @@ namespace GARbro.Core.Tests
                 output.Write (encryptedIndex);
             }
             File.WriteAllBytes (binPath, encryptedPayload);
+        }
+
+        static void CreateAsbFixture (string path, uint key)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated ARC/AZ fixture");
+            byte[] compressed;
+            using (var buffer = new MemoryStream ())
+            {
+                using (var zlib = new ZLibStream (buffer, CompressionLevel.SmallestSize, true))
+                    zlib.Write (payload, 0, payload.Length);
+                compressed = buffer.ToArray ();
+            }
+            var body = new byte[4 + compressed.Length];
+            Buffer.BlockCopy (compressed, 0, body, 4, compressed.Length);
+            while ((body.Length & 3) != 0)
+                Array.Resize (ref body, body.Length + 1);
+            LittleEndian.Pack (Crc32.Compute (body, 4, body.Length - 4), body, 0);
+
+            uint contentKey = key ^ (uint)payload.Length;
+            contentKey ^= ((contentKey << 12) | contentKey) << 11;
+            for (int i = 0; i < body.Length; i += 4)
+                LittleEndian.Pack (LittleEndian.ToUInt32 (body, i) + contentKey, body, i);
+
+            var asb = new byte[12 + body.Length];
+            Buffer.BlockCopy (Encoding.ASCII.GetBytes ("ASB\x1A"), 0, asb, 0, 4);
+            LittleEndian.Pack ((uint)body.Length, asb, 4);
+            LittleEndian.Pack ((uint)payload.Length, asb, 8);
+            Buffer.BlockCopy (body, 0, asb, 12, body.Length);
+
+            const int entrySize = 0x40;
+            var index = new byte[entrySize];
+            LittleEndian.Pack (0u, index, 0);
+            LittleEndian.Pack ((uint)asb.Length, index, 4);
+            var name = Encoding.ASCII.GetBytes ("sample.asb");
+            Buffer.BlockCopy (name, 0, index, 0x10, name.Length);
+
+            const int controlLength = 1;
+            const int compressed1Length = 0;
+            int compressed2Length = 1 + index.Length;
+            var packedIndex = new byte[0x14 + controlLength + compressed1Length + compressed2Length];
+            LittleEndian.Pack (controlLength, packedIndex, 4);
+            LittleEndian.Pack (compressed1Length, packedIndex, 8);
+            LittleEndian.Pack (compressed2Length, packedIndex, 12);
+            LittleEndian.Pack (entrySize, packedIndex, 0x10);
+            packedIndex[0x14] = 0;
+            packedIndex[0x15] = (byte)(entrySize - 1);
+            Buffer.BlockCopy (index, 0, packedIndex, 0x16, index.Length);
+            LittleEndian.Pack (Crc32.Compute (packedIndex, 0x14, packedIndex.Length - 0x14), packedIndex, 0);
+
+            using (var output = new BinaryWriter (File.Create (path), Encoding.UTF8))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("ARC\x1A"));
+                output.Write (1);
+                output.Write (1);
+                output.Write ((uint)packedIndex.Length);
+                output.Write (new byte[0x20]);
+                output.Write (packedIndex);
+                output.Write (asb);
+            }
         }
 
         static void WriteBinIdxFieldName (BinaryWriter output, string name)

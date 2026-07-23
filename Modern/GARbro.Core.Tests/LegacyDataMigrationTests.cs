@@ -199,6 +199,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ("QVJDLVBBQ0tQQVNTV09SRA==",
                 Convert.ToBase64String (binIdxKeys["GuildMaster"].IV));
 
+            var asbKeys = LegacyXp3Exporter.ExportAsbKeys (database);
+            Assert.Equal (4, asbKeys.Count);
+            Assert.Equal (2938115999u, asbKeys["Amaenbou"]);
+            Assert.Equal (3786541434u, asbKeys["Clover Heart's"]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
