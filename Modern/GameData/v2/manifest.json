@@ -225,6 +225,13 @@
       "kind": "key-map",
       "path": "GameData/v2/pbz/keys.json",
       "sha256": "7192ce3d6ae479c2695e09e50dffa75ee512b8f6b4217449251bcbf5ff7de1b5"
+    },
+    {
+      "id": "kcap-keys",
+      "format": "KCAP",
+      "kind": "key-map",
+      "path": "GameData/v2/kcap/keys.json",
+      "sha256": "1c00c4909496383bf6cb89e4f0f079d52b6ff699b5b8306da8a0ffdb4c1a745f"
     }
   ]
 }

@@ -76,7 +76,7 @@ namespace GameRes.Formats.Selene
             Extensions = new string[] { "pack" };
         }
 
-        static KcapScheme DefaultScheme = new KcapScheme { KnownSchemes = new Dictionary<string,string>() };
+        static KcapScheme DefaultScheme = new KcapScheme { KnownSchemes = KcapKeyDatabase.CreateSchemeKeys () };
 
         public static Dictionary<string,string> KnownSchemes { get { return DefaultScheme.KnownSchemes; } }
 
@@ -112,8 +112,16 @@ namespace GameRes.Formats.Selene
             }
             if (!encrypted)
                 return new ArcFile (file, this, dir);
-            var options = Query<KcapOptions> (arcStrings.ArcEncryptedNotice);
-            var key = CreateKeyTable (options.PassPhrase);
+            var title = Path.GetFileNameWithoutExtension (file.Name);
+            var pass = GetPassPhrase (title);
+            if (string.IsNullOrEmpty (pass))
+            {
+                title = FormatCatalog.Instance.LookupGame (file.Name);
+                pass = GetPassPhrase (title);
+            }
+            if (string.IsNullOrEmpty (pass))
+                return null;
+            var key = CreateKeyTable (pass);
             return new SeleneArchive (file, this, dir, key);
         }
 
@@ -135,19 +143,7 @@ namespace GameRes.Formats.Selene
             return pass;
         }
 
-        public override object GetAccessWidget ()
-        {
-            return new GUI.WidgetKCAP();
-        }
-
-        public override ResourceOptions GetDefaultOptions ()
-        {
-            return new KcapOptions {
-                PassPhrase = Properties.Settings.Default.KCAPPassPhrase,
-            };
-        }
-
-        static private byte[] CreateKeyTable (string pass)
+        internal static byte[] CreateKeyTable (string pass)
         {
             if (pass.Length < 8)
                 pass = DefaultPassPhrase;

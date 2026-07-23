@@ -37,7 +37,7 @@
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, ARCG, MGPK, RCT, MCG, TINK, BIN/IDX, ARC/AZ, ARC/AZ/encrypted, PKZ, PBZ, NOA, GAL, CRZ, ACTGS, ADS, and DAT/SPEED records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, ARCG, MGPK, RCT, MCG, TINK, BIN/IDX, ARC/AZ, ARC/AZ/encrypted, PKZ, PBZ, KCAP, NOA, GAL, CRZ, ACTGS, ADS, and DAT/SPEED records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
 - TINK header decryption is covered; a full Vorbis payload fixture and any writer remain outside this migration slice.
 - MCG currently supports encrypted v100/v101 24bpp RGB reads; v200, indexed/16bpp variants, and writing remain unavailable in the modern port.
 - RCT currently supports encrypted RGB reads only; writer, overlay frames, masks, and other image variants remain unavailable in the modern port.

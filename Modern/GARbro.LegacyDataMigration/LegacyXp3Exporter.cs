@@ -253,6 +253,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, PbzKeyRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class KcapKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, string> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -725,6 +731,14 @@ namespace GARbro.LegacyDataMigration
             if (scheme == null || !scheme.HasMember ("KnownSchemes"))
                 throw new InvalidDataException ("Legacy PBZ scheme has no KnownSchemes member.");
             return ReadPbzDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy PBZ key map");
+        }
+
+        internal static Dictionary<string, string> ExportKcapKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "KCAP");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy KCAP scheme has no KnownSchemes member.");
+            return ReadStringDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy KCAP key map");
         }
 
 

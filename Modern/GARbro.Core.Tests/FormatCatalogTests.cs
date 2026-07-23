@@ -35,6 +35,7 @@ using GameRes.Formats.Majiro;
 using GameRes.Formats.FC01;
 using GameRes.Formats.Sviu;
 using GameRes.Formats.Pvns;
+using GameRes.Formats.Selene;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
 using GameRes.Formats.AZSys;
@@ -360,6 +361,37 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.bin", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated PBZ fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Kcap_format_loads_migrated_password_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "KCAP");
+            var scheme = Assert.IsType<KcapScheme> (format.Scheme);
+            Assert.Equal (2, scheme.KnownSchemes.Count);
+            var pass = scheme.KnownSchemes["Okaa-san ga Ippai!"];
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "Okaa-san ga Ippai!.pack");
+                CreateKcapFixture (archivePath, pass);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated KCAP fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -1950,6 +1982,30 @@ namespace GARbro.Core.Tests
                 LittleEndian.Pack (1, header, 0);
                 LittleEndian.Pack ((uint)index.Length, header, 4);
                 output.Write (header, 0, header.Length);
+                output.Write (index, 0, index.Length);
+                output.Write (encryptedPayload, 0, encryptedPayload.Length);
+            }
+        }
+
+        static void CreateKcapFixture (string path, string pass)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated KCAP fixture");
+            var keyTable = PackOpener.CreateKeyTable (pass);
+            var encryptedPayload = (byte[])payload.Clone ();
+            for (int i = 0; i < encryptedPayload.Length; ++i)
+                encryptedPayload[i] ^= keyTable[i];
+            var index = new byte[0x54];
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            Buffer.BlockCopy (name, 0, index, 0, name.Length);
+            LittleEndian.Pack (0x5C, index, 0x48);
+            LittleEndian.Pack ((uint)encryptedPayload.Length, index, 0x4C);
+            LittleEndian.Pack (1, index, 0x50);
+            using (var output = File.Create (path))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("KCAP"), 0, 4);
+                var count = new byte[4];
+                LittleEndian.Pack (1, count, 0);
+                output.Write (count, 0, count.Length);
                 output.Write (index, 0, index.Length);
                 output.Write (encryptedPayload, 0, encryptedPayload.Length);
             }

@@ -235,6 +235,14 @@ namespace GARbro.Core.Tests
             Assert.Equal ("4745D09320AD0246662AD41A5FBF419777F47388B0A7817DA6AA2B9C6598B88C",
                 Convert.ToHexString (SHA256.HashData (pbzKeys["Karen"].ScriptKey)));
 
+            var kcapKeys = LegacyXp3Exporter.ExportKcapKeys (database);
+            Assert.Equal (2, kcapKeys.Count);
+            Assert.Equal ("hahadata256pasyamada2zikan", kcapKeys["Okaa-san ga Ippai!"]);
+            Assert.Equal ("E854ECC2F365DAD519C97F309BAA98B5942252147E2E496529D5B81CBD50D857",
+                Convert.ToHexString (SHA256.HashData (Encoding.UTF8.GetBytes (kcapKeys["Okaa-san ga Ippai!"]))));
+            Assert.Equal ("71B45C275CFF9EDD9B91DC336E4F254D4774B050F671E396BE1697DA4B24FCEA",
+                Convert.ToHexString (SHA256.HashData (Encoding.UTF8.GetBytes (kcapKeys["Itazura Mahjong"]))));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
