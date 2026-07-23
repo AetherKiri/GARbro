@@ -177,6 +177,11 @@ namespace GARbro.LegacyDataMigration
                     ExportPkzKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-pbz-keys")
+                {
+                    ExportPbzKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -211,6 +216,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-sj-dat-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-az-encrypted-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-pkz-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-pbz-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -503,6 +509,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportPkzKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new PkzKeysDocument { KnownSchemes = keys });
             Console.WriteLine ("pkzKeyCount={0}", keys.Count);
+        }
+
+        static void ExportPbzKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportPbzKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new PbzKeysDocument { KnownSchemes = keys });
+            Console.WriteLine ("pbzKeyCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

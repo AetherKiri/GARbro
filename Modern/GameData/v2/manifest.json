@@ -218,6 +218,13 @@
       "kind": "key-map",
       "path": "GameData/v2/pkz/keys.json",
       "sha256": "e5e8470b98cc680c0724c88af45835fcd41cf833f9d6bdd3ab0eeb47219e7542"
+    },
+    {
+      "id": "pbz-keys",
+      "format": "PBZ",
+      "kind": "key-map",
+      "path": "GameData/v2/pbz/keys.json",
+      "sha256": "7192ce3d6ae479c2695e09e50dffa75ee512b8f6b4217449251bcbf5ff7de1b5"
     }
   ]
 }

@@ -241,6 +241,18 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownSchemes { get; set; }
     }
 
+    internal sealed class PbzKeyRecord
+    {
+        public byte[] ArcKey { get; set; }
+        public byte[] ScriptKey { get; set; }
+    }
+
+    internal sealed class PbzKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, PbzKeyRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -707,6 +719,14 @@ namespace GARbro.LegacyDataMigration
             return ReadByteDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy PKZ key map");
         }
 
+        internal static Dictionary<string, PbzKeyRecord> ExportPbzKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "PBZ");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy PBZ scheme has no KnownSchemes member.");
+            return ReadPbzDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy PBZ key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -988,6 +1008,40 @@ namespace GARbro.LegacyDataMigration
                     ContentKey = contentKey,
                 }))
                     throw new InvalidDataException (label + " contains a duplicate or empty key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, PbzKeyRecord> ReadPbzDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, PbzKeyRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var exported = new PbzKeyRecord {
+                    ArcKey = ReadRequiredArray<byte> (value, "ArcKey"),
+                    ScriptKey = ReadRequiredArray<byte> (value, "ScriptKey"),
+                };
+                if (exported.ArcKey.Length > 256 || exported.ScriptKey.Length > 256)
+                    throw new InvalidDataException (label + " contains an oversized key: " + key);
+                if (!result.TryAdd (key, exported))
+                    throw new InvalidDataException (label + " contains a duplicate key: " + key);
             }
             return result;
         }

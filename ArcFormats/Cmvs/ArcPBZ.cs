@@ -67,7 +67,7 @@ namespace GameRes.Formats.Pvns
         public override bool  IsHierarchic { get { return false; } }
         public override bool      CanWrite { get { return false; } }
 
-        public static Dictionary<string, PbzKeys> KnownSchemes = new Dictionary<string, PbzKeys>();
+        public static Dictionary<string, PbzKeys> KnownSchemes = PbzKeyDatabase.CreateSchemeKeys ();
 
         public override ResourceScheme Scheme
         {

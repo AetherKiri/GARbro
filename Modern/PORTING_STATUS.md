@@ -37,7 +37,7 @@
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, ARCG, MGPK, RCT, MCG, TINK, BIN/IDX, ARC/AZ, ARC/AZ/encrypted, PKZ, NOA, GAL, CRZ, ACTGS, ADS, and DAT/SPEED records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, ARCG, MGPK, RCT, MCG, TINK, BIN/IDX, ARC/AZ, ARC/AZ/encrypted, PKZ, PBZ, NOA, GAL, CRZ, ACTGS, ADS, and DAT/SPEED records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
 - TINK header decryption is covered; a full Vorbis payload fixture and any writer remain outside this migration slice.
 - MCG currently supports encrypted v100/v101 24bpp RGB reads; v200, indexed/16bpp variants, and writing remain unavailable in the modern port.
 - RCT currently supports encrypted RGB reads only; writer, overlay frames, masks, and other image variants remain unavailable in the modern port.
@@ -47,6 +47,7 @@
 - GAL compressed, JPEG, shuffled/encrypted, layered, and alpha-layer variants remain unsupported until their cross-platform decoder paths are ported.
 - DAT/SPEED encrypted pixel-stream fixtures and writer coverage remain pending; the migrated reader currently covers metadata, title-key resolution, and unencrypted RLE data.
 - NSA compressed entries using SPB, LZSS, or NBZ are rejected until their decompression paths are ported.
+- PBZ `.scr` entries still require the legacy script-specific secondary decryption path; ordinary encrypted entries are supported.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
 - Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. Migrated executable bindings are available for automatic XP3 detection; real archive fixture coverage is still pending.
 - ZIP now consumes its seven migrated title-to-password entries before falling back to the interactive password prompt; an encrypted ZipCrypto fixture covers that path.

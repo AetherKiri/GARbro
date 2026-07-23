@@ -96,6 +96,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Port system.arc/sysenv content-key derivation for the legacy `Default` ARC/AZ/encrypted scheme.
 - [x] Migrate the PKZ title-to-byte-key map as a standalone v2 dataset and load it in the modern archive reader.
 - [x] Add PKZ key-map validation and a deterministic encrypted index/entry fixture.
+- [x] Migrate the PBZ ArcKey/ScriptKey scheme map as a standalone v2 dataset and load it in the modern archive reader.
+- [x] Add PBZ key-map validation and a deterministic encrypted index/entry fixture; script-specific secondary decryption remains pending.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

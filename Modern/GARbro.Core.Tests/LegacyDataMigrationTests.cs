@@ -226,6 +226,15 @@ namespace GARbro.Core.Tests
             Assert.Equal ("8D4CCB5CC195A6476F34959ABD7AB99EB6920954C58CEB6CD59E927271B76862",
                 Convert.ToHexString (SHA256.HashData (pkzKeys["Fall in Love"])));
 
+            var pbzKeys = LegacyXp3Exporter.ExportPbzKeys (database);
+            Assert.Single (pbzKeys);
+            Assert.Equal (30, pbzKeys["Karen"].ArcKey.Length);
+            Assert.Equal (24, pbzKeys["Karen"].ScriptKey.Length);
+            Assert.Equal ("3D075AAB6F02740CB9B0694809BA2E0F9EC8586FF4610B8A61A9FBC3C7579432",
+                Convert.ToHexString (SHA256.HashData (pbzKeys["Karen"].ArcKey)));
+            Assert.Equal ("4745D09320AD0246662AD41A5FBF419777F47388B0A7817DA6AA2B9C6598B88C",
+                Convert.ToHexString (SHA256.HashData (pbzKeys["Karen"].ScriptKey)));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

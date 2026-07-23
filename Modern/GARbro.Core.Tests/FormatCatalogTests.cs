@@ -34,6 +34,7 @@ using GameRes.Formats.Mg;
 using GameRes.Formats.Majiro;
 using GameRes.Formats.FC01;
 using GameRes.Formats.Sviu;
+using GameRes.Formats.Pvns;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
 using GameRes.Formats.AZSys;
@@ -330,6 +331,35 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.bin", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated PKZ fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Pbz_format_loads_migrated_keys_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "PBZ");
+            var key = PbzOpener.KnownSchemes["Karen"];
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.pbz");
+                CreatePbzFixture (archivePath, key.ArcKey);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated PBZ fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -1898,6 +1928,37 @@ namespace GARbro.Core.Tests
                 output.Write (index, 0, index.Length);
                 output.Write (encryptedPayload, 0, encryptedPayload.Length);
             }
+        }
+
+        static void CreatePbzFixture (string path, byte[] key)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated PBZ fixture");
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            var entrySize = 0x18 + name.Length + 1;
+            var index = new byte[entrySize];
+            LittleEndian.Pack ((uint)entrySize, index, 0);
+            LittleEndian.Pack ((uint)payload.Length, index, 4);
+            LittleEndian.Pack (0, index, 8);
+            Buffer.BlockCopy (name, 0, index, 0x18, name.Length);
+            EncryptPbz (index, key);
+            var encryptedPayload = (byte[])payload.Clone ();
+            EncryptPbz (encryptedPayload, key);
+            using (var output = File.Create (path))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("PBZ1"), 0, 4);
+                var header = new byte[12];
+                LittleEndian.Pack (1, header, 0);
+                LittleEndian.Pack ((uint)index.Length, header, 4);
+                output.Write (header, 0, header.Length);
+                output.Write (index, 0, index.Length);
+                output.Write (encryptedPayload, 0, encryptedPayload.Length);
+            }
+        }
+
+        static void EncryptPbz (byte[] data, byte[] key)
+        {
+            for (int i = 0; i < data.Length; ++i)
+                data[i] = (byte)((data[i] - 0x80) ^ key[i % key.Length]);
         }
 
         static void EncryptPkz (byte[] data, byte[] key)
