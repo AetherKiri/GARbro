@@ -217,6 +217,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, uint> KnownKeys { get; set; }
     }
 
+    internal sealed class SjDatKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -656,6 +662,14 @@ namespace GARbro.LegacyDataMigration
             if (scheme == null || !scheme.HasMember ("KnownKeys"))
                 throw new InvalidDataException ("Legacy ARC/AZ scheme has no KnownKeys member.");
             return ReadStringUIntDictionary (ReadRaw (scheme, "KnownKeys") as ClassRecord, "Legacy ARC/AZ key map");
+        }
+
+        internal static Dictionary<string, byte[]> ExportSjDatKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "DAT/SPEED");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy DAT/SPEED scheme has no KnownSchemes member.");
+            return ReadByteDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy DAT/SPEED key map");
         }
 
 

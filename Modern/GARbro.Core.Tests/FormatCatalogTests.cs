@@ -36,6 +36,7 @@ using GameRes.Formats.FC01;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
 using GameRes.Formats.AZSys;
+using GameRes.Formats.Jikkenshitsu;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -92,6 +93,42 @@ namespace GARbro.Core.Tests
                 var pixels = new byte[4];
                 decoded.Bitmap.CopyPixels (pixels, 4, 0);
                 Assert.Equal (new byte[] { 0x1F, 0x00, 0x00, 0x7C }, pixels);
+            }
+        }
+
+        [Fact]
+        public void Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture ()
+        {
+            var format = FormatCatalog.Instance.ImageFormats.OfType<SpDatFormat> ().Single ();
+            var scheme = Assert.IsType<SjDatScheme> (format.Scheme);
+            Assert.Equal (5, scheme.KnownSchemes.Count);
+            var key = scheme.KnownSchemes["Bias {biAs+}"];
+            Assert.Equal (16, key.Length);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.dat"] = "Bias {biAs+}" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                Assert.Equal (key, SpDatFormat.ResolveKey ("sample.dat"));
+                using (var input = new BinaryStream (new MemoryStream (CreateSpeedFixture ()), "sample.dat"))
+                {
+                    var decoded = ImageFormat.Read (input);
+                    Assert.NotNull (decoded);
+                    Assert.Equal ((uint)4, decoded.Width);
+                    Assert.Equal ((uint)1, decoded.Height);
+                    var pixels = new byte[4];
+                    decoded.Bitmap.CopyPixels (pixels, 4, 0);
+                    Assert.Equal (new byte[] { 1, 1, 1, 1 }, pixels);
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
             }
         }
 
@@ -1692,6 +1729,27 @@ namespace GARbro.Core.Tests
             output.Write ((byte)(value >> 16));
             output.Write ((byte)(value >> 8));
             output.Write ((byte)value);
+        }
+
+        static byte[] CreateSpeedFixture ()
+        {
+            var header = new byte[0x22];
+            LittleEndian.Pack ((ushort)0, header, 0);
+            header[2] = 1;
+            LittleEndian.Pack ((ushort)4, header, 0x16);
+            LittleEndian.Pack ((ushort)1, header, 0x18);
+            LittleEndian.Pack ((ushort)2, header, 0x1E);
+
+            var plain = new byte[] { 1, 1, 4, 0, 0, 0, 0, 0 };
+            using (var output = new MemoryStream ())
+            using (var writer = new BinaryWriter (output, Encoding.UTF8, true))
+            {
+                writer.Write (header);
+                writer.Write (plain.Length);
+                writer.Write (new byte[] { 0, 0, 0, 0, 255, 0, 0, 255 });
+                writer.Write (plain);
+                return output.ToArray ();
+            }
         }
 
         static byte[] CreateGalFixture ()

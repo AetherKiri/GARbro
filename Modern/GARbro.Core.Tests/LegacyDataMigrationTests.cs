@@ -204,6 +204,14 @@ namespace GARbro.Core.Tests
             Assert.Equal (2938115999u, asbKeys["Amaenbou"]);
             Assert.Equal (3786541434u, asbKeys["Clover Heart's"]);
 
+            var sjDatKeys = LegacyXp3Exporter.ExportSjDatKeys (database);
+            Assert.Equal (5, sjDatKeys.Count);
+            Assert.All (sjDatKeys.Values, value => Assert.Equal (16, value.Length));
+            Assert.Equal ("31F5D8670739A132BD30232682E3921E18BEBA80E371730B8EDA0DECBEF69CC3",
+                Convert.ToHexString (SHA256.HashData (sjDatKeys["Bias {biAs+}"])));
+            Assert.Equal ("ED4D6221764CDF23FFD735661B8A5513DD788D2F5DCBD748FFF079C3268A3DE2",
+                Convert.ToHexString (SHA256.HashData (sjDatKeys["Giin Oyako"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

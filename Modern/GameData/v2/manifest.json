@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.23.31",
+  "dataVersion": "2026.07.23.32",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -197,6 +197,13 @@
       "kind": "key-map",
       "path": "GameData/v2/asb/keys.json",
       "sha256": "11a9c9050ee96afcefb4ed2684756568b74966d144495e135078c0726b8250f4"
+    },
+    {
+      "id": "speed-keys",
+      "format": "DAT/SPEED",
+      "kind": "key-map",
+      "path": "GameData/v2/speed/keys.json",
+      "sha256": "7b4a577c6a7542f0f711d67bbb6472948de363d17e95dadecbb0aebeaf76499c"
     }
   ]
 }
