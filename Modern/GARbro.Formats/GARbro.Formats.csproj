@@ -28,6 +28,7 @@
     <Compile Include="../../ArcFormats/MersenneTwister.cs" Link="MersenneTwister.cs" />
     <Compile Include="../../ArcFormats/Crc32.cs" Link="Crc32.cs" />
     <Compile Include="../../ArcFormats/ArcCommon.cs" Link="ArcCommon.cs" />
+    <Compile Include="../../ArcFormats/BitStream.cs" Link="BitStream.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/ArcXP3.cs" Link="KiriKiri/ArcXP3.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/CryptAlgorithms.cs" Link="KiriKiri/CryptAlgorithms.cs" />
     <Compile Include="../../ArcFormats/KiriKiri/CzCrypt.cs" Link="KiriKiri/CzCrypt.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="../../ArcFormats/DirectDraw/DxtDecoder.cs" Link="DirectDraw/DxtDecoder.cs" />
     <Compile Include="../../ArcFormats/Leaf/ArcAM.cs" Link="Leaf/ArcAM.cs" />
     <Compile Include="../../ArcFormats/Lucifen/ArcLPK.cs" Link="Lucifen/ArcLPK.cs" />
+    <Compile Include="../../ArcFormats/ExHibit/ImageGYU.cs" Link="ExHibit/ImageGYU.cs" />
     <Compile Include="../../ArcFormats/Strings/arcStrings.Designer.cs" Link="Strings/arcStrings.Designer.cs" />
     <EmbeddedResource Include="../../ArcFormats/Strings/*.resx" Link="Strings/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../GameData/v2/**/*.json" Link="GameData/v2/%(RecursiveDir)%(Filename)%(Extension)" />

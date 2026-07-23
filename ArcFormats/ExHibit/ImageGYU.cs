@@ -67,10 +67,17 @@ namespace GameRes.Formats.ExHibit
             Extensions = new[] { "gyu", "lvg" };
         }
 
+#if NET10_0_OR_GREATER
+        GyuMap DefaultScheme = new GyuMap {
+            NumericKeys = GyuKeyDatabase.CreateNumericKeys (),
+            StringKeys  = GyuKeyDatabase.CreateStringKeys (),
+        };
+#else
         GyuMap DefaultScheme = new GyuMap {
             NumericKeys = new Dictionary<string, Dictionary<int, uint>>(),
             StringKeys  = new Dictionary<string, Dictionary<string, uint>>(),
         };
+#endif
 
         public override ResourceScheme Scheme
         {
@@ -103,8 +110,12 @@ namespace GameRes.Formats.ExHibit
             if (0 == meta.Key)
             {
                 object token = null;
+#if NET10_0_OR_GREATER
+                CurrentMap = QueryScheme (meta.FileName);
+#else
                 if (null == CurrentMap)
-                    CurrentMap = QueryScheme();
+                    CurrentMap = QueryScheme (meta.FileName);
+#endif
                 if (CurrentMap != null)
                 {
                     var name = Path.GetFileNameWithoutExtension (meta.FileName);
@@ -131,7 +142,20 @@ namespace GameRes.Formats.ExHibit
             throw new System.NotImplementedException ("GyuFormat.Write not implemented");
         }
 
-        private IDictionary QueryScheme ()
+#if NET10_0_OR_GREATER
+        private IDictionary QueryScheme (string fileName)
+        {
+            var title = FormatCatalog.Instance.LookupGame (fileName);
+            if (string.IsNullOrEmpty (title))
+                return null;
+            if (DefaultScheme.NumericKeys.TryGetValue (title, out var numeric))
+                return numeric;
+            if (DefaultScheme.StringKeys.TryGetValue (title, out var strings))
+                return strings;
+            return null;
+        }
+#else
+        private IDictionary QueryScheme (string fileName)
         {
             var options = Query<GyuOptions> (arcStrings.GYUImageEncrypted);
             return options.Scheme;
@@ -147,6 +171,7 @@ namespace GameRes.Formats.ExHibit
             var titles = DefaultScheme.NumericKeys.Keys.Concat (DefaultScheme.StringKeys.Keys).OrderBy (x => x);
             return new GUI.WidgetGYU (titles);
         }
+#endif
 
         IDictionary GetScheme (string title)
         {

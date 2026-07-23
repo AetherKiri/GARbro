@@ -267,6 +267,13 @@
       "kind": "scheme-and-file-key-map",
       "path": "GameData/v2/lpk/keys.json",
       "sha256": "973ff4a59473474db12f07f1c7cfb45401634dffa435efe3024922f07e68a033"
+    },
+    {
+      "id": "gyu-keys",
+      "format": "GYU",
+      "kind": "numeric-and-string-key-map",
+      "path": "GameData/v2/gyu/keys.json",
+      "sha256": "892e3bc05f342122413e9efc0f8ad2b80f63c7f1585fdeb06c855ffb399e6438"
     }
   ]
 }

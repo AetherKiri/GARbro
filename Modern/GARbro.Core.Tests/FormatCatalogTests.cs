@@ -25,6 +25,7 @@ using GameRes.Formats.NitroPlus;
 using GameRes.Formats.Emote;
 using GameRes.Formats.Leaf;
 using GameRes.Formats.Lucifen;
+using GameRes.Formats.ExHibit;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -576,6 +577,43 @@ namespace GARbro.Core.Tests
             {
                 gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Gyu_format_loads_migrated_maps_and_decodes_fixture ()
+        {
+            var format = FormatCatalog.Instance.ImageFormats.OfType<GyuFormat> ().Single ();
+            var scheme = Assert.IsType<GyuMap> (format.Scheme);
+            Assert.Equal (7, scheme.NumericKeys.Count);
+            Assert.Equal (2, scheme.StringKeys.Count);
+            var key = scheme.StringKeys["More & More"]["title"];
+            Assert.Equal (3357085324u, key);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["title.gyu"] = "More & More" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            try
+            {
+                using (var input = new BinaryStream (new MemoryStream (CreateGyuFixture (key)), "title.gyu"))
+                {
+                    var decoded = ImageFormat.Read (input);
+                    Assert.NotNull (decoded);
+                    Assert.Equal ((uint)2, decoded.Width);
+                    Assert.Equal ((uint)1, decoded.Height);
+                    Assert.Equal (24, decoded.BPP);
+                    var pixels = new byte[8];
+                    decoded.Bitmap.CopyPixels (pixels, 8, 0);
+                    Assert.Equal (new byte[] { 1, 2, 3, 4, 5, 6, 0, 0 }, pixels);
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
             }
         }
 
@@ -2398,6 +2436,50 @@ namespace GARbro.Core.Tests
                 writer.Write ((uint)(0x02000000u | (uint)index.Length) ^ key2);
                 writer.Write (index);
                 writer.Write (payload);
+            }
+        }
+
+        static byte[] CreateGyuFixture (uint key)
+        {
+            var payload = new byte[] { 1, 2, 3, 4, 5, 6, 0, 0 };
+            var encrypted = (byte[])payload.Clone ();
+            var twister = new MersenneTwister (key);
+            var swaps = new (int First, int Second)[10];
+            for (var n = 0; n < 10; ++n)
+            {
+                var first = (int)(twister.Rand () % (uint)encrypted.Length);
+                var second = (int)(twister.Rand () % (uint)encrypted.Length);
+                swaps[n] = (first, second);
+            }
+            for (var n = swaps.Length - 1; n >= 0; --n)
+            {
+                var first = swaps[n].First;
+                var second = swaps[n].Second;
+                var temp = encrypted[first];
+                encrypted[first] = encrypted[second];
+                encrypted[second] = temp;
+            }
+
+            var header = new byte[0x24];
+            header[0] = (byte)'G';
+            header[1] = (byte)'Y';
+            header[2] = (byte)'U';
+            header[3] = 0x1A;
+            LittleEndian.Pack ((ushort)0, header, 4);
+            LittleEndian.Pack ((ushort)0x100, header, 6);
+            LittleEndian.Pack (0u, header, 8);
+            LittleEndian.Pack (24, header, 12);
+            LittleEndian.Pack (2u, header, 16);
+            LittleEndian.Pack (1u, header, 20);
+            LittleEndian.Pack (8, header, 24);
+            LittleEndian.Pack (0, header, 28);
+            LittleEndian.Pack (0, header, 32);
+
+            using (var output = new MemoryStream ())
+            {
+                output.Write (header, 0, header.Length);
+                output.Write (encrypted, 0, encrypted.Length);
+                return output.ToArray ();
             }
         }
 

@@ -276,6 +276,12 @@ namespace GARbro.Core.Tests
             Assert.Equal (2619661674u, lpk.KnownKeys["Happening Love!!"]["BGM.LPK"].Key1);
             Assert.Equal (3739757510u, lpk.KnownKeys["Happening Love!!"]["BGM.LPK"].Key2);
 
+            var gyu = LegacyXp3Exporter.ExportGyuKeys (database);
+            Assert.NotEmpty (gyu.NumericKeys);
+            Assert.NotEmpty (gyu.StringKeys);
+            Assert.All (gyu.NumericKeys.Values, map => Assert.NotEmpty (map));
+            Assert.All (gyu.StringKeys.Values, map => Assert.NotEmpty (map));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

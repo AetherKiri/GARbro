@@ -44,6 +44,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `PSB/EMOTE` | `GameRes.Formats.Emote.PsbScheme` | `KnownKeys` |
 | `AM/Leaf` | `GameRes.Formats.Leaf.AmScheme` | `DecryptTable` |
 | `LPK` | `GameRes.Formats.Lucifen.LpkScheme` | `KnownSchemes`, `KnownKeys` |
+| `GYU` | `GameRes.Formats.ExHibit.GyuMap` | `NumericKeys`, `StringKeys` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -86,6 +87,8 @@ The `PSB/EMOTE` record is safely exportable with `export-psb-keys`. Its 13 order
 The `AM/Leaf` record is safely exportable with `export-am-leaf-table`. Its 65,536-byte positional decrypt table is validated by `AmDecryptTableDatabase`; `FormatCatalogTests.Am_leaf_format_loads_migrated_table_and_decrypts_fixture` verifies encrypted index parsing and content extraction. The modern AM reader remains read-only.
 
 The `LPK` record is safely exportable with `export-lpk-keys`. Its 19 scheme records and 22 title-level file-key maps are validated by `LpkKeyDatabase`; `FormatCatalogTests.Lpk_format_loads_migrated_maps_and_opens_fixture` verifies basename/title lookup, encrypted index parsing, and entry extraction. Unknown titles are rejected without falling back to the legacy database or an interactive scheme prompt.
+
+The `GYU` record is safely exportable with `export-gyu-keys`. Its seven numeric-title and two string-title nested maps are validated by `GyuKeyDatabase`; `FormatCatalogTests.Gyu_format_loads_migrated_maps_and_decodes_fixture` verifies title lookup, key-based byte deobfuscation, and 24bpp pixel extraction.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

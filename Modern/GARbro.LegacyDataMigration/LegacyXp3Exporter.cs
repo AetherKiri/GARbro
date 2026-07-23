@@ -319,6 +319,13 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, Dictionary<string, LpkKeyRecord>> KnownKeys { get; set; }
     }
 
+    internal sealed class GyuKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, Dictionary<int, uint>> NumericKeys { get; set; }
+        public Dictionary<string, Dictionary<string, uint>> StringKeys { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -855,6 +862,23 @@ namespace GARbro.LegacyDataMigration
             return new LpkKeysDocument {
                 KnownSchemes = knownSchemes,
                 KnownKeys = knownKeys,
+            };
+        }
+
+        internal static GyuKeysDocument ExportGyuKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "GYU");
+            if (scheme == null || !scheme.HasMember ("NumericKeys") || !scheme.HasMember ("StringKeys"))
+                throw new InvalidDataException ("Legacy GYU scheme is incomplete.");
+            var numeric = ReadIntUIntDictionaryMap (ReadRaw (scheme, "NumericKeys") as ClassRecord,
+                "Legacy GYU numeric key map");
+            var strings = ReadStringUIntDictionaryMap (ReadRaw (scheme, "StringKeys") as ClassRecord,
+                "Legacy GYU string key map");
+            if (numeric.Count == 0 && strings.Count == 0)
+                throw new InvalidDataException ("Legacy GYU key maps are empty.");
+            return new GyuKeysDocument {
+                NumericKeys = numeric,
+                StringKeys = strings,
             };
         }
 
@@ -1471,6 +1495,90 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException (label + " contains an incomplete entry.");
                 if (!result.TryAdd (title, (uint)value))
                     throw new InvalidDataException (label + " contains a duplicate title: " + title);
+            }
+            return result;
+        }
+
+        static Dictionary<int, uint> ReadIntUIntDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<int, uint> ();
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key");
+                var value = ReadRaw (entry, "value");
+                if (!(key is int) || !(value is uint))
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                if (!result.TryAdd ((int)key, (uint)value))
+                    throw new InvalidDataException (label + " contains a duplicate numeric key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, Dictionary<string, uint>> ReadStringUIntDictionaryMap (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, Dictionary<string, uint>> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                if (!result.TryAdd (key, ReadStringUIntDictionary (value, label + ": " + key)))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, Dictionary<int, uint>> ReadIntUIntDictionaryMap (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, Dictionary<int, uint>> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                if (!result.TryAdd (key, ReadIntUIntDictionary (value, label + ": " + key)))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + key);
             }
             return result;
         }
