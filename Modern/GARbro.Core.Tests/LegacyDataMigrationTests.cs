@@ -250,6 +250,14 @@ namespace GARbro.Core.Tests
             Assert.Equal (2857740885u, ai5Keys["Be-Yond"].SizeKey);
             Assert.Equal (1437226410u, ai5Keys["Be-Yond"].OffsetKey);
 
+            var npaKeys = LegacyXp3Exporter.ExportNpaKeys (database);
+            Assert.Equal (26, npaKeys.Count);
+            Assert.Equal (1, npaKeys["Chaos;Head"].TitleId);
+            Assert.Equal (2271560481u, npaKeys["Chaos;Head"].NameKey);
+            Assert.NotEmpty (npaKeys["Chaos;Head"].Order);
+            Assert.Equal (22, npaKeys["Kimi to Kanojo to Kanojo no Koi"].TitleId);
+            Assert.Equal (305419896u, npaKeys["Kimi to Kanojo to Kanojo no Koi"].NameKey);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

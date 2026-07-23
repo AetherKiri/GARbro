@@ -102,6 +102,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add KCAP password-map validation and a deterministic encrypted index/entry fixture.
 - [x] Migrate the ARC/AI5WIN structured scheme map as a standalone v2 dataset and load it in the modern archive reader.
 - [x] Add ARC/AI5WIN scheme validation and a deterministic encrypted index/entry fixture.
+- [x] Migrate the NPA title-to-encryption-scheme map as a standalone v2 dataset and load it in the modern archive reader.
+- [x] Add NPA scheme validation and a deterministic encrypted index/entry fixture.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

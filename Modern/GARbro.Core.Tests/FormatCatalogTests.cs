@@ -433,6 +433,39 @@ namespace GARbro.Core.Tests
             }
         }
 
+        [Fact]
+        public void Npa_format_loads_migrated_schemes_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "NPA");
+            var scheme = Assert.IsType<NpaScheme> (format.Scheme);
+            Assert.Equal (26, scheme.KnownSchemes.Count);
+            var key = scheme.KnownSchemes["Chaos;Head"];
+            Assert.Equal (NpaTitleId.CHAOSHEAD, key.TitleId);
+            Assert.Equal (2271560481u, key.NameKey);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "Chaos;Head.npa");
+                CreateNpaFixture (archivePath, key);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated NPA fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
         [Theory]
         [InlineData("PNG")]
         [InlineData("JPEG")]
@@ -2064,6 +2097,59 @@ namespace GARbro.Core.Tests
                 output.Write (count, 0, count.Length);
                 output.Write (index, 0, index.Length);
                 output.Write (payload, 0, payload.Length);
+            }
+        }
+
+        static void CreateNpaFixture (string path, EncryptionScheme scheme)
+        {
+            var plaintext = Encoding.UTF8.GetBytes ("migrated NPA fixture");
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            const int key1 = NpaOpener.DefaultKey1;
+            const int key2 = NpaOpener.DefaultKey2;
+            var archiveKey = NpaOpener.GetArchiveKey (scheme.TitleId, key1, key2);
+            var rawName = new byte[name.Length];
+            for (var i = 0; i < name.Length; ++i)
+                rawName[i] = (byte)(name[i] - NpaOpener.DecryptName (i, 0, archiveKey));
+
+            var entryKey = (int)scheme.NameKey;
+            for (var i = 0; i < rawName.Length; ++i)
+                entryKey -= rawName[i];
+            entryKey *= rawName.Length;
+            entryKey += archiveKey;
+            entryKey *= plaintext.Length;
+
+            var table = NpaOpener.GenerateKeyTable (scheme);
+            var inverse = new byte[256];
+            for (var i = 0; i < inverse.Length; ++i)
+                inverse[table[i]] = (byte)i;
+            var encrypted = new byte[plaintext.Length];
+            for (var i = 0; i < plaintext.Length; ++i)
+                encrypted[i] = inverse[(plaintext[i] + entryKey + i) & 0xff];
+
+            var indexSize = 4 + rawName.Length + 17;
+            using (var output = File.Create (path))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (Encoding.ASCII.GetBytes ("NPA\x01"));
+                writer.Write ((short)0);
+                writer.Write ((byte)0);
+                writer.Write (key1);
+                writer.Write (key2);
+                writer.Write (false);
+                writer.Write (true);
+                writer.Write (1);
+                writer.Write (0);
+                writer.Write (1);
+                writer.Write ((long)0);
+                writer.Write (indexSize);
+                writer.Write (rawName.Length);
+                writer.Write (rawName);
+                writer.Write ((byte)2);
+                writer.Write (0);
+                writer.Write (0u);
+                writer.Write ((uint)encrypted.Length);
+                writer.Write ((uint)plaintext.Length);
+                writer.Write (encrypted);
             }
         }
 

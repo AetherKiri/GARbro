@@ -239,6 +239,13 @@
       "kind": "key-map",
       "path": "GameData/v2/ai5/keys.json",
       "sha256": "c1e15fea5b1b8d86b18b6d32ec771442c3b587c7dd7cb2e88bc10af964aebee1"
+    },
+    {
+      "id": "npa-keys",
+      "format": "NPA",
+      "kind": "key-map",
+      "path": "GameData/v2/npa/keys.json",
+      "sha256": "469783d12c05da41ff45e06722503c26c8505a208e44fcf8fe325e48075f5c06"
     }
   ]
 }

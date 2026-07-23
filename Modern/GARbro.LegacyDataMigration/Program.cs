@@ -192,6 +192,11 @@ namespace GARbro.LegacyDataMigration
                     ExportAi5Keys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-npa-keys")
+                {
+                    ExportNpaKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -229,6 +234,8 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-pbz-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-kcap-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ai5-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-npa-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-npa-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -545,6 +552,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportAi5Keys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new Ai5KeysDocument { KnownSchemes = keys });
             Console.WriteLine ("ai5KeyCount={0}", keys.Count);
+        }
+
+        static void ExportNpaKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportNpaKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new NpaKeysDocument { KnownSchemes = keys });
+            Console.WriteLine ("npaKeyCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

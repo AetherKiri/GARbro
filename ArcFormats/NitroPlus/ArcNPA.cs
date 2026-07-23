@@ -107,9 +107,9 @@ namespace GameRes.Formats.NitroPlus
         public override string Description { get { return arcStrings.NPADescription; } }
         public override uint     Signature { get { return 0x0141504e; } } // NPA\x01
         public override bool  IsHierarchic { get { return true; } }
-        public override bool      CanWrite { get { return true; } }
+        public override bool      CanWrite { get { return false; } }
 
-        public static Dictionary<string, EncryptionScheme> KnownSchemes = new Dictionary<string, EncryptionScheme>();
+        public static Dictionary<string, EncryptionScheme> KnownSchemes = NpaKeyDatabase.CreateSchemeKeys ();
 
         public override ResourceScheme Scheme
         {
@@ -379,37 +379,15 @@ namespace GameRes.Formats.NitroPlus
             return table;
         }
 
-        public override ResourceOptions GetDefaultOptions ()
-        {
-            return new NpaOptions {
-                Scheme           = GetScheme (Properties.Settings.Default.NPAScheme),
-                CompressContents = Properties.Settings.Default.NPACompressContents,
-                Key1             = (int)Properties.Settings.Default.NPAKey1,
-                Key2             = (int)Properties.Settings.Default.NPAKey2,
-            };
-        }
-
-        public override object GetAccessWidget ()
-        {
-            return new GUI.WidgetNPA();
-        }
-
-        public override object GetCreationWidget ()
-        {
-            return new GUI.CreateNPAWidget();
-        }
-
         EncryptionScheme QueryGameEncryption (string arc_name)
         {
             EncryptionScheme scheme = null;
-            var title = FormatCatalog.Instance.LookupGame (arc_name);
+            var title = Path.GetFileNameWithoutExtension (arc_name);
+            if (KnownSchemes.TryGetValue (title, out scheme))
+                return scheme;
+            title = FormatCatalog.Instance.LookupGame (arc_name);
             if (!string.IsNullOrEmpty (title))
                 scheme = GetScheme (title);
-            if (null == scheme)
-            {
-                var options = Query<NpaOptions> (arcStrings.ArcEncryptedNotice);
-                scheme = options.Scheme;
-            }
             return scheme;
         }
 

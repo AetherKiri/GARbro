@@ -273,6 +273,19 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, Ai5KeyRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class NpaKeyRecord
+    {
+        public int TitleId { get; set; }
+        public uint NameKey { get; set; }
+        public byte[] Order { get; set; }
+    }
+
+    internal sealed class NpaKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, NpaKeyRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -763,6 +776,14 @@ namespace GARbro.LegacyDataMigration
             return ReadAi5Dictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy ARC/AI5WIN key map");
         }
 
+        internal static Dictionary<string, NpaKeyRecord> ExportNpaKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "NPA");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy NPA scheme has no KnownSchemes member.");
+            return ReadNpaDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy NPA key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -868,6 +889,25 @@ namespace GARbro.LegacyDataMigration
                     return record.GetRawValue (name);
             }
             return null;
+        }
+
+        static int ReadEnumInt (object value, string label)
+        {
+            if (value is int number)
+                return number;
+            if (value == null)
+                throw new InvalidDataException (label + " contains a missing enum value.");
+
+            var type = value.GetType();
+            var getRawValue = type.GetMethod ("GetRawValue", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null, new[] { typeof (string) }, null);
+            if (getRawValue != null)
+            {
+                var raw = getRawValue.Invoke (value, new object[] { "value__" });
+                if (raw is int enumNumber)
+                    return enumNumber;
+            }
+            throw new InvalidDataException (label + " contains an invalid enum value: " + type.FullName);
         }
 
         static ClassRecord FindScheme (LegacyFormatsDatabase database, string tag)
@@ -1112,6 +1152,42 @@ namespace GARbro.LegacyDataMigration
                 };
                 if (exported.NameLength <= 0 || exported.NameLength > 0x100)
                     throw new InvalidDataException (label + " contains an invalid name length: " + key);
+                if (!result.TryAdd (key, exported))
+                    throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, NpaKeyRecord> ReadNpaDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, NpaKeyRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var titleId = ReadRaw (value, "TitleId");
+                var exported = new NpaKeyRecord {
+                    TitleId = ReadEnumInt (titleId, label + ": " + key),
+                    NameKey = ReadRequired<uint> (value, "NameKey"),
+                    Order = ReadRequiredArray<byte> (value, "Order"),
+                };
+                if (exported.Order.Length == 0 || exported.Order.Length > 256)
+                    throw new InvalidDataException (label + " contains an invalid order: " + key);
                 if (!result.TryAdd (key, exported))
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
             }

@@ -40,6 +40,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `ARC/AZ` | `GameRes.Formats.AZSys.AsbScheme` | `KnownKeys` |
 | `ARC/AZ/encrypted` | `GameRes.Formats.AZSys.AzScheme` | `KnownSchemes` |
 | `DAT/SPEED` | `GameRes.Formats.Jikkenshitsu.SjSchemeMap` | `KnownSchemes` |
+| `NPA` | `GameRes.Formats.NitroPlus.NpaScheme` | `KnownSchemes` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -74,6 +75,8 @@ The `PBZ` record is safely exportable with `export-pbz-keys`. Its single ArcKey/
 The `KCAP` record is safely exportable with `export-kcap-keys`. Its two title-to-password records are validated by `KcapKeyDatabase`; `FormatCatalogTests.Kcap_format_loads_migrated_password_and_decrypts_fixture` verifies title-based password selection and encrypted entry extraction.
 
 The `ARC/AI5WIN` record is safely exportable with `export-ai5-keys`. Its 14 structured scheme records are validated by `Ai5KeyDatabase`; `FormatCatalogTests.Ai5win_format_loads_migrated_scheme_and_opens_fixture` verifies encrypted directory decoding and entry extraction.
+
+The `NPA` record is safely exportable with `export-npa-keys`. Its 26 title-to-encryption-scheme records preserve the title id, name key, and byte order table and are validated by `NpaKeyDatabase`; `FormatCatalogTests.Npa_format_loads_migrated_schemes_and_decrypts_fixture` verifies archive-basename scheme lookup, encrypted index names, and entry extraction. The modern NPA reader is read-only and intentionally does not fall back to the legacy database or interactive unknown-scheme prompt.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

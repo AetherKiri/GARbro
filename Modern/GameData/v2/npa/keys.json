@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": {
+    "Chaos;Head": {
+      "titleId": 1,
+      "nameKey": 2271560481,
+      "order": "AAAAAAAAAAAAAAAAAAAAAA=="
+    },
+    "Chaos;Head Trial 1": {
+      "titleId": 2,
+      "nameKey": 2271560481,
+      "order": "/////////////////////x5OZrY="
+    },
+    "Chaos;Head Trial 2": {
+      "titleId": 3,
+      "nameKey": 2271560481,
+      "order": "BQUFBQULCwsLCwAAAAAAAA=="
+    },
+    "Muramasa Trial": {
+      "titleId": 4,
+      "nameKey": 2271560481,
+      "order": "POAuLyAuLyCOgIDy8vL6/A=="
+    },
+    "Muramasa": {
+      "titleId": 5,
+      "nameKey": 2271560481,
+      "order": "NXAuZmdlZmeFiYk7O4uBhQ=="
+    },
+    "Sumaga": {
+      "titleId": 6,
+      "nameKey": 2271560481,
+      "order": "POAuLy8vLyCOj4/y8vL8/A=="
+    },
+    "Zoku Satsuriku no Django": {
+      "titleId": 7,
+      "nameKey": 2271560481,
+      "order": "7u7u7u7u7u7u7u7u7u7u7h5OZrY="
+    },
+    "Zoku Satsuriku no Django Trial": {
+      "titleId": 8,
+      "nameKey": 2271560481,
+      "order": "7e7u7+3u7u7+3u7v7e7+3x5OZrY="
+    },
+    "Lamento": {
+      "titleId": 9,
+      "nameKey": 2271560481,
+      "order": "7u7u7u7u7u7u7u7u7u7u7h5OZrY="
+    },
+    "Sweet Pool": {
+      "titleId": 10,
+      "nameKey": 2271560481,
+      "order": "OJwqi4uLi4yKi4uurq6oqA=="
+    },
+    "Sumaga Special": {
+      "titleId": 11,
+      "nameKey": 2271560481,
+      "order": "q2+dnp+dnq+N//9xcXF5ew=="
+    },
+    "Demonbane": {
+      "titleId": 12,
+      "nameKey": 2271560481,
+      "order": "lrlHSJmXnKqIyupzc3vJxg=="
+    },
+    "MuramasaAD": {
+      "titleId": 13,
+      "nameKey": 2271560481,
+      "order": "AAQEaGhoaGhvb5+WlpaWmw=="
+    },
+    "Axanael": {
+      "titleId": 14,
+      "nameKey": 537923864,
+      "order": "CAwMwPDw8PD39/f+/v7+8w=="
+    },
+    "Kikokugai": {
+      "titleId": 15,
+      "nameKey": 537923864,
+      "order": "DwcHkPf39/fyR0dJycnJww=="
+    },
+    "Sonicomi Trial 2": {
+      "titleId": 16,
+      "nameKey": 537923864,
+      "order": "CAoKQPr6UFBV9/f5KSx8cw=="
+    },
+    "Sumaga 3% Trial": {
+      "titleId": 17,
+      "nameKey": 2271560481,
+      "order": "D+///////////////////w=="
+    },
+    "Sonicomi Version 1.0": {
+      "titleId": 18,
+      "nameKey": 537923864,
+      "order": "DgsOdy4ugIa5Li4piYKtqg=="
+    },
+    "Guilty Crown Lost Xmas": {
+      "titleId": 19,
+      "nameKey": 537923864,
+      "order": "OLpLW1Wu7uBnSAgKaj0yjQ=="
+    },
+    "Guilty Crown Lost Xmas Trailer": {
+      "titleId": 20,
+      "nameKey": 2271560481,
+      "order": "NHq7yxFl6lwnD8/GZjk5/Q=="
+    },
+    "DRAMAtical Murder": {
+      "titleId": 21,
+      "nameKey": 537923864,
+      "order": "BQ0NE7U9jS0gx8fPH+/vSA=="
+    },
+    "Kimi to Kanojo to Kanojo no Koi": {
+      "titleId": 22,
+      "nameKey": 305419896,
+      "order": "bmCQrLPjg9beenp/77+y1g=="
+    },
+    "Phenomeno": {
+      "titleId": 23,
+      "nameKey": 537923864,
+      "order": "MJbbKz2BAnRHK+vubjU1XQ=="
+    },
+    "Nekoda -Nyanda-": {
+      "titleId": 24,
+      "nameKey": 2271560481,
+      "order": "3Nzszdvc3Nzc3Nzc3Nzc3B5OZrY="
+    },
+    "Hanachirasu": {
+      "titleId": 25,
+      "nameKey": 2271560481,
+      "order": "ZoqYmZqYmaqIGrp8fHyUlg=="
+    },
+    "Saya no Uta": {
+      "titleId": 25,
+      "nameKey": 2271560481,
+      "order": "ZoqYmZqYmaqIGrp8fHyUlg=="
+    }
+  }
+}
