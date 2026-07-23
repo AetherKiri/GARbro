@@ -267,6 +267,58 @@ namespace GameRes.Formats.KiriKiri
         {
             switch (profile.Algorithm)
             {
+            case "altered-pink":
+                return new AlteredPinkCrypt();
+            case "applique":
+                return new AppliqueCrypt();
+            case "damegane":
+                return new DameganeCrypt();
+            case "dieselmine":
+                return new DieselmineCrypt();
+            case "exa":
+                return new ExaCrypt();
+            case "fate":
+                return new FateCrypt();
+            case "festival":
+                return new FestivalCrypt();
+            case "flying-shine":
+                return new FlyingShineCrypt();
+            case "haikuo":
+                return new HaikuoCrypt();
+            case "hash":
+                return new HashCrypt();
+            case "hibiki":
+                return new HibikiCrypt();
+            case "high-running":
+                return new HighRunningCrypt();
+            case "hybrid":
+                return new HybridCrypt();
+            case "kiss":
+                return new KissCrypt();
+            case "mizukake":
+                return new MizukakeCrypt();
+            case "natsupochi":
+                return new NatsupochiCrypt();
+            case "nephrite":
+                return new NephriteCrypt();
+            case "no-crypt":
+                return new NoCrypt();
+            case "okiba":
+                return new OkibaCrypt();
+            case "pinpoint":
+                return new PinPointCrypt();
+            case "poring-soft":
+                return new PoringSoftCrypt();
+            case "seiten":
+                return new SeitenCrypt();
+            case "sourire":
+                return new SourireCrypt();
+            case "syangrila-smart":
+                return new SyangrilaSmartCrypt();
+            case "tokidoki":
+                return new TokidokiCrypt();
+            case "yuzu":
+                return new YuzuCrypt();
             case "cx-encryption":
                 return new CxEncryption (CreateCx (ReadParameters<Xp3CxParameters> (profile).Cx, profile.Id));
             case "senren-cx":

@@ -26,6 +26,7 @@ namespace GARbro.LegacyDataMigration
         public int SourceDatabaseVersion { get; set; }
         public int SourceKnownSchemeCount { get; set; }
         public int ExportedProfileCount { get; set; }
+        public int DuplicateProfileCount { get; set; }
         public List<Xp3SkippedProfile> SkippedProfiles { get; set; }
     }
 
@@ -530,10 +531,40 @@ namespace GARbro.LegacyDataMigration
     {
         const string KnownSchemePairType = "[GameRes.Formats.KiriKiri.ICrypt,";
 
+        static readonly Dictionary<string, string> SimpleAlgorithms = new Dictionary<string, string> (StringComparer.Ordinal) {
+            { "GameRes.Formats.KiriKiri.AlteredPinkCrypt", "altered-pink" },
+            { "GameRes.Formats.KiriKiri.AppliqueCrypt", "applique" },
+            { "GameRes.Formats.KiriKiri.DameganeCrypt", "damegane" },
+            { "GameRes.Formats.KiriKiri.DieselmineCrypt", "dieselmine" },
+            { "GameRes.Formats.KiriKiri.ExaCrypt", "exa" },
+            { "GameRes.Formats.KiriKiri.FateCrypt", "fate" },
+            { "GameRes.Formats.KiriKiri.FestivalCrypt", "festival" },
+            { "GameRes.Formats.KiriKiri.FlyingShineCrypt", "flying-shine" },
+            { "GameRes.Formats.KiriKiri.HaikuoCrypt", "haikuo" },
+            { "GameRes.Formats.KiriKiri.HashCrypt", "hash" },
+            { "GameRes.Formats.KiriKiri.HibikiCrypt", "hibiki" },
+            { "GameRes.Formats.KiriKiri.HighRunningCrypt", "high-running" },
+            { "GameRes.Formats.KiriKiri.HybridCrypt", "hybrid" },
+            { "GameRes.Formats.KiriKiri.KissCrypt", "kiss" },
+            { "GameRes.Formats.KiriKiri.MizukakeCrypt", "mizukake" },
+            { "GameRes.Formats.KiriKiri.NatsupochiCrypt", "natsupochi" },
+            { "GameRes.Formats.KiriKiri.NephriteCrypt", "nephrite" },
+            { "GameRes.Formats.KiriKiri.NoCrypt", "no-crypt" },
+            { "GameRes.Formats.KiriKiri.OkibaCrypt", "okiba" },
+            { "GameRes.Formats.KiriKiri.PinPointCrypt", "pinpoint" },
+            { "GameRes.Formats.KiriKiri.PoringSoftCrypt", "poring-soft" },
+            { "GameRes.Formats.KiriKiri.SeitenCrypt", "seiten" },
+            { "GameRes.Formats.KiriKiri.SourireCrypt", "sourire" },
+            { "GameRes.Formats.KiriKiri.SyangrilaSmartCrypt", "syangrila-smart" },
+            { "GameRes.Formats.KiriKiri.TokidokiCrypt", "tokidoki" },
+            { "GameRes.Formats.KiriKiri.YuzuCrypt", "yuzu" },
+        };
+
         internal static Xp3ExportDocument Export (LegacyFormatsDatabase database, out Xp3ExportReport report)
         {
-            var profiles = new List<Xp3ExportProfile>();
+            var profiles = new Dictionary<string, Xp3ExportProfile> (StringComparer.OrdinalIgnoreCase);
             var skipped = new List<Xp3SkippedProfile>();
+            int duplicateCount = 0;
             var pairs = database.Records.Values.OfType<ClassRecord>()
                 .Where (record => record.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal)
                     && record.TypeName.FullName.IndexOf (KnownSchemePairType, StringComparison.Ordinal) >= 0)
@@ -558,17 +589,27 @@ namespace GARbro.LegacyDataMigration
                         Reason = reason,
                     });
                 }
+                else if (profiles.TryGetValue (profile.Id, out var existing))
+                {
+                    if (!string.Equals (existing.Algorithm, profile.Algorithm, StringComparison.Ordinal)
+                        || existing.Parameters.GetType() != profile.Parameters.GetType())
+                        throw new InvalidDataException ("Legacy XP3 profiles collide case-insensitively with different algorithms: " + pair.Title);
+                    ++duplicateCount;
+                }
                 else
-                    profiles.Add (profile);
+                    profiles.Add (profile.Id, profile);
             }
 
             report = new Xp3ExportReport {
                 SourceDatabaseVersion = database.Version,
                 SourceKnownSchemeCount = pairs.Length,
                 ExportedProfileCount = profiles.Count,
+                DuplicateProfileCount = duplicateCount,
                 SkippedProfiles = skipped,
             };
-            return new Xp3ExportDocument { Profiles = profiles };
+            return new Xp3ExportDocument {
+                Profiles = profiles.Values.OrderBy (profile => profile.Id, StringComparer.Ordinal).ToList(),
+            };
         }
 
         internal static Dictionary<string, string> ExportGameMap (LegacyFormatsDatabase database)
@@ -1247,6 +1288,11 @@ namespace GARbro.LegacyDataMigration
             reason = null;
             object parameters;
             string algorithm;
+            if (SimpleAlgorithms.TryGetValue (crypt.TypeName.FullName, out algorithm))
+            {
+                parameters = new Dictionary<string, object>();
+            }
+            else
             switch (crypt.TypeName.FullName)
             {
             case "GameRes.Formats.KiriKiri.CxEncryption":

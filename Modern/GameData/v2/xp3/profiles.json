@@ -1075,6 +1075,12 @@
       }
     },
     {
+      "id": "25c -Sono Hako wa Shoujo no Himei o Morasanai-",
+      "title": "25c -Sono Hako wa Shoujo no Himei o Morasanai-",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "9 -Nine- Kokonotsu Kokonoka Kokonoiro",
       "title": "9 -Nine- Kokonotsu Kokonoka Kokonoiro",
       "algorithm": "cx-encryption",
@@ -10436,6 +10442,24 @@
       }
     },
     {
+      "id": "Aibo Nyuujoku",
+      "title": "Aibo Nyuujoku",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Aisai Injoku Settai",
+      "title": "Aisai Injoku Settai",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Akatsuki no Goei",
+      "title": "Akatsuki no Goei",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
       "id": "Akazukin to Mayoi no Mori",
       "title": "Akazukin to Mayoi no Mori",
       "algorithm": "cx-encryption",
@@ -11493,6 +11517,18 @@
       }
     },
     {
+      "id": "Altered Pink",
+      "title": "Altered Pink",
+      "algorithm": "altered-pink",
+      "parameters": {}
+    },
+    {
+      "id": "Ama Koi Syrups",
+      "title": "Ama Koi Syrups",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Amairo\uFF0AIslenauts",
       "title": "Amairo\uFF0AIslenauts",
       "algorithm": "cx-encryption",
@@ -11509,6 +11545,24 @@
       }
     },
     {
+      "id": "Anata no Milk Kudasai na",
+      "title": "Anata no Milk Kudasai na",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Anedori",
+      "title": "Anedori",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Aniki No Yome-san nara",
+      "title": "Aniki No Yome-san nara",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
       "id": "Aqua",
       "title": "Aqua",
       "algorithm": "cx-encryption",
@@ -11523,6 +11577,18 @@
           "tpmFileName": "plugin\\AQUA.tpm"
         }
       }
+    },
+    {
+      "id": "Baaba to Mama to no Choujuku Oyakodon",
+      "title": "Baaba to Mama to no Choujuku Oyakodon",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Bakunyuu Oyakodon",
+      "title": "Bakunyuu Oyakodon",
+      "algorithm": "dieselmine",
+      "parameters": {}
     },
     {
       "id": "Bakuretsu Otome Sexy Mary",
@@ -12566,6 +12632,18 @@
       }
     },
     {
+      "id": "Bakusou Josou Keikaku",
+      "title": "Bakusou Josou Keikaku",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Berry\u0027s",
+      "title": "Berry\u0027s",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
       "id": "Bishuu ~Chigyaku no Mesu Dorei~",
       "title": "Bishuu ~Chigyaku no Mesu Dorei~",
       "algorithm": "cx-encryption",
@@ -13605,6 +13683,30 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Bitch Gal no Gachi Iki Acme",
+      "title": "Bitch Gal no Gachi Iki Acme",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Bodatsu ~Kindan no Shokushu Soukan~",
+      "title": "Bodatsu ~Kindan no Shokushu Soukan~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Bra-ban!",
+      "title": "Bra-ban!",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Cafe Sourire",
+      "title": "Cafe Sourire",
+      "algorithm": "sourire",
+      "parameters": {}
     },
     {
       "id": "Caf\u00E9 Stella to Shinigami no Chou",
@@ -16812,6 +16914,12 @@
       }
     },
     {
+      "id": "Clover Day\u0027s Plus",
+      "title": "Clover Day\u0027s Plus",
+      "algorithm": "no-crypt",
+      "parameters": {}
+    },
+    {
       "id": "Colorful\u2606Cure",
       "title": "Colorful\u2606Cure",
       "algorithm": "cx-encryption",
@@ -19951,6 +20059,12 @@
       }
     },
     {
+      "id": "Crime Rhyme series",
+      "title": "Crime Rhyme series",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
       "id": "Criminal Border: 2nd offence",
       "title": "Criminal Border: 2nd offence",
       "algorithm": "hx",
@@ -20996,6 +21110,12 @@
         "indexKey2": "bldfTzJ3TE8Kocn8akGzsA==",
         "indexKeys": null
       }
+    },
+    {
+      "id": "Custom Reido 4/4\u002B/V",
+      "title": "Custom Reido 4/4\u002B/V",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "D.C. Re:tune",
@@ -23092,6 +23212,30 @@
       }
     },
     {
+      "id": "DISCODE-2 Niritsu Haihan",
+      "title": "DISCODE-2 Niritsu Haihan",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Damegane",
+      "title": "Damegane",
+      "algorithm": "damegane",
+      "parameters": {}
+    },
+    {
+      "id": "Daraku Koujo",
+      "title": "Daraku Koujo",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Dare mo ga Kanojo o Neratteru",
+      "title": "Dare mo ga Kanojo o Neratteru",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Deep One",
       "title": "Deep One",
       "algorithm": "cx-encryption",
@@ -24131,6 +24275,30 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Dekinai Watashi ga, Kurikaesu",
+      "title": "Dekinai Watashi ga, Kurikaesu",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Dekinai Watashi ga, Kurikaesu.",
+      "title": "Dekinai Watashi ga, Kurikaesu.",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Do-M Imouto O-nedari Kojin Lesson",
+      "title": "Do-M Imouto O-nedari Kojin Lesson",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Dosukebe Bitch na Enkou...",
+      "title": "Dosukebe Bitch na Enkou...",
+      "algorithm": "pinpoint",
+      "parameters": {}
     },
     {
       "id": "Dracu-Riot!",
@@ -28418,6 +28586,18 @@
       }
     },
     {
+      "id": "Fate/stay night",
+      "title": "Fate/stay night",
+      "algorithm": "fate",
+      "parameters": {}
+    },
+    {
+      "id": "Fukashi na Aijou",
+      "title": "Fukashi na Aijou",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "GINKA",
       "title": "GINKA",
       "algorithm": "hx",
@@ -29465,6 +29645,12 @@
       }
     },
     {
+      "id": "Gakuen Butou no Folklore",
+      "title": "Gakuen Butou no Folklore",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
       "id": "Gakuen Tokkyuu Hotokenser",
       "title": "Gakuen Tokkyuu Hotokenser",
       "algorithm": "cx-encryption",
@@ -30504,6 +30690,24 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Ganki Tengoku",
+      "title": "Ganki Tengoku",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Gisobo, Choukyou Chuu",
+      "title": "Gisobo, Choukyou Chuu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Gokkun! Onii-chan Milk",
+      "title": "Gokkun! Onii-chan Milk",
+      "algorithm": "nephrite",
+      "parameters": {}
     },
     {
       "id": "Grisaia: Phantom Trigger Vol.2",
@@ -35729,6 +35933,36 @@
       }
     },
     {
+      "id": "Hahadori ~Ochiteiku Haha no Eizou Kiroku~",
+      "title": "Hahadori ~Ochiteiku Haha no Eizou Kiroku~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Hame Pako Ou-sama Game!",
+      "title": "Hame Pako Ou-sama Game!",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Hame-dori Jikkyou Chuukei!",
+      "title": "Hame-dori Jikkyou Chuukei!",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Hamedol Hakudaku Ochi",
+      "title": "Hamedol Hakudaku Ochi",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Hana no No ni Saku Utakata no",
+      "title": "Hana no No ni Saku Utakata no",
+      "algorithm": "no-crypt",
+      "parameters": {}
+    },
+    {
       "id": "Hanagane Kanade * Gram - Chapter:1 Kozakura Yui",
       "title": "Hanagane Kanade * Gram - Chapter:1 Kozakura Yui",
       "algorithm": "hx",
@@ -40012,6 +40246,18 @@
       }
     },
     {
+      "id": "Haniwari! Sayaka Ojou-sama",
+      "title": "Haniwari! Sayaka Ojou-sama",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Hardcore Teacher",
+      "title": "Hardcore Teacher",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Haruiro\u2606Communication\u266A",
       "title": "Haruiro\u2606Communication\u266A",
       "algorithm": "cx-encryption",
@@ -42101,6 +42347,12 @@
           676609281
         ]
       }
+    },
+    {
+      "id": "Hatarakanai Honey Life",
+      "title": "Hatarakanai Honey Life",
+      "algorithm": "nephrite",
+      "parameters": {}
     },
     {
       "id": "Hataraku Otaku no Ren\u0027ai Jijou",
@@ -44199,6 +44451,12 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Heliotrope -Sore wa Shi ni Itaru Kami no Ai-",
+      "title": "Heliotrope -Sore wa Shi ni Itaru Kami no Ai-",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Hello Lady!",
@@ -47340,6 +47598,24 @@
       }
     },
     {
+      "id": "Hentai Kyonyuu Nurse",
+      "title": "Hentai Kyonyuu Nurse",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Hikuu Yousai Mitsutsubo no Himegimi",
+      "title": "Hikuu Yousai Mitsutsubo no Himegimi",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Hime to Majin to Koi Suru Tamashii",
+      "title": "Hime to Majin to Koi Suru Tamashii",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Hinekuremono no Gakuen Seishun Monogatari",
       "title": "Hinekuremono no Gakuen Seishun Monogatari",
       "algorithm": "cx-encryption",
@@ -48381,6 +48657,12 @@
       }
     },
     {
+      "id": "Hito Yado Ippatsu Yarihamezon",
+      "title": "Hito Yado Ippatsu Yarihamezon",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Hitozuma Chijoku Hyakkaten",
       "title": "Hitozuma Chijoku Hyakkaten",
       "algorithm": "cx-encryption",
@@ -49420,6 +49702,24 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Hitozuma Tenchou no Chitai Kinmu",
+      "title": "Hitozuma Tenchou no Chitai Kinmu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Honban Ari! Hitozuma Delivery R",
+      "title": "Honban Ari! Hitozuma Delivery R",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Hora, Sonna ni Koe o Morasu...",
+      "title": "Hora, Sonna ni Koe o Morasu...",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Hoshi Koi * Twinkle",
@@ -50464,6 +50764,72 @@
       }
     },
     {
+      "id": "Hoshoku Game 2 ~Sayonara, Marunomi~",
+      "title": "Hoshoku Game 2 ~Sayonara, Marunomi~",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Hotel. [Trial]",
+      "title": "Hotel. [Trial]",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Ichizu ni Zettai Fukujuu na Imouto",
+      "title": "Ichizu ni Zettai Fukujuu na Imouto",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Iede Musume Tanetsuke Kanyuu",
+      "title": "Iede Musume Tanetsuke Kanyuu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Iinkai no Antihero",
+      "title": "Iinkai no Antihero",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
+      "id": "Ijou Seiai",
+      "title": "Ijou Seiai",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Immoral Joubo Hazard",
+      "title": "Immoral Joubo Hazard",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Immoral Love ~Tsuma no Tsureko ga Ore no Koibito~",
+      "title": "Immoral Love ~Tsuma no Tsureko ga Ore no Koibito~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Imouto Haramasex",
+      "title": "Imouto Haramasex",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Imouto Kairaku Ochi",
+      "title": "Imouto Kairaku Ochi",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Imouto Shokushu Rape",
+      "title": "Imouto Shokushu Rape",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Imouto Style",
       "title": "Imouto Style",
       "algorithm": "cx-encryption",
@@ -51505,6 +51871,78 @@
       }
     },
     {
+      "id": "Imouto no Katachi",
+      "title": "Imouto no Katachi",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
+      "id": "Imouto no Okage de Motesugite Yabai.",
+      "title": "Imouto no Okage de Motesugite Yabai.",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
+      "id": "In! Joku! Pink Ranger!!",
+      "title": "In! Joku! Pink Ranger!!",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "In\u0027en no Yu ~Sandai no Okami-tachi to no Mikkou~",
+      "title": "In\u0027en no Yu ~Sandai no Okami-tachi to no Mikkou~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "In\u0027yaku Izon Gakuen",
+      "title": "In\u0027yaku Izon Gakuen",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Inaho no Mirai",
+      "title": "Inaho no Mirai",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Inaka no Muchi na Muchimuchi Musume",
+      "title": "Inaka no Muchi na Muchimuchi Musume",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Inbo Rannyuu Soukan",
+      "title": "Inbo Rannyuu Soukan",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Ingoku no Hako",
+      "title": "Ingoku no Hako",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Inraku Counseling",
+      "title": "Inraku Counseling",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Inraku no Ketsuzoku",
+      "title": "Inraku no Ketsuzoku",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Inshi Reizoku",
+      "title": "Inshi Reizoku",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Island Diary",
       "title": "Island Diary",
       "algorithm": "cx-encryption",
@@ -52544,6 +52982,12 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Itsu de mo Onna no Ko ni Seieki...",
+      "title": "Itsu de mo Onna no Ko ni Seieki...",
+      "algorithm": "dieselmine",
+      "parameters": {}
     },
     {
       "id": "JK Trouble Main\u0022s",
@@ -53601,6 +54045,30 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Jimi me na Jijo-san no Oshigoto Sex",
+      "title": "Jimi me na Jijo-san no Oshigoto Sex",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Joker -Shisen no Hate no Doukeshi-",
+      "title": "Joker -Shisen no Hate no Doukeshi-",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Jokyoushi Rinkan no Kyoushitsu",
+      "title": "Jokyoushi Rinkan no Kyoushitsu",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Juurin! Orc Gakuen!",
+      "title": "Juurin! Orc Gakuen!",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "KARAKARA",
@@ -55685,6 +56153,30 @@
       }
     },
     {
+      "id": "Kagachi-sama Onagusame Tatematsurimasu",
+      "title": "Kagachi-sama Onagusame Tatematsurimasu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kaguya-hime wa Babumi Tappuri no Loli BBA Deshita",
+      "title": "Kaguya-hime wa Babumi Tappuri no Loli BBA Deshita",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kahogo na Ryoubo no Shasei Kanri",
+      "title": "Kahogo na Ryoubo no Shasei Kanri",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kaiware!",
+      "title": "Kaiware!",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
       "id": "Kakenuke\u2605Seishun Sparking!",
       "title": "Kakenuke\u2605Seishun Sparking!",
       "algorithm": "cx-encryption",
@@ -56724,6 +57216,36 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Kaminarikko Chuuihou!",
+      "title": "Kaminarikko Chuuihou!",
+      "algorithm": "high-running",
+      "parameters": {}
+    },
+    {
+      "id": "Kanae to Meguri to no Sonogo ga Icha Love Sugite Yabai.",
+      "title": "Kanae to Meguri to no Sonogo ga Icha Love Sugite Yabai.",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
+      "id": "Kanjuku Sakuranbou!",
+      "title": "Kanjuku Sakuranbou!",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Kanojo-tachi no Taboo",
+      "title": "Kanojo-tachi no Taboo",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Kanpeki Seitokaichou no Himitsu no Seiheki",
+      "title": "Kanpeki Seitokaichou no Himitsu no Seiheki",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Karenai Sekai to Owaru Hana",
@@ -58806,6 +59328,30 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Kareshi ni Naisho de Kairaku Ochi",
+      "title": "Kareshi ni Naisho de Kairaku Ochi",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kasshoku Cool Bitch Hitozuma no Seiyoku Kaishou",
+      "title": "Kasshoku Cool Bitch Hitozuma no Seiyoku Kaishou",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kasshoku Orient Bijo to Shuujuu Seikou",
+      "title": "Kasshoku Orient Bijo to Shuujuu Seikou",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kazoku Choukyou",
+      "title": "Kazoku Choukyou",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Kemono Musume no Sodatekata",
@@ -60906,6 +61452,18 @@
       }
     },
     {
+      "id": "Koi Suru Kanojo no Bukiyou na Butai",
+      "title": "Koi Suru Kanojo no Bukiyou na Butai",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
+      "id": "Koi de wa Naku - It\u0027s not love, but so where near.",
+      "title": "Koi de wa Naku - It\u0027s not love, but so where near.",
+      "algorithm": "syangrila-smart",
+      "parameters": {}
+    },
+    {
       "id": "Koi ga Saku Koro Sakura Doki",
       "title": "Koi ga Saku Koro Sakura Doki",
       "algorithm": "cx-encryption",
@@ -62988,6 +63546,36 @@
       }
     },
     {
+      "id": "Koko wa Suki na Dake Sex Shite",
+      "title": "Koko wa Suki na Dake Sex Shite",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Kon Kon",
+      "title": "Kon Kon",
+      "algorithm": "festival",
+      "parameters": {}
+    },
+    {
+      "id": "Kore tte, Riajuu?",
+      "title": "Kore tte, Riajuu?",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kouen no Shugo Kishi Kishar",
+      "title": "Kouen no Shugo Kishi Kishar",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Kouki na Ojou-sama o Katappashi kara...",
+      "title": "Kouki na Ojou-sama o Katappashi kara...",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
       "id": "Kourin no Machi, Lavender no Shoujo",
       "title": "Kourin no Machi, Lavender no Shoujo",
       "algorithm": "cx-encryption",
@@ -63004,6 +63592,18 @@
       }
     },
     {
+      "id": "Kozukuri Onsen ~Ippai Tsukutte Ichizoku Hanei~",
+      "title": "Kozukuri Onsen ~Ippai Tsukutte Ichizoku Hanei~",
+      "algorithm": "high-running",
+      "parameters": {}
+    },
+    {
+      "id": "Kurano-kunchi no Futago Jijou",
+      "title": "Kurano-kunchi no Futago Jijou",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
       "id": "Kurenai no Tsuki",
       "title": "Kurenai no Tsuki",
       "algorithm": "cx-encryption",
@@ -63018,6 +63618,18 @@
           "tpmFileName": "plugin\\kurenai.tpm"
         }
       }
+    },
+    {
+      "id": "Kuro Gyaru Musume",
+      "title": "Kuro Gyaru Musume",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "LOVELY x CATION",
+      "title": "LOVELY x CATION",
+      "algorithm": "hibiki",
+      "parameters": {}
     },
     {
       "id": "LimeLight Lemonade Jam",
@@ -64067,6 +64679,12 @@
       }
     },
     {
+      "id": "Little Hole",
+      "title": "Little Hole",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Loca Love - Dousei x Kouhai",
       "title": "Loca Love - Dousei x Kouhai",
       "algorithm": "cx-encryption",
@@ -65108,6 +65726,12 @@
       }
     },
     {
+      "id": "Love Love Boin series",
+      "title": "Love Love Boin series",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
       "id": "Love\u002BLaby",
       "title": "Love\u002BLaby",
       "algorithm": "cx-encryption",
@@ -66147,6 +66771,18 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Lovesick Puppies -Bokura wa Koi Suru Tame ni Umaretekita-",
+      "title": "Lovesick Puppies -Bokura wa Koi Suru Tame ni Umaretekita-",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "M-days Doukoku no Koubi Jigoku",
+      "title": "M-days Doukoku no Koubi Jigoku",
+      "algorithm": "dieselmine",
+      "parameters": {}
     },
     {
       "id": "MOON GHOST",
@@ -67227,6 +67863,12 @@
           }
         }
       }
+    },
+    {
+      "id": "Mahara Miko",
+      "title": "Mahara Miko",
+      "algorithm": "poring-soft",
+      "parameters": {}
     },
     {
       "id": "Mahoutsukai no Yoru",
@@ -70352,6 +70994,30 @@
       }
     },
     {
+      "id": "Make Me Lover",
+      "title": "Make Me Lover",
+      "algorithm": "kiss",
+      "parameters": {}
+    },
+    {
+      "id": "Mama no Okugai Shuuchi Lesson",
+      "title": "Mama no Okugai Shuuchi Lesson",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Mama to no Ikisugi Ama Ama Seikatsu",
+      "title": "Mama to no Ikisugi Ama Ama Seikatsu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Mamiya-kunchi no Itsutsugo Jijou",
+      "title": "Mamiya-kunchi no Itsutsugo Jijou",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
       "id": "Manakashi no Yuri wa Akaku Somaru [DL]",
       "title": "Manakashi no Yuri wa Akaku Somaru [DL]",
       "algorithm": "cx-encryption",
@@ -71391,6 +72057,12 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Manamusume wa, Mazo Seirei",
+      "title": "Manamusume wa, Mazo Seirei",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Mashiro-iro Symphony -Love is pure white- Remake for FHD",
@@ -73487,6 +74159,30 @@
       }
     },
     {
+      "id": "Me ga Sametara Seieki ga 100 Bai...",
+      "title": "Me ga Sametara Seieki ga 100 Bai...",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Megami Ryoujoku ~Paizuri Hime Verdandi~",
+      "title": "Megami Ryoujoku ~Paizuri Hime Verdandi~",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Mesuga* Choukyou",
+      "title": "Mesuga* Choukyou",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Minarai Taimashi Maji de Ikimasu!",
+      "title": "Minarai Taimashi Maji de Ikimasu!",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Mirai Sekai no Planeta",
       "title": "Mirai Sekai no Planeta",
       "algorithm": "cx-encryption",
@@ -73503,6 +74199,12 @@
       }
     },
     {
+      "id": "Mizu no Kakera ~Once Summer of Islet~",
+      "title": "Mizu no Kakera ~Once Summer of Islet~",
+      "algorithm": "mizukake",
+      "parameters": {}
+    },
+    {
       "id": "Mizu no Miyako no Patisserie",
       "title": "Mizu no Miyako no Patisserie",
       "algorithm": "cx-encryption",
@@ -73517,6 +74219,12 @@
           "tpmFileName": "plugin\\\u6C34\u306E\u90FD\u306E\u6D0B\u83D3\u5B50\u5E97\uFF08\u30D1\u30C6\u30A3\u30B9\u30EA\u30FC\uFF09.tpm"
         }
       }
+    },
+    {
+      "id": "Mizukoi",
+      "title": "Mizukoi",
+      "algorithm": "flying-shine",
+      "parameters": {}
     },
     {
       "id": "Momoiro Closet",
@@ -75608,6 +76316,12 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Momojiri Instructor Netori Lesson",
+      "title": "Momojiri Instructor Netori Lesson",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Motto Haramase Honoo no Oppai Chou Ero Appli Gakuen [Offical Chinese-Eng Ver]",
@@ -79750,6 +80464,48 @@
       }
     },
     {
+      "id": "Muchimuchi Dekapai Mara Gui Maou-sama",
+      "title": "Muchimuchi Dekapai Mara Gui Maou-sama",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Namaiki JK ni Fukushuu no Seikatsu Shidou",
+      "title": "Namaiki JK ni Fukushuu no Seikatsu Shidou",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Nantai Lesson",
+      "title": "Nantai Lesson",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Nariyuki\u2192Papakatsu Girls!!",
+      "title": "Nariyuki\u2192Papakatsu Girls!!",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Natsuiro Shimai",
+      "title": "Natsuiro Shimai",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Natsuiro Shimai Trial",
+      "title": "Natsuiro Shimai Trial",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Natsupochi",
+      "title": "Natsupochi",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
       "id": "Natsuzora Kanata",
       "title": "Natsuzora Kanata",
       "algorithm": "cx-encryption",
@@ -80789,6 +81545,12 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Nee\u2665Summer!",
+      "title": "Nee\u2665Summer!",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Nekogami-sama to, Nanatsuboshi",
@@ -81832,6 +82594,12 @@
       }
     },
     {
+      "id": "Netorare Osananajimi ~Haruka to Chika~",
+      "title": "Netorare Osananajimi ~Haruka to Chika~",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
       "id": "Nidaime wa \u2606 Mahou Shoujo",
       "title": "Nidaime wa \u2606 Mahou Shoujo",
       "algorithm": "cx-encryption",
@@ -82871,6 +83639,90 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Niina-chan Lovely Life",
+      "title": "Niina-chan Lovely Life",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
+      "id": "Nitou Ou Mono wa Ittou mo Ezu",
+      "title": "Nitou Ou Mono wa Ittou mo Ezu",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Nyotai-ka Panic!",
+      "title": "Nyotai-ka Panic!",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Oazuke Fetish!",
+      "title": "Oazuke Fetish!",
+      "algorithm": "exa",
+      "parameters": {}
+    },
+    {
+      "id": "Ochiteiku Wakazuma Maiko",
+      "title": "Ochiteiku Wakazuma Maiko",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
+      "id": "Ochiteyuku Seishoku Shukujo",
+      "title": "Ochiteyuku Seishoku Shukujo",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Ojou-sama wa Gakuen no Seieki Benjo",
+      "title": "Ojou-sama wa Gakuen no Seieki Benjo",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Okiba ga Nai!",
+      "title": "Okiba ga Nai!",
+      "algorithm": "okiba",
+      "parameters": {}
+    },
+    {
+      "id": "Oku-sama wa Moto Yariman -Besluted-",
+      "title": "Oku-sama wa Moto Yariman -Besluted-",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Omae no Kaa-chan, Ii Onna Da yo na",
+      "title": "Omae no Kaa-chan, Ii Onna Da yo na",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Omae no Tsuma wa, Ore no Inran Niku Yome",
+      "title": "Omae no Tsuma wa, Ore no Inran Niku Yome",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Omana 2: Omaenchi Moeteruzo",
+      "title": "Omana 2: Omaenchi Moeteruzo",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Omoikkiri! Seieki Tairyou Chuunyuu!",
+      "title": "Omoikkiri! Seieki Tairyou Chuunyuu!",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Omokage ~Ecchi na Happening!? Nandemo Dontokoi!~",
+      "title": "Omokage ~Ecchi na Happening!? Nandemo Dontokoi!~",
+      "algorithm": "applique",
+      "parameters": {}
     },
     {
       "id": "One Room -Yui Hanasaka Memorial-",
@@ -84966,6 +85818,30 @@
       }
     },
     {
+      "id": "Oppai Cafe ~Oyako de Cos Chichi~",
+      "title": "Oppai Cafe ~Oyako de Cos Chichi~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Ore no Imouto wa Kyou kara Do S",
+      "title": "Ore no Imouto wa Kyou kara Do S",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Ore no Imouto wa Seijun Bitch",
+      "title": "Ore no Imouto wa Seijun Bitch",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Ore no Saimin Fantasia",
+      "title": "Ore no Saimin Fantasia",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
       "id": "Ore to 5-nin no Yome-san ga Raburabu nano wa",
       "title": "Ore to 5-nin no Yome-san ga Raburabu nano wa",
       "algorithm": "cx-encryption",
@@ -86007,6 +86883,12 @@
       }
     },
     {
+      "id": "Ore wa, Shokushu Breeder",
+      "title": "Ore wa, Shokushu Breeder",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Osakoi",
       "title": "Osakoi",
       "algorithm": "cx-encryption",
@@ -86021,6 +86903,18 @@
           "tpmFileName": "plugin\\nyan03_osakoi.tpm"
         }
       }
+    },
+    {
+      "id": "Osananajimi ga Chichioya",
+      "title": "Osananajimi ga Chichioya",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Osananajimi wa, Kakure Do M",
+      "title": "Osananajimi wa, Kakure Do M",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Otome\uFF0ADomain",
@@ -87064,6 +87958,72 @@
       }
     },
     {
+      "id": "Otto ni Ienai Gifu to no Kan\u0027in",
+      "title": "Otto ni Ienai Gifu to no Kan\u0027in",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Ouka Ryouran",
+      "title": "Ouka Ryouran",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Oyako Koukan",
+      "title": "Oyako Koukan",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Oyako Ninjutsu Kunoichi PonPon!!",
+      "title": "Oyako Ninjutsu Kunoichi PonPon!!",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Oyako no Himitsu",
+      "title": "Oyako no Himitsu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "P.S. Anata o Kokoro kara Aishiteimasu",
+      "title": "P.S. Anata o Kokoro kara Aishiteimasu",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "PRETTY x CATION",
+      "title": "PRETTY x CATION",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "PRICE",
+      "title": "PRICE",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "PURELY x CATION [Trial]",
+      "title": "PURELY x CATION [Trial]",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Papa Daisuki! to Itte Kure...",
+      "title": "Papa Daisuki! to Itte Kure...",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Papa, Dakishimete Ageru",
+      "title": "Papa, Dakishimete Ageru",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Parquet",
       "title": "Parquet",
       "algorithm": "cx-encryption",
@@ -88103,6 +89063,42 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Pretty x Cation 2",
+      "title": "Pretty x Cation 2",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Princess Saga",
+      "title": "Princess Saga",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "RGH ~Koi to Hero to Gakuen to~",
+      "title": "RGH ~Koi to Hero to Gakuen to~",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
+      "id": "Rakugaki Overheart",
+      "title": "Rakugaki Overheart",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
+      "id": "Re:",
+      "title": "Re:",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Re:birth Colony -Lost Azurite-",
+      "title": "Re:birth Colony -Lost Azurite-",
+      "algorithm": "applique",
+      "parameters": {}
     },
     {
       "id": "Real Imouto ga Iru Ooizumi-kun no Baai",
@@ -92280,6 +93276,12 @@
       }
     },
     {
+      "id": "Riding Incubus",
+      "title": "Riding Incubus",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
       "id": "Rui wa Tomo o Yobu",
       "title": "Rui wa Tomo o Yobu",
       "algorithm": "cx-encryption",
@@ -95419,6 +96421,30 @@
       }
     },
     {
+      "id": "Saikyou Chikan Densha",
+      "title": "Saikyou Chikan Densha",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Sailor Fuku Shinryou Tsumaka",
+      "title": "Sailor Fuku Shinryou Tsumaka",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Sakura Sakura",
+      "title": "Sakura Sakura",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Sakura Sakura [English]",
+      "title": "Sakura Sakura [English]",
+      "algorithm": "no-crypt",
+      "parameters": {}
+    },
+    {
       "id": "Sakura, Sakimashita.",
       "title": "Sakura, Sakimashita.",
       "algorithm": "cx-encryption",
@@ -96458,6 +97484,30 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Sanoba Witch",
+      "title": "Sanoba Witch",
+      "algorithm": "yuzu",
+      "parameters": {}
+    },
+    {
+      "id": "Se-n-pa-i ~Hiromi-senpai",
+      "title": "Se-n-pa-i ~Hiromi-senpai",
+      "algorithm": "nephrite",
+      "parameters": {}
+    },
+    {
+      "id": "Segare no Niizuma",
+      "title": "Segare no Niizuma",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Seieki Tairyou Chuunyuu! 5",
+      "title": "Seieki Tairyou Chuunyuu! 5",
+      "algorithm": "dieselmine",
+      "parameters": {}
     },
     {
       "id": "Seiin no Meikyuu",
@@ -97501,6 +98551,24 @@
       }
     },
     {
+      "id": "Seirei Tenshou",
+      "title": "Seirei Tenshou",
+      "algorithm": "seiten",
+      "parameters": {}
+    },
+    {
+      "id": "Seiso na Ano Ko wa, Kakure Bitch",
+      "title": "Seiso na Ano Ko wa, Kakure Bitch",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Senden no Shugo Kishi Niina",
+      "title": "Senden no Shugo Kishi Niina",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Senren\uFF0ABanka",
       "title": "Senren\uFF0ABanka",
       "algorithm": "senren-cx",
@@ -98542,6 +99610,42 @@
       }
     },
     {
+      "id": "Serifu de Kanjite! Seiyuu Doushi",
+      "title": "Serifu de Kanjite! Seiyuu Doushi",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Shiden ~Enkan no Kizuna~",
+      "title": "Shiden ~Enkan no Kizuna~",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Shikijou Kyoudan",
+      "title": "Shikijou Kyoudan",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Shimai Soukan ~Kindan no Kakeizu~",
+      "title": "Shimai Soukan ~Kindan no Kakeizu~",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Shin\u0027yuu no Kyonyuu Mama to Nakadashi Seikatsu",
+      "title": "Shin\u0027yuu no Kyonyuu Mama to Nakadashi Seikatsu",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Shindan no Kekka, Sore wa Koi no Yamai Desu",
+      "title": "Shindan no Kekka, Sore wa Koi no Yamai Desu",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
       "id": "Shiniyuku Kimi, Yakata ni Mebuku Zouo",
       "title": "Shiniyuku Kimi, Yakata ni Mebuku Zouo",
       "algorithm": "cx-encryption",
@@ -99581,6 +100685,18 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Shirouto Yanmama, Kosatsu AV Debut",
+      "title": "Shirouto Yanmama, Kosatsu AV Debut",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Shitenasasou de, Shiteiru Kanojo no Shiteinai Koto",
+      "title": "Shitenasasou de, Shiteiru Kanojo no Shiteinai Koto",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Shogun-sama wa Otoshigoro",
@@ -101663,6 +102779,18 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Shokusai no Miyako",
+      "title": "Shokusai no Miyako",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Shokushu Ouji no Nikuyome Sagashi",
+      "title": "Shokushu Ouji no Nikuyome Sagashi",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Shoujo\u2606Kageki Revue Starlight Butai Souzougeki Harukanaru El Dorado",
@@ -103785,6 +104913,42 @@
       }
     },
     {
+      "id": "Sobo to Boku",
+      "title": "Sobo to Boku",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Sorairo Innocent",
+      "title": "Sorairo Innocent",
+      "algorithm": "applique",
+      "parameters": {}
+    },
+    {
+      "id": "Sorairo no Shizuku",
+      "title": "Sorairo no Shizuku",
+      "algorithm": "mizukake",
+      "parameters": {}
+    },
+    {
+      "id": "Soukan Chiryou Byoutou",
+      "title": "Soukan Chiryou Byoutou",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Soukou Seiki Ysphere",
+      "title": "Soukou Seiki Ysphere",
+      "algorithm": "pinpoint",
+      "parameters": {}
+    },
+    {
+      "id": "Sousei no Himegimi",
+      "title": "Sousei no Himegimi",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Suiheisen made Nan Mile?",
       "title": "Suiheisen made Nan Mile?",
       "algorithm": "cx-encryption",
@@ -104874,6 +106038,18 @@
       }
     },
     {
+      "id": "Swan Song",
+      "title": "Swan Song",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Sweet \u2606 Switch",
+      "title": "Sweet \u2606 Switch",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Tamayura Mirai",
       "title": "Tamayura Mirai",
       "algorithm": "cx-encryption",
@@ -105915,6 +107091,12 @@
       }
     },
     {
+      "id": "Tanetsuke Dungeon",
+      "title": "Tanetsuke Dungeon",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Tasogare no Sinsemilla",
       "title": "Tasogare no Sinsemilla",
       "algorithm": "cx-encryption",
@@ -106954,6 +108136,24 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Tawawa Oku-san x Happening Gym",
+      "title": "Tawawa Oku-san x Happening Gym",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Temptation -Saiin no Naraku-",
+      "title": "Temptation -Saiin no Naraku-",
+      "algorithm": "natsupochi",
+      "parameters": {}
+    },
+    {
+      "id": "Temptation Naked",
+      "title": "Temptation Naked",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Tenshin Ranman - Lucky or Unlucky!?",
@@ -109089,6 +110289,42 @@
       }
     },
     {
+      "id": "Tettei Anal Chiiku",
+      "title": "Tettei Anal Chiiku",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "The3Days -15-nin Renzoku Rape-",
+      "title": "The3Days -15-nin Renzoku Rape-",
+      "algorithm": "dieselmine",
+      "parameters": {}
+    },
+    {
+      "id": "Toaru Jukujo no Hentai Choukyou",
+      "title": "Toaru Jukujo no Hentai Choukyou",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Toki o Tsumugu Yakusoku",
+      "title": "Toki o Tsumugu Yakusoku",
+      "algorithm": "no-crypt",
+      "parameters": {}
+    },
+    {
+      "id": "Tokidoki Pakucchao!",
+      "title": "Tokidoki Pakucchao!",
+      "algorithm": "tokidoki",
+      "parameters": {}
+    },
+    {
+      "id": "Tonarizuma 2 ~Otto ja Dekinai Koto Ippai Shite~",
+      "title": "Tonarizuma 2 ~Otto ja Dekinai Koto Ippai Shite~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Towazugatari ~Shoujo Ryoujoku Hishou~",
       "title": "Towazugatari ~Shoujo Ryoujoku Hishou~",
       "algorithm": "cx-encryption",
@@ -110128,6 +111364,42 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Tsubasa no Oka no Hime",
+      "title": "Tsubasa no Oka no Hime",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
+      "id": "Tsuma Kai -Tsuma Gai-",
+      "title": "Tsuma Kai -Tsuma Gai-",
+      "algorithm": "flying-shine",
+      "parameters": {}
+    },
+    {
+      "id": "Tsuma ga Kakushiteita Video...",
+      "title": "Tsuma ga Kakushiteita Video...",
+      "algorithm": "pinpoint",
+      "parameters": {}
+    },
+    {
+      "id": "Tsuma no Sobo wa",
+      "title": "Tsuma no Sobo wa",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Tsuma to Musuko ni Barete",
+      "title": "Tsuma to Musuko ni Barete",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Tsundere Itoko to Koakuma ...",
+      "title": "Tsundere Itoko to Koakuma ...",
+      "algorithm": "dieselmine",
+      "parameters": {}
     },
     {
       "id": "Tsuyuchiru Letter ~Umi to Shiori ni Amaoto o~",
@@ -111171,6 +112443,18 @@
       }
     },
     {
+      "id": "Ubawareta Gakuen ~Wana ni Ochita Yuutousei~",
+      "title": "Ubawareta Gakuen ~Wana ni Ochita Yuutousei~",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Uchi ni Tenshi ga Yari ni kita",
+      "title": "Uchi ni Tenshi ga Yari ni kita",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Ushinawareta Mirai o Motomete",
       "title": "Ushinawareta Mirai o Motomete",
       "algorithm": "cx-encryption",
@@ -112210,6 +113494,12 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Virgin Mama",
+      "title": "Virgin Mama",
+      "algorithm": "hash",
+      "parameters": {}
     },
     {
       "id": "Wagamama High Spec",
@@ -117417,6 +118707,30 @@
       }
     },
     {
+      "id": "With Ribbon",
+      "title": "With Ribbon",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
+      "id": "Yome Sagashi ga Hakadori Sugite Yabai.",
+      "title": "Yome Sagashi ga Hakadori Sugite Yabai.",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Yome no Ane ga Kyonyuu Sugite",
+      "title": "Yome no Ane ga Kyonyuu Sugite",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
+      "id": "Yome no Imouto to no In\u0027ai",
+      "title": "Yome no Imouto to no In\u0027ai",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Yomibito Shirazu ~Amai Meshibe no Seichoushi~",
       "title": "Yomibito Shirazu ~Amai Meshibe no Seichoushi~",
       "algorithm": "cx-encryption",
@@ -118456,6 +119770,30 @@
           "tpmFileName": null
         }
       }
+    },
+    {
+      "id": "Yotsunoha",
+      "title": "Yotsunoha",
+      "algorithm": "haikuo",
+      "parameters": {}
+    },
+    {
+      "id": "Youjoku no Onna Kishi",
+      "title": "Youjoku no Onna Kishi",
+      "algorithm": "hybrid",
+      "parameters": {}
+    },
+    {
+      "id": "Youjoku no Ouhi to Sono Himegimi",
+      "title": "Youjoku no Ouhi to Sono Himegimi",
+      "algorithm": "hybrid",
+      "parameters": {}
+    },
+    {
+      "id": "Yurikago yori Tenshi made [Trial]",
+      "title": "Yurikago yori Tenshi made [Trial]",
+      "algorithm": "applique",
+      "parameters": {}
     },
     {
       "id": "Yuugu 2 ~Dai Ni Kinsho no Nozomu Mono~",
@@ -122622,6 +123960,12 @@
       }
     },
     {
+      "id": "Zettai Sakusei! Succubus-chan",
+      "title": "Zettai Sakusei! Succubus-chan",
+      "algorithm": "hash",
+      "parameters": {}
+    },
+    {
       "id": "Zutto Sukishite Takusan Sukishite",
       "title": "Zutto Sukishite Takusan Sukishite",
       "algorithm": "cx-encryption",
@@ -124710,6 +126054,12 @@
       }
     },
     {
+      "id": "blue note",
+      "title": "blue note",
+      "algorithm": "poring-soft",
+      "parameters": {}
+    },
+    {
       "id": "relations. sister x sister.",
       "title": "relations. sister x sister.",
       "algorithm": "cx-encryption",
@@ -124724,6 +126074,18 @@
           "tpmFileName": "plugin\\relations.tpm"
         }
       }
+    },
+    {
+      "id": "your diary \u002B H",
+      "title": "your diary \u002B H",
+      "algorithm": "sourire",
+      "parameters": {}
+    },
+    {
+      "id": "your diary \u002B [English]",
+      "title": "your diary \u002B [English]",
+      "algorithm": "no-crypt",
+      "parameters": {}
     }
   ]
 }

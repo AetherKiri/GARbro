@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.23.33",
+  "dataVersion": "2026.07.23.34",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -14,7 +14,7 @@
       "format": "XP3",
       "kind": "algorithm-profiles",
       "path": "GameData/v2/xp3/profiles.json",
-      "sha256": "4d2c8f86b19353ed84c974e0291068a77def61e44acd207f8a63116848607635"
+      "sha256": "5e6145214a18e1644e8b9eaa27d0f8600b2968540fd0c81f68233f55a582334d"
     },
     {
       "id": "zip-passwords",
