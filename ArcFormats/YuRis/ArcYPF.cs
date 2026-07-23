@@ -31,7 +31,9 @@ using System.ComponentModel.Composition;
 using GameRes.Compression;
 using GameRes.Formats.Strings;
 using GameRes.Utility;
+#if !NET10_0_OR_GREATER
 using Snappy;
+#endif
 
 namespace GameRes.Formats.YuRis
 {
@@ -119,7 +121,11 @@ namespace GameRes.Formats.YuRis
         public override string Description { get { return arcStrings.YPFDescription; } }
         public override uint     Signature { get { return 0x00465059; } }
         public override bool  IsHierarchic { get { return true; } }
+#if NET10_0_OR_GREATER
+        public override bool      CanWrite { get { return false; } }
+#else
         public override bool      CanWrite { get { return true; } }
+#endif
 
         public YpfOpener ()
         {
@@ -128,7 +134,11 @@ namespace GameRes.Formats.YuRis
 
         static public Dictionary<string, YpfScheme> KnownSchemes { get { return DefaultScheme.KnownSchemes; } }
 
+#if NET10_0_OR_GREATER
+        static YuRisScheme DefaultScheme = new YuRisScheme { KnownSchemes = YpfKeyDatabase.CreateSchemes () };
+#else
         static YuRisScheme DefaultScheme = new YuRisScheme { KnownSchemes = new Dictionary<string, YpfScheme>() };
+#endif
 
         public override ResourceScheme Scheme
         {
@@ -156,6 +166,8 @@ namespace GameRes.Formats.YuRis
             var parser = new Parser (file, version, count, dir_size);
 
             var scheme = QueryEncryptionScheme (file.Name, version);
+            if (scheme == null)
+                return null;
             var dir = parser.ScanDir (scheme, ypf_offset);
             if (null == dir || 0 == dir.Count)
                 return null;
@@ -179,8 +191,13 @@ namespace GameRes.Formats.YuRis
                 }
                 else
                 {
+#if NET10_0_OR_GREATER
+                    if (ypf.CompressType == YpfCompression.Snappy)
+                        throw new NotSupportedException ("YPF Snappy entries are not supported by the modern reader.");
+#endif
                     switch (ypf.CompressType) 
                     {
+#if !NET10_0_OR_GREATER
                         case YpfCompression.Snappy: 
                         {
                             var compress_data = new byte[entry.Size];
@@ -189,6 +206,7 @@ namespace GameRes.Formats.YuRis
                             input = new BinMemoryStream(decomprrss_data, entry.Name);
                             break;
                         }
+#endif
                         case YpfCompression.Zlib:
                         default: 
                         {
@@ -205,13 +223,26 @@ namespace GameRes.Formats.YuRis
             using (input)
             {
                 var data = new byte[unpacked_size];
-                input.Read (data, 0, data.Length);
+                ReadExactly (input, data);
                 if (Binary.AsciiEqual (data, 0, "YSTB"))
                     DecryptYstb (data, ypf.ScriptKey);
                 return new BinMemoryStream (data, entry.Name);
             }
         }
 
+        static void ReadExactly (Stream input, byte[] buffer)
+        {
+            int offset = 0;
+            while (offset < buffer.Length)
+            {
+                int count = input.Read (buffer, offset, buffer.Length - offset);
+                if (count <= 0)
+                    throw new EndOfStreamException ();
+                offset += count;
+            }
+        }
+
+#if !NET10_0_OR_GREATER
         public override ResourceOptions GetDefaultOptions ()
         {
             return new YpfOptions
@@ -231,6 +262,7 @@ namespace GameRes.Formats.YuRis
         {
             return new GUI.CreateYPFWidget();
         }
+#endif
 
         YpfScheme QueryEncryptionScheme (string arc_name, uint version)
         {
@@ -240,14 +272,18 @@ namespace GameRes.Formats.YuRis
             YpfScheme scheme;
             if (!string.IsNullOrEmpty (title) && KnownSchemes.TryGetValue (title, out scheme))
                 return scheme;
+#if NET10_0_OR_GREATER
+            return null;
+#else
             var options = Query<YpfOptions> (arcStrings.YPFNotice);
             if (!KnownSchemes.TryGetValue (options.Scheme, out scheme) || null == scheme)
                 scheme = new YpfScheme {
                     SwapTable   = GuessSwapTable (version),
                     GuessKey    = true,
-                    ExtraHeaderSize = version >= 0x1D9 ? 4u : version == 0xDE ? 8u : 0u,
-                };
+                ExtraHeaderSize = version >= 0x1D9 ? 4u : version == 0xDE ? 8u : 0u,
+            };
             return scheme;
+#endif
         }
 
         internal long FindYser (ArcView file)

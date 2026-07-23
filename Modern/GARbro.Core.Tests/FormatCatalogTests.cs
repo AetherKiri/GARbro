@@ -26,6 +26,7 @@ using GameRes.Formats.Emote;
 using GameRes.Formats.Leaf;
 using GameRes.Formats.Lucifen;
 using GameRes.Formats.ExHibit;
+using GameRes.Formats.YuRis;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -614,6 +615,49 @@ namespace GARbro.Core.Tests
             finally
             {
                 gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+            }
+        }
+
+        [Fact]
+        public void Ypf_format_loads_migrated_scheme_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "YPF");
+            var scheme = Assert.IsType<YuRisScheme> (format.Scheme);
+            Assert.Equal (82, scheme.KnownSchemes.Count);
+            var encryption = scheme.KnownSchemes["Unionism Quartet"];
+            Assert.Equal (24, encryption.SwapTable.Length);
+            Assert.Equal ((byte)201, encryption.Key);
+            Assert.Equal (4u, encryption.ExtraHeaderSize);
+            Assert.Equal (2527883219u, scheme.KnownSchemes["77 ~And, Two Stars Meet Again~"].ScriptKey);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.ypf"] = "Unionism Quartet" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.ypf");
+                CreateYpfFixture (archivePath, encryption);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated YPF fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
             }
         }
 
@@ -2481,6 +2525,50 @@ namespace GARbro.Core.Tests
                 output.Write (encrypted, 0, encrypted.Length);
                 return output.ToArray ();
             }
+        }
+
+        static void CreateYpfFixture (string path, YpfScheme scheme)
+        {
+            const uint version = 0x1F4;
+            const string name = "sample.txt";
+            var nameBytes = Encodings.cp932.GetBytes (name);
+            var payload = Encoding.UTF8.GetBytes ("migrated YPF fixture");
+            var extraSize = 0x12u + scheme.ExtraHeaderSize;
+            var directorySize = 5u + extraSize + (uint)nameBytes.Length;
+            var baseOffset = 0x20u + directorySize;
+            var directory = new byte[(int)directorySize];
+            LittleEndian.Pack (0u, directory, 0);
+            var lengthCode = DecryptYpfLength (scheme.SwapTable, (byte)nameBytes.Length);
+            directory[4] = (byte)~lengthCode;
+            for (var i = 0; i < nameBytes.Length; ++i)
+                directory[5 + i] = (byte)(nameBytes[i] ^ scheme.Key);
+            var entryOffset = 5 + nameBytes.Length;
+            directory[entryOffset] = 2;
+            directory[entryOffset + 1] = 0;
+            LittleEndian.Pack ((uint)payload.Length, directory, entryOffset + 2);
+            LittleEndian.Pack ((uint)payload.Length, directory, entryOffset + 6);
+            LittleEndian.Pack (baseOffset, directory, entryOffset + 10);
+            LittleEndian.Pack (0u, directory, entryOffset + 14);
+
+            using (var output = File.Create (path))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (Encoding.ASCII.GetBytes ("YPF\0"));
+                writer.Write (version);
+                writer.Write (1);
+                writer.Write (directorySize);
+                writer.Write (new byte[0x10]);
+                writer.Write (directory);
+                writer.Write (payload);
+            }
+        }
+
+        static byte DecryptYpfLength (byte[] table, byte value)
+        {
+            var position = Array.IndexOf (table, value);
+            if (position < 0)
+                return value;
+            return table[position ^ 1];
         }
 
         static void EncryptPbz (byte[] data, byte[] key)

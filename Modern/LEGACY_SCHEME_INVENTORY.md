@@ -45,6 +45,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `AM/Leaf` | `GameRes.Formats.Leaf.AmScheme` | `DecryptTable` |
 | `LPK` | `GameRes.Formats.Lucifen.LpkScheme` | `KnownSchemes`, `KnownKeys` |
 | `GYU` | `GameRes.Formats.ExHibit.GyuMap` | `NumericKeys`, `StringKeys` |
+| `YPF` | `GameRes.Formats.YuRis.YuRisScheme` | `KnownSchemes` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -89,6 +90,8 @@ The `AM/Leaf` record is safely exportable with `export-am-leaf-table`. Its 65,53
 The `LPK` record is safely exportable with `export-lpk-keys`. Its 19 scheme records and 22 title-level file-key maps are validated by `LpkKeyDatabase`; `FormatCatalogTests.Lpk_format_loads_migrated_maps_and_opens_fixture` verifies basename/title lookup, encrypted index parsing, and entry extraction. Unknown titles are rejected without falling back to the legacy database or an interactive scheme prompt.
 
 The `GYU` record is safely exportable with `export-gyu-keys`. Its seven numeric-title and two string-title nested maps are validated by `GyuKeyDatabase`; `FormatCatalogTests.Gyu_format_loads_migrated_maps_and_decodes_fixture` verifies title lookup, key-based byte deobfuscation, and 24bpp pixel extraction.
+
+The `YPF` record is safely exportable with `export-ypf-keys`. Its 82 title-to-scheme records preserve swap tables, name/data keys, script keys, header sizes, and compression mode; `YpfKeyDatabase` validates the v2 map and `FormatCatalogTests.Ypf_format_loads_migrated_scheme_and_opens_fixture` verifies directory name decoding and entry extraction. The modern reader rejects the single legacy Snappy scheme path until a supported cross-platform Snappy dependency is selected.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

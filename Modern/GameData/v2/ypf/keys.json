@@ -1,0 +1,661 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": {
+    "77 ~And, Two Stars Meet Again~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 192,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Aikagi": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Akumakko to 3tsu no Onegai": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Aoiro Note": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kanojo ga Myuu Datta Baai ~Complete Case~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Aniyome Oyako": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Aniyome to Sono Haha": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Bakunyuu Teiou": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Bikini Tsuma Capture": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Bitch na Ano Ko ni Seikatsu Shidou! Plus": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Chikan no Licence": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Dare mo ga Osoreru Furyou Datta no ni": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Do S na OL Joou-sama": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "[Kuroinu Gaiden] Elf Mura no Kanraku": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kuroinu 2": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Eien ni Utsukushiki Fuyu Yori mo": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Enkou JK no Umai Wana": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Ensapo JK": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Erochance!": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Eroge! ~H mo Game mo Kaihatsu Zanmai~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 191,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "euphoria": {
+      "swapTable": "DBARGRweCQsNExUbICMmKSwvLjI=",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 812850040,
+      "compressType": 0
+    },
+    "Four-leaf": {
+      "swapTable": "DBARGRweCQsNExUbICMmKSwvLjI=",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 0,
+      "compressType": 0
+    },
+    "Futari no Aniyome": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Gedou Seitokai": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Haramase Taiken Gakushuu ~Shizen no Naka de Seikyouiku!?~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Haizan no Hime Shougun": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Higashikyouto Chris no Jikenbo ~File 03": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Hitozuma ~Aishita Josei wa Hitozuma Deshita~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Hitozuma Senshi Sylvis": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Iegami Nyoubou": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Ina\u2606Koi! ~Oinari-sama to Motemote no Tatari~": {
+      "swapTable": "DBARGRweCQsNExUbICMmKSwvLjI=",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 8,
+      "scriptKey": 2155905152,
+      "compressType": 0
+    },
+    "Itoshi no\u2606My Master": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kangoku Hime": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kimihane Couples": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kiss\u0026Crisis": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 1168442602,
+      "compressType": 0
+    },
+    "Koi Mekuri Clover": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Koi wa Mofumofu! Love Me Teddy": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 532475695,
+      "compressType": 0
+    },
+    "Kokoro ga Tsunagu Renbyou": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 778628157,
+      "compressType": 0
+    },
+    "Magus Tale ~Sekaiju to Koisuru Mahoutsukai~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 191,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 1241691143,
+      "compressType": 0
+    },
+    "Mahou Shoujo ga Zenra de Dogeza!": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mahou Shoujo o Mechakucha ni Shite Mita": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mamono Musume-tachi to no Rakuen ~Slime \u0026 Scylla~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mari-san to Issho": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mashou no Nie 3": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "M.C. Saimin Kenkyuu": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mezase! Monmusu Idol \u266A": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Musuko no Tame nara Midara ni Nareru Haha": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mob Saimin": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Mojo Dakedo, Gyaru ni Hensou": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Namanushi-san to Offpako JK": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Neko-nin exHeart \u002BPlus Saiha Hen": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 1638125621,
+      "compressType": 0
+    },
+    "Neko\u2606Koi!": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 52,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 0,
+      "compressType": 0
+    },
+    "Netorare Inbo Bukken": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Oniyome: Oni Musume o Yome": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 895378268,
+      "compressType": 0
+    },
+    "pieces / Wataridori no Somnium": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 1148289470,
+      "compressType": 0
+    },
+    "Relaxation Yuubi": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Ryuuyoku no Melodia": {
+      "swapTable": "DBARGRweCQsNExUbICMmKSwvLjI=",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 602551333,
+      "compressType": 0
+    },
+    "Sado-Mazo Crazy": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Saimin Gakusha": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Saimin Kazoku ~Yadokari~": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Saiminjikara": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Saimin Gakuen Fuuzoku-bu": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Saimin Gekijou": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Saimin Shuuchi Roshutsu 2": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Satori to Yamaboushi": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Sei Monmusu Festival!!": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Seito Kaichou de Amaenbou na Onee-chan wa Suki Desu ka?": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Shimojimo no Seikatsu o Tashinamu Tame no Tsudoi": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2754557035,
+      "compressType": 0
+    },
+    "Shin Chikan Ou": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Shoujo Graffiti": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 740331237,
+      "compressType": 0
+    },
+    "Suite Life": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 3909521934,
+      "compressType": 0
+    },
+    "Suzukaze no Melt": {
+      "swapTable": "CQsNExUbICMmKSwvLjI=",
+      "key": 40,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 0,
+      "compressType": 0
+    },
+    "Swallowtail -Ano Hi, Ao o Koete-": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 3145213937,
+      "compressType": 0
+    },
+    "Unionism Quartet": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 4,
+      "scriptKey": 205727900,
+      "compressType": 0
+    },
+    "Usodere!": {
+      "swapTable": "DBARGRweCQsNExUbICMmKSwvLjI=",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Usotsuki Ouji to Nayameru Ohime-sama": {
+      "swapTable": "DBARGRweCQsNExUbICMmKSwvLjI=",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 3853548018,
+      "compressType": 0
+    },
+    "Uwasa no Gokuhi Report ga Ryuushutsu!!?": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kemono no Ikenie": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Kiyora kana Kankei": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Yuumi no Roshutsukyou Densetsu Hard-core": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "Yukiko to Rise wa Shujinkou no Koto": {
+      "swapTable": "A0gGNQwQERkcHgkLDRMVGyAjJiksLy4y",
+      "key": 255,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 2527883219,
+      "compressType": 0
+    },
+    "\u307E\u3058\u304B\u308A\u3063\u304F\u21D4\u30B9\u30AB\u30A4\u30CF\u30A4 \uFF5E\u7A7A\u98DB\u3076\u30DB\u30A6\u30AD\u306B\u60F3\u3044\u3092\u306E\u305B\u3066\uFF5E": {
+      "swapTable": "AwoGNQwQERgcHgkLDRMVGyAjJiksLxQu",
+      "key": 201,
+      "guessKey": false,
+      "extraHeaderSize": 0,
+      "scriptKey": 24913808,
+      "compressType": 1
+    }
+  }
+}

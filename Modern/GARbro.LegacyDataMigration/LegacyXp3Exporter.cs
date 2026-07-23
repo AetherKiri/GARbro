@@ -326,6 +326,22 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, Dictionary<string, uint>> StringKeys { get; set; }
     }
 
+    internal sealed class YpfSchemeRecord
+    {
+        public byte[] SwapTable { get; set; }
+        public byte Key { get; set; }
+        public bool GuessKey { get; set; }
+        public uint ExtraHeaderSize { get; set; }
+        public uint ScriptKey { get; set; }
+        public int CompressType { get; set; }
+    }
+
+    internal sealed class YpfKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, YpfSchemeRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -880,6 +896,18 @@ namespace GARbro.LegacyDataMigration
                 NumericKeys = numeric,
                 StringKeys = strings,
             };
+        }
+
+        internal static Dictionary<string, YpfSchemeRecord> ExportYpfKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "YPF");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy YPF scheme has no KnownSchemes member.");
+            var result = ReadYpfDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
+                "Legacy YPF scheme map");
+            if (result.Count == 0)
+                throw new InvalidDataException ("Legacy YPF scheme map is empty.");
+            return result;
         }
 
 
@@ -1579,6 +1607,45 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException (label + " contains an incomplete entry.");
                 if (!result.TryAdd (key, ReadIntUIntDictionary (value, label + ": " + key)))
                     throw new InvalidDataException (label + " contains a duplicate title: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, YpfSchemeRecord> ReadYpfDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, YpfSchemeRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var title = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (title) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var swapTable = ReadRaw (value, "SwapTable") as SZArrayRecord<byte>;
+                if (swapTable == null || swapTable.Length == 0 || swapTable.Length > 256)
+                    throw new InvalidDataException (label + " contains an invalid swap table: " + title);
+                var exported = new YpfSchemeRecord {
+                    SwapTable = swapTable.GetArray (false),
+                    Key = ReadRequired<byte> (value, "Key"),
+                    GuessKey = ReadRequired<bool> (value, "GuessKey"),
+                    ExtraHeaderSize = ReadRequired<uint> (value, "ExtraHeaderSize"),
+                    ScriptKey = ReadRequired<uint> (value, "ScriptKey"),
+                    CompressType = ReadEnumInt (ReadRaw (value, "CompressType"), label + ": " + title),
+                };
+                if (!result.TryAdd (title, exported))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + title);
             }
             return result;
         }

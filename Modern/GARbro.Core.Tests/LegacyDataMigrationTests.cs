@@ -282,6 +282,12 @@ namespace GARbro.Core.Tests
             Assert.All (gyu.NumericKeys.Values, map => Assert.NotEmpty (map));
             Assert.All (gyu.StringKeys.Values, map => Assert.NotEmpty (map));
 
+            var ypf = LegacyXp3Exporter.ExportYpfKeys (database);
+            Assert.Equal (82, ypf.Count);
+            Assert.All (ypf.Values, value => Assert.NotEmpty (value.SwapTable));
+            Assert.Equal ((byte)201, ypf["Unionism Quartet"].Key);
+            Assert.Equal (4u, ypf["Aikagi"].ExtraHeaderSize);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
