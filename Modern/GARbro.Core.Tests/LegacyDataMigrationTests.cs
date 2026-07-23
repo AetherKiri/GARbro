@@ -329,6 +329,14 @@ namespace GARbro.Core.Tests
             Assert.Equal (18, ikura.Count);
             Assert.All (ikura.Values, value => Assert.Equal (2048, value.Length));
 
+            var fsb5 = LegacyXp3Exporter.ExportFsb5Keys (database);
+            Assert.Equal (161, fsb5.Count);
+            Assert.Equal (3796, fsb5[348001315u].VorbisData.Length);
+            Assert.Null (fsb5[348001315u].PatchData);
+            Assert.Equal (3832, fsb5[2939054206u].VorbisData.Length);
+            Assert.Equal (3750, fsb5[2939054206u].PatchOffset);
+            Assert.Equal (32, fsb5[2939054206u].PatchData.Length);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

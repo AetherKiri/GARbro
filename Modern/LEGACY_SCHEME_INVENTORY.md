@@ -54,6 +54,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `PAK/AGSI` | `GameRes.Formats.FC01.AgsiScheme` | `KnownSchemes` |
 | `PAK/LEAF` | `GameRes.Formats.Leaf.LeafPackScheme` | `KnownSchemes` |
 | `IKURA/GDL` | `GameRes.Formats.Ikura.IsfScheme` | `KnownSecrets` |
+| `FSB5` | `GameRes.Formats.Fmod.FmodScheme` | `VorbisHeaders` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -116,6 +117,8 @@ The `PAK/AGSI` record is safely exportable with `export-agsi-keys`. Its ten titl
 The `PAK/LEAF` record is safely exportable with `export-leaf-keys`. Its six title-to-byte-key records are validated by `LeafKeyDatabase`; `FormatCatalogTests.Leaf_format_loads_migrated_key_and_decrypts_fixture` verifies title lookup, index decryption, and payload extraction. Unknown titles are rejected without interactive or legacy-database fallback in the modern reader.
 
 The `IKURA/GDL` record is safely exportable with `export-ikura-keys`. Its 18 title-to-secret records contain 2048 bytes per secret and are validated by `IkuraKeyDatabase`; `FormatCatalogTests.Ikura_gdl_format_loads_migrated_secrets_and_decrypts_fixture` verifies archive-title lookup and `SECRETFILTER100a` script decryption. Unknown titles are rejected without interactive or legacy-database fallback in the modern reader.
+
+The `FSB5` record is safely exportable with `export-fsb5-keys`. Its 161 numeric Vorbis header records preserve the base header, patch offset, and optional patch bytes and are validated by `Fsb5KeyDatabase`; `FormatCatalogTests.Fsb5_audio_format_loads_migrated_vorbis_headers` verifies direct and patched header reconstruction.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

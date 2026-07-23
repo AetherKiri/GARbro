@@ -337,6 +337,13 @@
       "kind": "secret-map",
       "path": "GameData/v2/ikura/keys.json",
       "sha256": "823fbb4941ec05ede08bed73798dd23dd3e920bf757f0e1f054e99e99e599fbf"
+    },
+    {
+      "id": "fsb5-vorbis-headers",
+      "format": "FSB5",
+      "kind": "vorbis-header-map",
+      "path": "GameData/v2/fsb5/headers.json",
+      "sha256": "25af0579d3895abbc451920bace5b950675d4e68db3b06faa073e1f25b49de19"
     }
   ]
 }

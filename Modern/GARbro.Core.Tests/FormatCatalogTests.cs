@@ -31,6 +31,7 @@ using GameRes.Formats.YuRis;
 using GameRes.Formats.Tactics;
 using GameRes.Formats.Rpm;
 using GameRes.Formats.Cyberworks;
+using GameRes.Formats.Fmod;
 using GameRes.Formats.AVC;
 using GameRes.Formats.Dac;
 using GameRes.Formats.NScripter;
@@ -176,6 +177,29 @@ namespace GARbro.Core.Tests
                 Assert.Equal (new byte[] { (byte)'O', (byte)'g', (byte)'g', (byte)'S' }, header.Take (4).ToArray ());
                 Assert.Equal (plaintext, header.Skip (4).ToArray ());
             }
+        }
+
+        [Fact]
+        public void Fsb5_audio_format_loads_migrated_vorbis_headers ()
+        {
+            var format = FormatCatalog.Instance.AudioFormats.OfType<Fsb5Audio> ().Single ();
+            var scheme = Assert.IsType<FmodScheme> (format.Scheme);
+            Assert.Equal (161, scheme.VorbisHeaders.Count);
+
+            var plain = scheme.VorbisHeaders[348001315u];
+            Assert.Equal (3796, plain.VorbisData.Length);
+            Assert.Null (plain.PatchData);
+            Assert.Equal (plain.VorbisData, Fsb5Decoder.GetVorbisHeader (348001315u));
+
+            var patched = scheme.VorbisHeaders[2939054206u];
+            Assert.Equal (3832, patched.VorbisData.Length);
+            Assert.Equal (3750, patched.PatchOffset);
+            Assert.Equal (32, patched.PatchData.Length);
+            var patchedHeader = Fsb5Decoder.GetVorbisHeader (2939054206u);
+            Assert.Equal (3832, patchedHeader.Length);
+            Assert.False (patchedHeader.SequenceEqual (patched.VorbisData));
+            Assert.Equal (patched.PatchData,
+                patchedHeader.Skip (patched.PatchOffset).Take (patched.PatchData.Length).ToArray ());
         }
 
         [Fact]

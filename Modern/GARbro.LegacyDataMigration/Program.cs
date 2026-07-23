@@ -262,6 +262,11 @@ namespace GARbro.LegacyDataMigration
                     ExportIkuraKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-fsb5-keys")
+                {
+                    ExportFsb5Keys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -313,6 +318,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-agsi-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-leaf-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ikura-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-fsb5-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -745,6 +751,15 @@ namespace GARbro.LegacyDataMigration
             WriteJson (outputPath, new IkuraKeysDocument { KnownSecrets = keys });
             Console.WriteLine ("ikuraSecretCount={0}", keys.Count);
         }
+
+        static void ExportFsb5Keys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportFsb5Keys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new Fsb5KeysDocument { VorbisHeaders = keys });
+            Console.WriteLine ("fsb5HeaderCount={0}", keys.Count);
+        }
+
 
         static void EnsureNewFile (string path)
         {

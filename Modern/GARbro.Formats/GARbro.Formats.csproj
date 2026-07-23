@@ -57,6 +57,9 @@
     <Compile Include="../../ArcFormats/Leaf/ArcAM.cs" Link="Leaf/ArcAM.cs" />
     <Compile Include="../../ArcFormats/Leaf/ArcLEAF.cs" Link="Leaf/ArcLEAF.cs" />
     <Compile Include="../../ArcFormats/Ikura/ArcDRS.cs" Link="Ikura/ArcDRS.cs" />
+    <Compile Include="../../ArcFormats/Unity/AudioFSB5.cs" Link="Unity/AudioFSB5.cs" />
+    <Compile Include="../../ArcFormats/Unity/OggStream.cs" Link="Unity/OggStream.cs" />
+    <Compile Include="../../ArcFormats/Unity/Vorbis.cs" Link="Unity/Vorbis.cs" />
     <Compile Include="../../ArcFormats/Lucifen/ArcLPK.cs" Link="Lucifen/ArcLPK.cs" />
     <Compile Include="../../ArcFormats/ExHibit/ImageGYU.cs" Link="ExHibit/ImageGYU.cs" />
     <Compile Include="../../ArcFormats/YuRis/ArcYPF.cs" Link="YuRis/ArcYPF.cs" />

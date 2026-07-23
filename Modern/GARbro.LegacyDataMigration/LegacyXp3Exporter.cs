@@ -417,6 +417,19 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownSecrets { get; set; }
     }
 
+    internal sealed class Fsb5HeaderRecord
+    {
+        public byte[] VorbisData { get; set; }
+        public int PatchOffset { get; set; }
+        public byte[] PatchData { get; set; }
+    }
+
+    internal sealed class Fsb5KeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<uint, Fsb5HeaderRecord> VorbisHeaders { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -1100,6 +1113,48 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy IKURA scheme has no KnownSecrets member.");
             return ReadByteDictionary (ReadRaw (scheme, "KnownSecrets") as ClassRecord,
                 "Legacy IKURA secret map");
+        }
+
+        internal static Dictionary<uint, Fsb5HeaderRecord> ExportFsb5Keys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "FSB5");
+            if (scheme == null || !scheme.HasMember ("VorbisHeaders"))
+                throw new InvalidDataException ("Legacy FSB5 scheme has no VorbisHeaders member.");
+            var dictionary = ReadRaw (scheme, "VorbisHeaders") as ClassRecord;
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException ("Legacy FSB5 Vorbis header map is not a dictionary.");
+            var result = new Dictionary<uint, Fsb5HeaderRecord> ();
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 4096)
+                throw new InvalidDataException ("Legacy FSB5 Vorbis header map has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException ("Legacy FSB5 Vorbis header map contains an invalid entry.");
+                var key = ReadRaw (entry, "key");
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (!(key is uint) || value == null)
+                    throw new InvalidDataException ("Legacy FSB5 Vorbis header map contains an incomplete entry.");
+                var exported = new Fsb5HeaderRecord {
+                    VorbisData = ReadRequiredArray<byte> (value, "VorbisData"),
+                    PatchOffset = ReadRequired<int> (value, "PatchOffset"),
+                    PatchData = ReadOptionalArray<byte> (value, "PatchData"),
+                };
+                if (exported.VorbisData.Length == 0 || exported.VorbisData.Length > 1024 * 1024
+                    || exported.PatchOffset < 0
+                    || exported.PatchData != null && (exported.PatchOffset > exported.VorbisData.Length
+                        || exported.PatchData.Length > exported.VorbisData.Length - exported.PatchOffset))
+                    throw new InvalidDataException ("Legacy FSB5 Vorbis header map contains an invalid header.");
+                if (!result.TryAdd ((uint)key, exported))
+                    throw new InvalidDataException ("Legacy FSB5 Vorbis header map contains a duplicate signature: " + key);
+            }
+            if (result.Count == 0)
+                throw new InvalidDataException ("Legacy FSB5 Vorbis header map is empty.");
+            return result;
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)

@@ -377,7 +377,11 @@ namespace GameRes.Formats.Fmod
             return data;
         }
 
+#if NET10_0_OR_GREATER
+        internal static Dictionary<uint, FmodVorbisSetup> VorbisHeaders = Fsb5KeyDatabase.CreateSchemeKeys ();
+#else
         internal static Dictionary<uint, FmodVorbisSetup> VorbisHeaders = new Dictionary<uint, FmodVorbisSetup>();
+#endif
     }
 
     internal class VorbisData
