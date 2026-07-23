@@ -212,6 +212,13 @@ namespace GARbro.Core.Tests
             Assert.Equal ("ED4D6221764CDF23FFD735661B8A5513DD788D2F5DCBD748FFF079C3268A3DE2",
                 Convert.ToHexString (SHA256.HashData (sjDatKeys["Giin Oyako"])));
 
+            var azEncryptedKeys = LegacyXp3Exporter.ExportAzEncryptedKeys (database);
+            Assert.Equal (2, azEncryptedKeys.Count);
+            Assert.Equal (2916218026u, azEncryptedKeys["Default"].IndexKey);
+            Assert.Null (azEncryptedKeys["Default"].ContentKey);
+            Assert.Equal (3740152942u, azEncryptedKeys["Zwei Worter"].IndexKey);
+            Assert.Equal (3740152942u, azEncryptedKeys["Zwei Worter"].ContentKey);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

@@ -243,6 +243,39 @@ namespace GARbro.Core.Tests
             }
         }
 
+        [Fact]
+        public void Arc_az_encrypted_format_uses_migrated_scheme_for_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARC/AZ/encrypted");
+            var scheme = Assert.IsType<AzEncryptedScheme> (format.Scheme);
+            Assert.Equal (2, scheme.KnownSchemes.Count);
+            var key = scheme.KnownSchemes["Zwei Worter"];
+            Assert.Equal (3740152942u, key.IndexKey);
+            Assert.Equal (key.IndexKey, key.ContentKey);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.arc");
+                CreateAzEncryptedFixture (archivePath, key.IndexKey, key.ContentKey.Value);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated ARC/AZ encrypted fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
         [Theory]
         [InlineData("PNG")]
         [InlineData("JPEG")]
@@ -1705,6 +1738,55 @@ namespace GARbro.Core.Tests
                 output.Write (new byte[0x20]);
                 output.Write (packedIndex);
                 output.Write (asb);
+            }
+        }
+
+        static void CreateAzEncryptedFixture (string path, uint indexKey, uint contentKey)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated ARC/AZ encrypted fixture");
+            var record = new byte[0x30];
+            LittleEndian.Pack (0u, record, 0);
+            LittleEndian.Pack ((uint)payload.Length, record, 4);
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            Buffer.BlockCopy (name, 0, record, 0x10, name.Length);
+
+            byte[] compressed;
+            using (var buffer = new MemoryStream ())
+            {
+                using (var zlib = new ZLibStream (buffer, CompressionLevel.SmallestSize, true))
+                    zlib.Write (record, 0, record.Length);
+                compressed = buffer.ToArray ();
+            }
+            var packedIndex = new byte[4 + compressed.Length];
+            Buffer.BlockCopy (compressed, 0, packedIndex, 4, compressed.Length);
+            LittleEndian.Pack (Adler32.Compute (packedIndex, 4, compressed.Length), packedIndex, 0);
+            XorAzEncrypted (packedIndex, 0x30, indexKey);
+
+            var header = new byte[0x30];
+            Buffer.BlockCopy (Encoding.ASCII.GetBytes ("ARC\0"), 0, header, 0, 4);
+            LittleEndian.Pack (1, header, 4);
+            LittleEndian.Pack (1, header, 8);
+            LittleEndian.Pack ((uint)packedIndex.Length, header, 12);
+            XorAzEncrypted (header, 0, indexKey);
+
+            XorAzEncrypted (payload, 0x30 + packedIndex.Length, contentKey);
+            using (var output = File.Create (path))
+            {
+                output.Write (header, 0, header.Length);
+                output.Write (packedIndex, 0, packedIndex.Length);
+                output.Write (payload, 0, payload.Length);
+            }
+        }
+
+        static void XorAzEncrypted (byte[] data, long offset, uint key)
+        {
+            ulong hash = key * 0x9E370001UL;
+            if ((offset & 0x3F) != 0)
+                hash = Binary.RotL (hash, (int)offset);
+            for (int i = 0; i < data.Length; ++i)
+            {
+                data[i] ^= (byte)hash;
+                hash = Binary.RotL (hash, 1);
             }
         }
 

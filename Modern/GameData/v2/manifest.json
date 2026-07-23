@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.23.32",
+  "dataVersion": "2026.07.23.33",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -204,6 +204,13 @@
       "kind": "key-map",
       "path": "GameData/v2/speed/keys.json",
       "sha256": "7b4a577c6a7542f0f711d67bbb6472948de363d17e95dadecbb0aebeaf76499c"
+    },
+    {
+      "id": "az-encrypted-keys",
+      "format": "ARC/AZ/encrypted",
+      "kind": "key-map",
+      "path": "GameData/v2/az_encrypted/keys.json",
+      "sha256": "e253ef3f403d3c1c89d7a31f2053f57efcce14b799913784c6eea719fa11162f"
     }
   ]
 }

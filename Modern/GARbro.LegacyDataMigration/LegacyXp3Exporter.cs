@@ -223,6 +223,18 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownSchemes { get; set; }
     }
 
+    internal sealed class AzEncryptedKeyRecord
+    {
+        public uint IndexKey { get; set; }
+        public uint? ContentKey { get; set; }
+    }
+
+    internal sealed class AzEncryptedKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, AzEncryptedKeyRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -672,6 +684,15 @@ namespace GARbro.LegacyDataMigration
             return ReadByteDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy DAT/SPEED key map");
         }
 
+        internal static Dictionary<string, AzEncryptedKeyRecord> ExportAzEncryptedKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "ARC/AZ/encrypted");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy ARC/AZ/encrypted scheme has no KnownSchemes member.");
+            return ReadAzEncryptedDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
+                "Legacy ARC/AZ/encrypted key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -913,6 +934,46 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException (label + " contains an incomplete entry.");
                 if (!result.TryAdd (key, value.GetArray (false)))
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, AzEncryptedKeyRecord> ReadAzEncryptedDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, AzEncryptedKeyRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var indexKey = ReadRequired<uint> (value, "IndexKey");
+                var contentRaw = ReadRaw (value, "ContentKey");
+                uint? contentKey = null;
+                if (contentRaw != null)
+                {
+                    if (!(contentRaw is uint))
+                        throw new InvalidDataException (label + " contains an invalid ContentKey for " + key);
+                    contentKey = (uint)contentRaw;
+                }
+                if (indexKey == 0 || !result.TryAdd (key, new AzEncryptedKeyRecord {
+                    IndexKey = indexKey,
+                    ContentKey = contentKey,
+                }))
+                    throw new InvalidDataException (label + " contains a duplicate or empty key: " + key);
             }
             return result;
         }
