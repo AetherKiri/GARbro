@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": {
+    "After...": {
+      "keyword": "after",
+      "nameLength": 24
+    },
+    "After... -Sweet Kiss-": {
+      "keyword": "aftersk",
+      "nameLength": 24
+    },
+    "Cross Fire": {
+      "keyword": "TEST",
+      "nameLength": 32
+    },
+    "Heartful Days ~Hi no Ataru Basho e~": {
+      "keyword": "rpm",
+      "nameLength": 24
+    },
+    "Hidamari": {
+      "keyword": "HIDAMARI",
+      "nameLength": 32
+    },
+    "Kansen ~Inyoku no Rensa~": {
+      "keyword": "KANSEN",
+      "nameLength": 32
+    },
+    "Kansen 2 ~Inzai Toshi~": {
+      "keyword": "Kan2",
+      "nameLength": 32
+    },
+    "Kansen 3 ~Shuto Houkai~": {
+      "keyword": "Kan3",
+      "nameLength": 32
+    },
+    "Kemopani!": {
+      "keyword": "kemo",
+      "nameLength": 32
+    },
+    "Kimi no Koe ga Kikoeru": {
+      "keyword": "KIMIKOE",
+      "nameLength": 32
+    },
+    "Kimi no Omoi, Sono Negai": {
+      "keyword": "kimiomo",
+      "nameLength": 24
+    },
+    "Koichu! ~Koi ni Koisuru Kataomoi~": {
+      "keyword": "KOICHU",
+      "nameLength": 32
+    },
+    "Koisuru Otome to Shugo no Tate": {
+      "keyword": "KOITATE",
+      "nameLength": 32
+    },
+    "Kyouiku Shidou": {
+      "keyword": "kiku",
+      "nameLength": 32
+    },
+    "Moe Nikki": {
+      "keyword": "moe",
+      "nameLength": 32
+    },
+    "Oba no Shinshitsu": {
+      "keyword": "OBA",
+      "nameLength": 32
+    },
+    "Princess Frontier": {
+      "keyword": "PF",
+      "nameLength": 32
+    },
+    "Reimei no Lavendura": {
+      "keyword": "LAVENDURA",
+      "nameLength": 32
+    },
+    "Sakura Relaxation": {
+      "keyword": "SAKURA-R",
+      "nameLength": 32
+    },
+    "Samurai Jupiter": {
+      "keyword": "JUPITER",
+      "nameLength": 32
+    },
+    "Shinshou Genmukan": {
+      "keyword": "HAMA",
+      "nameLength": 32
+    },
+    "Shutterchance Love": {
+      "keyword": "Scl",
+      "nameLength": 32
+    },
+    "Shutterchance Love EX": {
+      "keyword": "SclEx",
+      "nameLength": 32
+    },
+    "Sora no Iro, Mizu no Iro": {
+      "keyword": "HAMA",
+      "nameLength": 32
+    },
+    "Thunder Claps!": {
+      "keyword": "TC",
+      "nameLength": 24
+    },
+    "Tokumei Kyoushi Hitomi": {
+      "keyword": "HITOMI_D",
+      "nameLength": 24
+    },
+    "Toshiue Lesson": {
+      "keyword": "Tul",
+      "nameLength": 32
+    },
+    "Tutorial Summer": {
+      "keyword": "SUMMER",
+      "nameLength": 32
+    },
+    "Witch\u0027s Slave": {
+      "keyword": "wslave",
+      "nameLength": 32
+    },
+    "Yokubou no Oukoku": {
+      "keyword": "kingdom",
+      "nameLength": 32
+    },
+    "Yokubou no Rougoku": {
+      "keyword": "pri",
+      "nameLength": 32
+    }
+  }
+}

@@ -288,6 +288,13 @@
       "kind": "scheme-map",
       "path": "GameData/v2/tactics/keys.json",
       "sha256": "6b72a9c108583ba512f30e42a932fee41b85029d8393034a3f1313b906011fc6"
+    },
+    {
+      "id": "rpm-keys",
+      "format": "ARC/RPM",
+      "kind": "scheme-map",
+      "path": "GameData/v2/rpm/keys.json",
+      "sha256": "26c61744ca3dea9153ead2588706710c72cfe25852531e1bb9461de8fc51d8fc"
     }
   ]
 }

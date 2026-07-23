@@ -47,6 +47,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `GYU` | `GameRes.Formats.ExHibit.GyuMap` | `NumericKeys`, `StringKeys` |
 | `YPF` | `GameRes.Formats.YuRis.YuRisScheme` | `KnownSchemes` |
 | `ARC/Tactics/2` | `GameRes.Formats.Tactics.SchemeMap` | `KnownSchemes` |
+| `ARC/RPM` | `GameRes.Formats.Rpm.ArcScheme` | `KnownSchemes` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -95,6 +96,8 @@ The `GYU` record is safely exportable with `export-gyu-keys`. Its seven numeric-
 The `YPF` record is safely exportable with `export-ypf-keys`. Its 82 title-to-scheme records preserve swap tables, name/data keys, script keys, header sizes, and compression mode; `YpfKeyDatabase` validates the v2 map and `FormatCatalogTests.Ypf_format_loads_migrated_scheme_and_opens_fixture` verifies directory name decoding and entry extraction. The modern reader rejects the single legacy Snappy scheme path until a supported cross-platform Snappy dependency is selected.
 
 The `ARC/Tactics/2` record is safely exportable with `export-tactics-keys`. Its nine title-to-password records preserve the custom LZSS flag; `TacticsKeyDatabase` validates the v2 map and `FormatCatalogTests.Tactics_arc2_format_loads_migrated_scheme_and_opens_fixture` verifies title lookup, XOR decryption, and entry extraction.
+
+The `ARC/RPM` record is safely exportable with `export-rpm-keys`. Its 31 title-to-encryption-scheme records preserve the keyword and encrypted-name width; `RpmKeyDatabase` validates the v2 map and `FormatCatalogTests.Rpm_format_loads_migrated_scheme_and_opens_fixture` verifies title lookup, index decryption, and entry extraction. The separate ZENOS reader continues using its built-in scheme inference.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

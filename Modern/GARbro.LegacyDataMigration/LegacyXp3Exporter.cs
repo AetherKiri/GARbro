@@ -354,6 +354,18 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, TacticsSchemeRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class RpmSchemeRecord
+    {
+        public string Keyword { get; set; }
+        public int NameLength { get; set; }
+    }
+
+    internal sealed class RpmKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, RpmSchemeRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -931,6 +943,18 @@ namespace GARbro.LegacyDataMigration
                 "Legacy Tactics scheme map");
             if (result.Count == 0)
                 throw new InvalidDataException ("Legacy Tactics scheme map is empty.");
+            return result;
+        }
+
+        internal static Dictionary<string, RpmSchemeRecord> ExportRpmKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "ARC/RPM");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy ARC/RPM scheme has no KnownSchemes member.");
+            var result = ReadRpmDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
+                "Legacy ARC/RPM scheme map");
+            if (result.Count == 0)
+                throw new InvalidDataException ("Legacy ARC/RPM scheme map is empty.");
             return result;
         }
 
@@ -1700,6 +1724,41 @@ namespace GARbro.LegacyDataMigration
                     Password = ReadRequired<string> (value, "Password"),
                     CustomLzss = ReadRequired<bool> (value, "CustomLzss"),
                 };
+                if (!result.TryAdd (title, exported))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + title);
+            }
+            return result;
+        }
+
+        static Dictionary<string, RpmSchemeRecord> ReadRpmDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, RpmSchemeRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var title = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (title) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var exported = new RpmSchemeRecord {
+                    Keyword = ReadRequired<string> (value, "Keyword"),
+                    NameLength = ReadRequired<int> (value, "NameLength"),
+                };
+                if (string.IsNullOrEmpty (exported.Keyword) || exported.Keyword.Length > 256
+                    || exported.NameLength < 4 || exported.NameLength > 256)
+                    throw new InvalidDataException (label + " contains an invalid scheme: " + title);
                 if (!result.TryAdd (title, exported))
                     throw new InvalidDataException (label + " contains a duplicate title: " + title);
             }

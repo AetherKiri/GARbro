@@ -73,7 +73,11 @@ namespace GameRes.Formats.Rpm
             Extensions = new string[] { "arc" };
         }
 
+#if NET10_0_OR_GREATER
+        public static Dictionary<string, EncryptionScheme> KnownSchemes = RpmKeyDatabase.CreateSchemes ();
+#else
         public static Dictionary<string, EncryptionScheme> KnownSchemes = new Dictionary<string, EncryptionScheme>();
+#endif
 
         public override ResourceScheme Scheme
         {
@@ -97,6 +101,15 @@ namespace GameRes.Formats.Rpm
                 return null;
 
             var index_reader = new ArcIndexReader (file, count, is_compressed != 0);
+#if NET10_0_OR_GREATER
+            var title = FormatCatalog.Instance.LookupGame (file.Name);
+            EncryptionScheme mappedScheme;
+            if (!string.IsNullOrEmpty (title) && KnownSchemes.TryGetValue (title, out mappedScheme))
+            {
+                var mappedDir = index_reader.ReadIndex (8, mappedScheme);
+                return mappedDir == null ? null : new ArcFile (file, this, mappedDir);
+            }
+#endif
             var scheme = index_reader.GuessScheme (8, PossibleNameSizes);
             // additional checks to avoid dialog popup on false positives
             if (null == scheme && KnownSchemes.Count > 0 && file.Name.HasExtension (".arc"))
@@ -104,7 +117,7 @@ namespace GameRes.Formats.Rpm
                 var first_entry = file.View.ReadBytes (8, 0x20);
                 if (-1 == Array.FindIndex (first_entry, x => x != 0))
                     return null;
-                scheme = QueryScheme();
+                scheme = QueryScheme (file.Name);
             }
             if (null == scheme)
                 return null;
@@ -131,6 +144,7 @@ namespace GameRes.Formats.Rpm
             return new LzssStream (input);
         }
 
+#if !NET10_0_OR_GREATER
         public override ResourceOptions GetDefaultOptions ()
         {
             return new RpmOptions {
@@ -142,11 +156,20 @@ namespace GameRes.Formats.Rpm
         {
             return new WidgetARC();
         }
+#endif
 
-        EncryptionScheme QueryScheme ()
+        EncryptionScheme QueryScheme (string arc_name)
         {
+#if NET10_0_OR_GREATER
+            var title = FormatCatalog.Instance.LookupGame (arc_name);
+            EncryptionScheme scheme;
+            if (!string.IsNullOrEmpty (title) && KnownSchemes.TryGetValue (title, out scheme))
+                return scheme;
+            return null;
+#else
             var options = Query<RpmOptions> (arcStrings.RPMEncryptedNotice);
             return options.Scheme;
+#endif
         }
 
         static EncryptionScheme GetScheme (string title)

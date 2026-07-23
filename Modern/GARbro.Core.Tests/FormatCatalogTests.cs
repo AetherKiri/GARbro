@@ -28,6 +28,7 @@ using GameRes.Formats.Lucifen;
 using GameRes.Formats.ExHibit;
 using GameRes.Formats.YuRis;
 using GameRes.Formats.Tactics;
+using GameRes.Formats.Rpm;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -667,7 +668,7 @@ namespace GARbro.Core.Tests
         {
             var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
                 .Single (item => item.Tag == "ARC/Tactics/2");
-            var scheme = Assert.IsType<SchemeMap> (format.Scheme);
+            var scheme = Assert.IsType<GameRes.Formats.Tactics.SchemeMap> (format.Scheme);
             Assert.Equal (9, scheme.KnownSchemes.Count);
             var encryption = scheme.KnownSchemes["Maou no Kuse ni Namaiki da!"];
             Assert.Equal ("Puni0r4p", encryption.Password);
@@ -694,6 +695,47 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.txt", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated Tactics fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Rpm_format_loads_migrated_scheme_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARC/RPM");
+            var scheme = Assert.IsType<GameRes.Formats.Rpm.ArcScheme> (format.Scheme);
+            Assert.Equal (31, scheme.KnownSchemes.Count);
+            var encryption = scheme.KnownSchemes["After..."];
+            Assert.Equal ("after", encryption.Keyword);
+            Assert.Equal (24, encryption.NameLength);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.arc"] = "After..." };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.arc");
+                CreateRpmFixture (archivePath, encryption);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated RPM fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2605,7 +2647,7 @@ namespace GARbro.Core.Tests
             }
         }
 
-        static void CreateTacticsFixture (string path, ArcScheme scheme)
+        static void CreateTacticsFixture (string path, GameRes.Formats.Tactics.ArcScheme scheme)
         {
             const string name = "sample.txt";
             var nameBytes = Encodings.cp932.GetBytes (name);
@@ -2628,6 +2670,31 @@ namespace GARbro.Core.Tests
                 writer.Write (0u);
                 writer.Write (0u);
                 writer.Write (0u);
+            }
+        }
+
+        static void CreateRpmFixture (string path, GameRes.Formats.Rpm.EncryptionScheme scheme)
+        {
+            const string name = "sample.txt";
+            var nameBytes = Encodings.cp932.GetBytes (name);
+            var payload = Encoding.UTF8.GetBytes ("migrated RPM fixture");
+            var indexSize = scheme.NameLength + 12;
+            var dataOffset = 8u + (uint)indexSize;
+            var index = new byte[indexSize];
+            Buffer.BlockCopy (nameBytes, 0, index, 0, nameBytes.Length);
+            LittleEndian.Pack ((uint)payload.Length, index, scheme.NameLength + 4);
+            LittleEndian.Pack (dataOffset, index, scheme.NameLength + 8);
+            var keyword = Encoding.ASCII.GetBytes (scheme.Keyword);
+            for (var i = 0; i < index.Length; ++i)
+                index[i] = (byte)(index[i] - keyword[i % keyword.Length]);
+
+            using (var output = File.Create (path))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (1);
+                writer.Write (0);
+                writer.Write (index);
+                writer.Write (payload);
             }
         }
 

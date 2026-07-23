@@ -293,6 +293,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ("Puni0r4p", tactics["Maou no Kuse ni Namaiki da!"].Password);
             Assert.False (tactics["Maou no Kuse ni Namaiki da!"].CustomLzss);
 
+            var rpm = LegacyXp3Exporter.ExportRpmKeys (database);
+            Assert.Equal (31, rpm.Count);
+            Assert.Equal ("after", rpm["After..."].Keyword);
+            Assert.Equal (24, rpm["After..."].NameLength);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
