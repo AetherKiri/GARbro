@@ -253,6 +253,13 @@
       "kind": "key-list",
       "path": "GameData/v2/psb/keys.json",
       "sha256": "4d3ac2bef09a334da55ebf394d3cbaa0ce4fdd607f128a6147da37fd819e9665"
+    },
+    {
+      "id": "am-leaf-table",
+      "format": "AM/Leaf",
+      "kind": "decrypt-table",
+      "path": "GameData/v2/am_leaf/table.json",
+      "sha256": "c390796118b7a4466cd33c6ac7ecd1ae54b8a7684a12bff2dd5125a4359449c0"
     }
   ]
 }

@@ -23,6 +23,7 @@ using GameRes.Formats.FamilyAdvSystem;
 using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
 using GameRes.Formats.Emote;
+using GameRes.Formats.Leaf;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -491,6 +492,38 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("a", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated PSB fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Am_leaf_format_loads_migrated_table_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "AM/Leaf");
+            var scheme = Assert.IsType<AmScheme> (format.Scheme);
+            Assert.Equal (0x10000, scheme.DecryptTable.Length);
+            Assert.Equal (new byte[] { 38, 252, 155, 73, 113, 254, 119, 99 },
+                scheme.DecryptTable.Take (8).ToArray ());
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.am");
+                CreateAmFixture (archivePath, scheme.DecryptTable);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated AM/Leaf fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2249,6 +2282,32 @@ namespace GARbro.Core.Tests
             var bytes = BitConverter.GetBytes (value);
             for (var i = 0; i < bytes.Length; ++i)
                 data[offset + i] = bytes[i];
+        }
+
+        static void CreateAmFixture (string path, byte[] table)
+        {
+            const byte key = 0x5A;
+            var payload = Encoding.UTF8.GetBytes ("migrated AM/Leaf fixture");
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            var index = new byte[name.Length + 1 + 8];
+            Buffer.BlockCopy (name, 0, index, 0, name.Length);
+            LittleEndian.Pack ((uint)0, index, name.Length + 1);
+            LittleEndian.Pack ((uint)payload.Length, index, name.Length + 5);
+            for (var i = 0; i < index.Length; ++i)
+                index[i] ^= key;
+
+            var encryptedPayload = new byte[payload.Length];
+            for (var i = 0; i < payload.Length; ++i)
+                encryptedPayload[i] = (byte)(payload[i] ^ table[i]);
+            using (var output = File.Create (path))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (Encoding.ASCII.GetBytes ("am00"));
+                writer.Write ((uint)index.Length);
+                writer.Write (key);
+                writer.Write (index);
+                writer.Write (encryptedPayload);
+            }
         }
 
         static void EncryptPbz (byte[] data, byte[] key)

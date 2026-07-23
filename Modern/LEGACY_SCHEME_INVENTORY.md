@@ -42,6 +42,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `DAT/SPEED` | `GameRes.Formats.Jikkenshitsu.SjSchemeMap` | `KnownSchemes` |
 | `NPA` | `GameRes.Formats.NitroPlus.NpaScheme` | `KnownSchemes` |
 | `PSB/EMOTE` | `GameRes.Formats.Emote.PsbScheme` | `KnownKeys` |
+| `AM/Leaf` | `GameRes.Formats.Leaf.AmScheme` | `DecryptTable` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -80,6 +81,8 @@ The `ARC/AI5WIN` record is safely exportable with `export-ai5-keys`. Its 14 stru
 The `NPA` record is safely exportable with `export-npa-keys`. Its 26 title-to-encryption-scheme records preserve the title id, name key, and byte order table and are validated by `NpaKeyDatabase`; `FormatCatalogTests.Npa_format_loads_migrated_schemes_and_decrypts_fixture` verifies archive-basename scheme lookup, encrypted index names, and entry extraction. The modern NPA reader is read-only and intentionally does not fall back to the legacy database or interactive unknown-scheme prompt.
 
 The `PSB/EMOTE` record is safely exportable with `export-psb-keys`. Its 13 ordered uint candidate keys are validated by `PsbKeyDatabase`; `FormatCatalogTests.Psb_format_loads_migrated_keys_and_opens_fixture` verifies key-list loading and deterministic PSB chunk listing/extraction. The modern PSB reader remains read-only.
+
+The `AM/Leaf` record is safely exportable with `export-am-leaf-table`. Its 65,536-byte positional decrypt table is validated by `AmDecryptTableDatabase`; `FormatCatalogTests.Am_leaf_format_loads_migrated_table_and_decrypts_fixture` verifies encrypted index parsing and content extraction. The modern AM reader remains read-only.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

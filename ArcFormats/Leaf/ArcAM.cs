@@ -84,7 +84,7 @@ namespace GameRes.Formats.Leaf
             return new AmStream (input, DecryptTable);
         }
 
-        static byte[] DecryptTable = null;
+        static byte[] DecryptTable = AmDecryptTableDatabase.CreateTable ();
 
         public override ResourceScheme Scheme
         {

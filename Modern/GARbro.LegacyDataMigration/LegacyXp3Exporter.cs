@@ -292,6 +292,12 @@ namespace GARbro.LegacyDataMigration
         public uint[] KnownKeys { get; set; }
     }
 
+    internal sealed class AmDecryptTableDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public byte[] DecryptTable { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -802,6 +808,17 @@ namespace GARbro.LegacyDataMigration
             if (result.Distinct ().Count () != result.Length)
                 throw new InvalidDataException ("Legacy PSB/EMOTE key list contains duplicates.");
             return result;
+        }
+
+        internal static byte[] ExportAmDecryptTable (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "AM/Leaf");
+            if (scheme == null || !scheme.HasMember ("DecryptTable"))
+                throw new InvalidDataException ("Legacy AM/Leaf scheme has no DecryptTable member.");
+            var table = ReadRaw (scheme, "DecryptTable") as SZArrayRecord<byte>;
+            if (table == null || table.Length == 0 || table.Length > 0x10000)
+                throw new InvalidDataException ("Legacy AM/Leaf decrypt table is empty or invalid.");
+            return table.GetArray (false);
         }
 
 
