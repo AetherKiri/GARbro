@@ -67,6 +67,8 @@ The `ARC/AZ` record is safely exportable with `export-asb-keys`. Its four title-
 
 The `ARC/AZ/encrypted` record is safely exportable with `export-az-encrypted-keys`. Its two index/content-key scheme records are validated by `AzEncryptedKeyDatabase`; `FormatCatalogTests.Arc_az_encrypted_format_uses_migrated_scheme_for_fixture` verifies explicit content-key extraction, while `FormatCatalogTests.Arc_az_encrypted_default_scheme_derives_system_content_key` covers the `system.arc`/`sysenv.tbl` derivation path.
 
+The `PKZ` record is safely exportable with `export-pkz-keys`. Its single title-to-byte-key record is validated by `PkzKeyDatabase`; `FormatCatalogTests.Pkz_format_loads_migrated_key_and_decrypts_fixture` verifies encrypted index and entry extraction.
+
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 
 The `TCD` record is safely exportable with `export-tcd-keys`, validated by fixed-count/value regression assertions, and now loaded by the modern TopCat port. `FormatCatalogTests.Tcd_format_opens_a_minimal_v3_fixture` verifies index parsing and extraction from a deterministic TCD3 archive.

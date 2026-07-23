@@ -211,6 +211,13 @@
       "kind": "key-map",
       "path": "GameData/v2/az_encrypted/keys.json",
       "sha256": "e253ef3f403d3c1c89d7a31f2053f57efcce14b799913784c6eea719fa11162f"
+    },
+    {
+      "id": "pkz-keys",
+      "format": "PKZ",
+      "kind": "key-map",
+      "path": "GameData/v2/pkz/keys.json",
+      "sha256": "e5e8470b98cc680c0724c88af45835fcd41cf833f9d6bdd3ab0eeb47219e7542"
     }
   ]
 }

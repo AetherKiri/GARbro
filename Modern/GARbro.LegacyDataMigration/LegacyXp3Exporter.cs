@@ -235,6 +235,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, AzEncryptedKeyRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class PkzKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -691,6 +697,14 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy ARC/AZ/encrypted scheme has no KnownSchemes member.");
             return ReadAzEncryptedDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
                 "Legacy ARC/AZ/encrypted key map");
+        }
+
+        internal static Dictionary<string, byte[]> ExportPkzKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "PKZ");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy PKZ scheme has no KnownSchemes member.");
+            return ReadByteDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy PKZ key map");
         }
 
 

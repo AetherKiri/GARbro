@@ -33,6 +33,7 @@ using GameRes.Formats.Will;
 using GameRes.Formats.Mg;
 using GameRes.Formats.Majiro;
 using GameRes.Formats.FC01;
+using GameRes.Formats.Sviu;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
 using GameRes.Formats.AZSys;
@@ -298,6 +299,37 @@ namespace GARbro.Core.Tests
                     var entry = Assert.Single (arc.Dir, item => item.Name == "sample.bin");
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated ARC/AZ default fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Pkz_format_loads_migrated_key_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "PKZ");
+            var scheme = Assert.IsType<PkzScheme> (format.Scheme);
+            Assert.Single (scheme.KnownSchemes);
+            var key = scheme.KnownSchemes["Fall in Love"];
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.pkz");
+                CreatePkzFixture (archivePath, key);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated PKZ fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -1843,6 +1875,35 @@ namespace GARbro.Core.Tests
                 output.Write (sysenv, 0, sysenv.Length);
                 output.Write (payload, 0, payload.Length);
             }
+        }
+
+        static void CreatePkzFixture (string path, byte[] key)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated PKZ fixture");
+            var index = new byte[0x0C + 0x2C];
+            LittleEndian.Pack (0, index, 0);
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            Buffer.BlockCopy (name, 0, index, 0x0C, name.Length);
+            LittleEndian.Pack ((uint)payload.Length, index, 0x2C);
+            LittleEndian.Pack (0, index, 0x30);
+            EncryptPkz (index, key);
+            var encryptedPayload = (byte[])payload.Clone ();
+            EncryptPkz (encryptedPayload, key);
+            using (var output = File.Create (path))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("PKZ0"), 0, 4);
+                var count = new byte[4];
+                LittleEndian.Pack (1, count, 0);
+                output.Write (count, 0, count.Length);
+                output.Write (index, 0, index.Length);
+                output.Write (encryptedPayload, 0, encryptedPayload.Length);
+            }
+        }
+
+        static void EncryptPkz (byte[] data, byte[] key)
+        {
+            for (int i = 0; i < data.Length; ++i)
+                data[i] = (byte)((data[i] - 0x80) ^ key[i % key.Length]);
         }
 
         static void WriteAzEncryptedIndexRecord (byte[] output, int offset, uint dataOffset, uint size, string name)

@@ -219,6 +219,13 @@ namespace GARbro.Core.Tests
             Assert.Equal (3740152942u, azEncryptedKeys["Zwei Worter"].IndexKey);
             Assert.Equal (3740152942u, azEncryptedKeys["Zwei Worter"].ContentKey);
 
+            var pkzKeys = LegacyXp3Exporter.ExportPkzKeys (database);
+            Assert.Single (pkzKeys);
+            Assert.Equal ("Fall in Love", pkzKeys.Keys.Single ());
+            Assert.Equal (28, pkzKeys["Fall in Love"].Length);
+            Assert.Equal ("8D4CCB5CC195A6476F34959ABD7AB99EB6920954C58CEB6CD59E927271B76862",
+                Convert.ToHexString (SHA256.HashData (pkzKeys["Fall in Love"])));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

@@ -60,7 +60,7 @@ namespace GameRes.Formats.Sviu
         public override bool  IsHierarchic { get { return false; } }
         public override bool      CanWrite { get { return false; } }
 
-        PkzScheme DefaultScheme = new PkzScheme { KnownSchemes = new Dictionary<string, byte[]>() };
+        PkzScheme DefaultScheme = new PkzScheme { KnownSchemes = PkzKeyDatabase.CreateSchemeKeys () };
 
         public override ResourceScheme Scheme
         {
