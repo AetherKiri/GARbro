@@ -316,6 +316,13 @@
       "kind": "scheme-array",
       "path": "GameData/v2/dpk/keys.json",
       "sha256": "5e5395da97271608596ba6beecabd940fbeebcd53003d0c3e87e035e74b7ea83"
+    },
+    {
+      "id": "agsi-keys",
+      "format": "PAK/AGSI",
+      "kind": "nested-key-map",
+      "path": "GameData/v2/agsi/keys.json",
+      "sha256": "64a89b71c55400f71e9e4700a15a116ab17a9f9e8ad90ca917b8c8d3bac7e84c"
     }
   ]
 }

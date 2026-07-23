@@ -862,6 +862,48 @@ namespace GARbro.Core.Tests
             }
         }
 
+        [Fact]
+        public void Agsi_format_loads_migrated_nested_key_map_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "PAK/AGSI");
+            var scheme = Assert.IsType<AgsiScheme> (format.Scheme);
+            Assert.Equal (10, scheme.KnownSchemes.Count);
+            Assert.Equal (103, scheme.KnownSchemes.Sum (item => item.Value.Count));
+            var title = "Hitsuji-tachi no Yuuutsu";
+            var archiveName = "data2.pak";
+            var key = scheme.KnownSchemes[title][archiveName];
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { [archiveName] = title };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, archiveName);
+                CreateAgsiFixture (archivePath, key);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("Copyright.Dat", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated AGSI", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
         [Theory]
         [InlineData("PNG")]
         [InlineData("JPEG")]
@@ -1175,7 +1217,7 @@ namespace GARbro.Core.Tests
         {
             var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat>()
                 .Single (item => item.Tag == "PAK/MORNING");
-            Assert.IsType<PakOpener> (format);
+            Assert.IsType<GameRes.Formats.Morning.PakOpener> (format);
             var scheme = Assert.IsType<MorningScheme> (format.Scheme);
             Assert.Equal (512, scheme.DefaultKey.Length);
 
@@ -2920,6 +2962,40 @@ namespace GARbro.Core.Tests
                 file[dataOffset + i] = (byte)((payload[i] + (byte)hash) ^ key);
                 key1 += scheme.Key2;
             }
+            File.WriteAllBytes (path, file);
+        }
+
+        static void CreateAgsiFixture (string path, byte[] key)
+        {
+            const int recordSize = 0x30;
+            const int dataOffset = 0xC + recordSize;
+            const string name = "Copyright.Dat";
+            var plaintext = new byte[16];
+            var text = Encoding.UTF8.GetBytes ("migrated AGSI");
+            Buffer.BlockCopy (text, 0, plaintext, 0, text.Length);
+            var index = new byte[recordSize];
+            LittleEndian.Pack (text.Length, index, 0);
+            LittleEndian.Pack (plaintext.Length, index, 4);
+            LittleEndian.Pack (3, index, 8);
+            LittleEndian.Pack (0, index, 12);
+            Buffer.BlockCopy (Encoding.ASCII.GetBytes (name), 0, index, 16, name.Length);
+
+            byte[] encrypted;
+            using (var des = DES.Create ())
+            {
+                des.Key = key;
+                des.Mode = CipherMode.ECB;
+                des.Padding = PaddingMode.Zeros;
+                using (var encryptor = des.CreateEncryptor ())
+                    encrypted = encryptor.TransformFinalBlock (plaintext, 0, plaintext.Length);
+            }
+
+            var file = new byte[dataOffset + encrypted.Length];
+            Buffer.BlockCopy (Encoding.ASCII.GetBytes ("PACK"), 0, file, 0, 4);
+            LittleEndian.Pack (1, file, 4);
+            LittleEndian.Pack (recordSize, file, 8);
+            Buffer.BlockCopy (index, 0, file, 12, index.Length);
+            Buffer.BlockCopy (encrypted, 0, file, dataOffset, encrypted.Length);
             File.WriteAllBytes (path, file);
         }
 

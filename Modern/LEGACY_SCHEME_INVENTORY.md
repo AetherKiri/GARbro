@@ -51,6 +51,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `DATA/Csystem` | `GameRes.Formats.Cyberworks.DataSchemeMap` | `KnownSchemes` |
 | `AVC` | `GameRes.Formats.AVC.AvcScheme` | `KnownSchemes` |
 | `DPK` | `GameRes.Formats.Dac.ArchiveScheme` | `KnownSchemes` |
+| `PAK/AGSI` | `GameRes.Formats.FC01.AgsiScheme` | `KnownSchemes` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -107,6 +108,8 @@ The `DATA/Csystem` record is safely exportable with `export-data-keys`. Its thre
 The `AVC` record is safely exportable with `export-avc-keys`. Its four ordered scheme records preserve passwords and key/header offsets; `AvcKeyDatabase` validates the v2 array and `FormatCatalogTests.Avc_format_loads_migrated_scheme_and_decrypts_fixture` verifies header discovery, index decoding, and entry decryption.
 
 The `DPK` record is safely exportable with `export-dpk-keys`. Its nine ordered scheme records preserve both numeric keys and optional English/Japanese titles; `DpkKeyDatabase` validates the v2 array and `FormatCatalogTests.Dpk_format_loads_migrated_scheme_and_decrypts_fixture` verifies encrypted index and entry decryption. Modern lookup first uses the executable title registry, then the archive basename, and rejects unknown schemes without reading the legacy database.
+
+The `PAK/AGSI` record is safely exportable with `export-agsi-keys`. Its ten title records contain 103 archive-specific eight-byte DES keys; `AgsiKeyDatabase` validates the nested map and `FormatCatalogTests.Agsi_format_loads_migrated_nested_key_map_and_decrypts_fixture` verifies encrypted index/entry handling. Modern lookup resolves the executable title and archive basename, with no legacy database fallback.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

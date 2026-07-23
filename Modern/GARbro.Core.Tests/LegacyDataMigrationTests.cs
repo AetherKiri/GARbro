@@ -315,6 +315,11 @@ namespace GARbro.Core.Tests
             Assert.Equal ((uint)1139247708, dpk[0].Key2);
             Assert.Equal ("默认", dpk[0].Name);
 
+            var agsi = LegacyXp3Exporter.ExportAgsiKeys (database);
+            Assert.Equal (10, agsi.Count);
+            Assert.Equal (103, agsi.Sum (item => item.Value.Count));
+            Assert.Equal (8, agsi["Hitsuji-tachi no Yuuutsu"]["data2.pak"].Length);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

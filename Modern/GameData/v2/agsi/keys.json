@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": {
+    "Hitsuji-tachi no Yuuutsu": {
+      "data2.pak": "a3JkNEtBcDM=",
+      "data3.pak": "yzlmRGdBT7g=",
+      "data4.pak": "UsR0y829TNM=",
+      "data6.pak": "t2N2M3dsKbY=",
+      "data7.pak": "wUY9xkBo0sM=",
+      "data8.pak": "wEhIw9DTVkw="
+    },
+    "Tenkuu no Symphonia": {
+      "bg.pak": "Zc0hyMB9vjI=",
+      "bgm.pak": "cG1nx0FtMsQ=",
+      "bust.pak": "Vz420zFKs0c=",
+      "chipbattle_0.pak": "tUXQPMWxfbI=",
+      "chipbattle_1.pak": "udFkzni0tEM=",
+      "chipbattle_2.pak": "Z7kzZ1pvcD4=",
+      "chipbattle_3.pak": "xmvQ0lhAU74=",
+      "chipbattle_4.pak": "uWa4ciR3WmM=",
+      "chiptraining_0.pak": "zTZnSDFnQ8o=",
+      "chiptraining_1.pak": "VD5La8Q2s20=",
+      "chiptraining_2.pak": "MHhLcm7MvjQ=",
+      "chiptraining_3.pak": "RMa0UbJPuMI=",
+      "chiptraining_4.pak": "YWpWWC1mPW8=",
+      "data.pak": "zTJq0T1yub4=",
+      "event_0.pak": "zU93PGS+u7c=",
+      "event_1.pak": "x7rEYWPKy1Y=",
+      "event_2.pak": "JnFAMmR5uMU=",
+      "event_3.pak": "wUY9vbrBPWM=",
+      "event_4.pak": "VTdDOEfDMs8=",
+      "framemain.pak": "ZT0tarZkdkk=",
+      "frametitleextra.pak": "0WRGVTRwTNM=",
+      "magiceffect.pak": "N3t2vUkhdEg=",
+      "se.pak": "dU9Iyj5LyjI=",
+      "voice.pak": "T2NAR1dBdFM="
+    },
+    "Tenkuu no Symphonia 2": {
+      "data00.pak": "umVJMnPKctE=",
+      "data01.pak": "ME9wKrFJs1o="
+    },
+    "Tama-cue": {
+      "01.pak": "Ssl1YjnBvlQ=",
+      "02.pak": "yUYyaXvSWFQ=",
+      "03.pak": "MzQ3OHNoYW8=",
+      "04.pak": "c2lvYm5yYWg=",
+      "05.pak": "tTdwOD1iSNE=",
+      "06.pak": "T31AJFfNaG4="
+    },
+    "Hello Good-bye!": {
+      "d003.pak": "0za9V0R4xlM=",
+      "d004.pak": "e3DQcE5hx3U=",
+      "d006.pak": "u9A1Ice0wjM=",
+      "d007.pak": "Y8XNJH2ywcY=",
+      "d008.pak": "ZyjRVU0+LVU=",
+      "d009.pak": "xnE0z8B9NMk=",
+      "d103.pak": "PHmxYWlBUkM="
+    },
+    "Kagami no Naka no Orgel [Snow White]": {
+      "data00.pak": "WShIwC1a0i0=",
+      "data01.pak": "aS01QSS2VXo=",
+      "data02.pak": "KU9Ms9Fqtc4=",
+      "data03.pak": "u85NUUlvubU=",
+      "data04.pak": "zzZORVhS07I=",
+      "data05.pak": "c81suDO/aGs=",
+      "data06.pak": "TDZtVi3EbGg=",
+      "data07.pak": "MkV0N8G3SHg="
+    },
+    "Kagami no Naka no Orgel [Thumbelina]": {
+      "data00.pak": "wHtWPHHFUXA=",
+      "data01.pak": "db9YQj10fcY=",
+      "data02.pak": "S7o1TcDCe2M=",
+      "data03.pak": "N9FEv8ZFzC0=",
+      "data04.pak": "syFFs2E20Cg=",
+      "data05.pak": "x3BGKHAjd1A=",
+      "data06.pak": "azljxHbTRtE=",
+      "data07.pak": "SyYyytC9UmE="
+    },
+    "Kagami no Naka no Orgel [Haensel und Gretel]": {
+      "data00.pak": "vMjMU1nFb3M=",
+      "data01.pak": "zbdI0FZOank=",
+      "data02.pak": "RGlR0NBGSkw=",
+      "data03.pak": "PXpTOHpRKGk=",
+      "data04.pak": "ysw4uMPMvCM=",
+      "data05.pak": "ajU5KtHSwDg=",
+      "data06.pak": "Sjl6sbi8zLs=",
+      "data07.pak": "MDRIvXN9cMo="
+    },
+    "Majokko a la Mode II": {
+      "game01.pak": "SlkztjNYeSE=",
+      "game02.pak": "SlkztjNYeSE=",
+      "voice01.pak": "SlkztjNYeSE=",
+      "voice02.pak": "SlkztjNYeSE="
+    },
+    "Can Can Bunny 6": {
+      "data00.pak": "djI5KrxSLXA=",
+      "data01.pak": "djW2eMxNT24=",
+      "data02.pak": "OT44u1NXQMQ=",
+      "data03.pak": "vLR5wXNYuGs=",
+      "data04.pak": "Y8+yxnFCxUs=",
+      "data05.pak": "SlllRyEmZyk=",
+      "data06.pak": "ObO1TTdSUcI=",
+      "data07.pak": "xmS+TMZKPc8=",
+      "data08.pak": "aVg4v8y3sSE=",
+      "data09.pak": "SjFixMk4viY=",
+      "data10.pak": "NcjPS8/QxnY=",
+      "data11.pak": "vLpQz3txQWc=",
+      "data12.pak": "ZkC7vU1KUso=",
+      "data13.pak": "Rj5Dw25uM80=",
+      "data14.pak": "R0pCUkM+ysY=",
+      "data15.pak": "vy1GSbQwv30=",
+      "data16.pak": "cM5PSWdTZrs=",
+      "data17.pak": "WkZYayhLRcg=",
+      "data18.pak": "sjbKTlBvUm8=",
+      "data19.pak": "02NEIdIxJj0=",
+      "data20.pak": "ekS2KdBFySo=",
+      "data21.pak": "U8O3M2s3zT0=",
+      "data22.pak": "tXTAM1dDdLY=",
+      "data23.pak": "tmg5U0ctcbw=",
+      "data24.pak": "VSF70Gt7e3s=",
+      "data25.pak": "urRaOE7PzFI=",
+      "data26.pak": "I0S2uzNadk0=",
+      "data27.pak": "zkMycLHNNMs=",
+      "voice_0.pak": "e7q+vjW5SXg=",
+      "voice_1.pak": "cj7IsXW3vEg="
+    }
+  }
+}

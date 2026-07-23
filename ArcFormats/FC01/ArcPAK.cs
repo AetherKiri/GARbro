@@ -150,7 +150,14 @@ namespace GameRes.Formats.FC01
                 using (var dec = new InputCryptoStream (enc, des.CreateDecryptor()))
                 {
                     var output = new byte[enc_size];
-                    dec.Read (output, 0, output.Length);
+                    int read = 0;
+                    while (read < output.Length)
+                    {
+                        int count = dec.Read (output, read, output.Length - read);
+                        if (count == 0)
+                            throw new EndOfStreamException ();
+                        read += count;
+                    }
                     int header_size;
                     if (!entry.IsSpecial)
                     {
@@ -182,10 +189,17 @@ namespace GameRes.Formats.FC01
             return KnownSchemes[title];
         }
 
+#if NET10_0_OR_GREATER
+        static AgsiScheme DefaultScheme = new AgsiScheme
+        {
+            KnownSchemes = AgsiKeyDatabase.CreateSchemes ()
+        };
+#else
         static AgsiScheme DefaultScheme = new AgsiScheme
         {
             KnownSchemes = new Dictionary<string, IDictionary<string, byte[]>>()
         };
+#endif
 
         public IDictionary<string, IDictionary<string, byte[]>> KnownSchemes
         {
