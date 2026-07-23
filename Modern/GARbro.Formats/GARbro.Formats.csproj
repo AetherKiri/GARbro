@@ -54,6 +54,7 @@
     <Compile Include="../../ArcFormats/KiriKiri/ImageTLG.cs" Link="KiriKiri/ImageTLG.cs" />
     <Compile Include="../../ArcFormats/DirectDraw/DxtDecoder.cs" Link="DirectDraw/DxtDecoder.cs" />
     <Compile Include="../../ArcFormats/Leaf/ArcAM.cs" Link="Leaf/ArcAM.cs" />
+    <Compile Include="../../ArcFormats/Lucifen/ArcLPK.cs" Link="Lucifen/ArcLPK.cs" />
     <Compile Include="../../ArcFormats/Strings/arcStrings.Designer.cs" Link="Strings/arcStrings.Designer.cs" />
     <EmbeddedResource Include="../../ArcFormats/Strings/*.resx" Link="Strings/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../GameData/v2/**/*.json" Link="GameData/v2/%(RecursiveDir)%(Filename)%(Extension)" />

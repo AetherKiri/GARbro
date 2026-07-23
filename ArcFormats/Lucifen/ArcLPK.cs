@@ -150,8 +150,8 @@ namespace GameRes.Formats.Lucifen
             BaseKey = new Key (0xA5B9AC6B, 0x9A639DE5), ContentXor = 0x5d, RotatePattern = 0x31746285,
             ImportGameInit = true
         };
-        public static Dictionary<string, EncryptionScheme> KnownSchemes = new Dictionary<string, EncryptionScheme> { { "Default", DefaultScheme } };
-        static Dictionary<string, Dictionary<string, Key>> KnownKeys = new Dictionary<string, Dictionary<string, Key>>();
+        public static Dictionary<string, EncryptionScheme> KnownSchemes = LpkKeyDatabase.CreateSchemes ();
+        static Dictionary<string, Dictionary<string, Key>> KnownKeys = LpkKeyDatabase.CreateFileKeys ();
 
         EncryptionScheme CurrentScheme = DefaultScheme;
         Dictionary<string, Key> CurrentFileMap = new Dictionary<string, Key>();
@@ -173,6 +173,8 @@ namespace GameRes.Formats.Lucifen
             }
             catch { /* unknown encryption, ignore parse errors */ }
             var new_scheme = QueryEncryptionScheme (file.Name);
+            if (new_scheme == null)
+                return null;
             if (new_scheme == CurrentScheme && !CurrentScheme.ImportGameInit)
                 return null;
             CurrentScheme = new_scheme;
@@ -204,7 +206,7 @@ namespace GameRes.Formats.Lucifen
             var data = new byte[lent.UnpackedSize];
             using (input)
             {
-                input.Read (data, 0, data.Length);
+                ReadExactly (input, data);
             }
             if (larc.Info.WholeCrypt)
             {
@@ -285,7 +287,7 @@ namespace GameRes.Formats.Lucifen
                 using (var gameinit = script_arc.OpenEntry (entry))
                 {
                     var init_data = new byte[gameinit.Length];
-                    gameinit.Read (init_data, 0, init_data.Length);
+                    ReadExactly (gameinit, init_data);
                     if (!ParseGameInit (init_data))
                         throw new UnknownEncryptionScheme();
                 }
@@ -339,34 +341,37 @@ namespace GameRes.Formats.Lucifen
             }
         }
 
-        public override ResourceOptions GetDefaultOptions ()
+        static void ReadExactly (Stream input, byte[] buffer)
         {
-            return new LuciOptions { Scheme = Properties.Settings.Default.LPKScheme };
-        }
-
-        public override object GetAccessWidget ()
-        {
-            return new GUI.WidgetLPK();
+            int offset = 0;
+            while (offset < buffer.Length)
+            {
+                int count = input.Read (buffer, offset, buffer.Length - offset);
+                if (count <= 0)
+                    throw new EndOfStreamException ();
+                offset += count;
+            }
         }
 
         EncryptionScheme QueryEncryptionScheme (string arc_name)
         {
             CurrentFileMap.Clear();
-            string title = FormatCatalog.Instance.LookupGame (arc_name);
+            string title = Path.GetFileNameWithoutExtension (arc_name);
             Dictionary<string, Key> file_map;
+            if (KnownSchemes.TryGetValue (title, out var scheme))
+            {
+                if (KnownKeys.TryGetValue (title, out file_map))
+                    CurrentFileMap = new Dictionary<string, Key> (file_map);
+                return scheme;
+            }
+            title = FormatCatalog.Instance.LookupGame (arc_name);
             if (!string.IsNullOrEmpty (title) && KnownSchemes.ContainsKey (title))
             {
                 if (KnownKeys.TryGetValue (title, out file_map))
                     CurrentFileMap = new Dictionary<string, Key> (file_map);
                 return KnownSchemes[title];
             }
-            var options = Query<LuciOptions> (arcStrings.ArcEncryptedNotice);
-            if (null == options)
-                return DefaultScheme;
-            title = options.Scheme;
-            if (KnownKeys.TryGetValue (title, out file_map))
-                CurrentFileMap = new Dictionary<string, Key> (file_map);
-            return KnownSchemes[title];
+            return null;
         }
 
         public override ResourceScheme Scheme

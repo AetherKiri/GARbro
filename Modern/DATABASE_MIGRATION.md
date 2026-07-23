@@ -108,6 +108,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add PSB/EMOTE key-list validation and a deterministic listing/extraction fixture.
 - [x] Migrate the AM/Leaf decrypt table as a standalone v2 dataset and load it in the modern archive reader.
 - [x] Add AM/Leaf table-shape validation and a deterministic encrypted index/entry fixture.
+- [x] Migrate the LPK scheme and title/file-key maps as a standalone v2 dataset and load them in the modern archive reader.
+- [x] Add LPK scheme/file-key validation and a deterministic encrypted index/entry fixture.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

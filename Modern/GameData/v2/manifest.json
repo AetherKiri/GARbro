@@ -260,6 +260,13 @@
       "kind": "decrypt-table",
       "path": "GameData/v2/am_leaf/table.json",
       "sha256": "c390796118b7a4466cd33c6ac7ecd1ae54b8a7684a12bff2dd5125a4359449c0"
+    },
+    {
+      "id": "lpk-keys",
+      "format": "LPK",
+      "kind": "scheme-and-file-key-map",
+      "path": "GameData/v2/lpk/keys.json",
+      "sha256": "973ff4a59473474db12f07f1c7cfb45401634dffa435efe3024922f07e68a033"
     }
   ]
 }

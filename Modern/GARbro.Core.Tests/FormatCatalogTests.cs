@@ -24,6 +24,7 @@ using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
 using GameRes.Formats.Emote;
 using GameRes.Formats.Leaf;
+using GameRes.Formats.Lucifen;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -528,6 +529,52 @@ namespace GARbro.Core.Tests
             }
             finally
             {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Lpk_format_loads_migrated_maps_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "LPK");
+            var scheme = Assert.IsType<LpkScheme> (format.Scheme);
+            Assert.Equal (19, scheme.KnownSchemes.Count);
+            Assert.Equal (22, scheme.KnownKeys.Count);
+            var encryption = scheme.KnownSchemes["Happening Love!!"];
+            var fileKey = scheme.KnownKeys["Happening Love!!"]["BGM.LPK"];
+            Assert.Equal (0xA5B9AC6Bu, encryption.BaseKey.Key1);
+            Assert.Equal (0x9A639DE5u, encryption.BaseKey.Key2);
+            Assert.Equal (0x9C24DD6Au, fileKey.Key1);
+            Assert.Equal (0xDEE82BC6u, fileKey.Key2);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["BGM.LPK"] = "Happening Love!!" };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "BGM.LPK");
+                CreateLpkFixture (archivePath, encryption, fileKey);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("a", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated LPK fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 Directory.Delete (tempDirectory, true);
             }
         }
@@ -2166,7 +2213,7 @@ namespace GARbro.Core.Tests
             }
         }
 
-        static void CreateNpaFixture (string path, EncryptionScheme scheme)
+        static void CreateNpaFixture (string path, GameRes.Formats.NitroPlus.EncryptionScheme scheme)
         {
             var plaintext = Encoding.UTF8.GetBytes ("migrated NPA fixture");
             var name = Encoding.ASCII.GetBytes ("sample.bin");
@@ -2307,6 +2354,50 @@ namespace GARbro.Core.Tests
                 writer.Write (key);
                 writer.Write (index);
                 writer.Write (encryptedPayload);
+            }
+        }
+
+        static void CreateLpkFixture (string path, GameRes.Formats.Lucifen.EncryptionScheme scheme,
+                                      LpkOpener.Key fileKey)
+        {
+            var basename = Encodings.cp932.GetBytes ("BGM");
+            var key1 = scheme.BaseKey.Key1;
+            var key2 = scheme.BaseKey.Key2;
+            for (var b = 0; b < basename.Length; ++b)
+            {
+                var e = basename.Length - 1 - b;
+                key1 ^= basename[e];
+                key2 ^= basename[b];
+                key1 = Binary.RotR (key1, 7);
+                key2 = Binary.RotL (key2, 7);
+            }
+            key1 ^= fileKey.Key1;
+            key2 ^= fileKey.Key2;
+
+            var payload = Encoding.UTF8.GetBytes ("migrated LPK fixture");
+            var index = new byte[27];
+            LittleEndian.Pack (1, index, 0);
+            index[4] = 0;
+            index[5] = 0;
+            LittleEndian.Pack (8, index, 6);
+            index[10] = 1;
+            index[11] = (byte)'a';
+            LittleEndian.Pack ((ushort)0, index, 12);
+            index[14] = 1;
+            index[15] = 0;
+            LittleEndian.Pack ((ushort)0, index, 16);
+            index[18] = 0;
+            LittleEndian.Pack (8u + (uint)index.Length, index, 19);
+            LittleEndian.Pack ((uint)payload.Length, index, 23);
+            scheme.DecryptIndex (index, index.Length, key2);
+
+            using (var output = File.Create (path))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (Encoding.ASCII.GetBytes ("LPK1"));
+                writer.Write ((uint)(0x02000000u | (uint)index.Length) ^ key2);
+                writer.Write (index);
+                writer.Write (payload);
             }
         }
 

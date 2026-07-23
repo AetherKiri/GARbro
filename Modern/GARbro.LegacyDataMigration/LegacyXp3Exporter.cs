@@ -298,6 +298,27 @@ namespace GARbro.LegacyDataMigration
         public byte[] DecryptTable { get; set; }
     }
 
+    internal sealed class LpkKeyRecord
+    {
+        public uint Key1 { get; set; }
+        public uint Key2 { get; set; }
+    }
+
+    internal sealed class LpkSchemeRecord
+    {
+        public LpkKeyRecord BaseKey { get; set; }
+        public byte ContentXor { get; set; }
+        public uint RotatePattern { get; set; }
+        public bool ImportGameInit { get; set; }
+    }
+
+    internal sealed class LpkKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, LpkSchemeRecord> KnownSchemes { get; set; }
+        public Dictionary<string, Dictionary<string, LpkKeyRecord>> KnownKeys { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -821,6 +842,22 @@ namespace GARbro.LegacyDataMigration
             return table.GetArray (false);
         }
 
+        internal static LpkKeysDocument ExportLpkKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "LPK");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes") || !scheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy LPK scheme is incomplete.");
+            var knownSchemes = ReadLpkSchemeDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
+                "Legacy LPK scheme map");
+            var knownKeys = ReadLpkKeyMap (ReadRaw (scheme, "KnownKeys") as ClassRecord, "Legacy LPK file-key map");
+            if (knownSchemes.Count == 0)
+                throw new InvalidDataException ("Legacy LPK scheme map is empty.");
+            return new LpkKeysDocument {
+                KnownSchemes = knownSchemes,
+                KnownKeys = knownKeys,
+            };
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -1229,6 +1266,94 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
             }
             return result;
+        }
+
+        static Dictionary<string, LpkSchemeRecord> ReadLpkSchemeDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, LpkSchemeRecord> (StringComparer.Ordinal);
+            var pairs = GetDictionaryPairs (dictionary, label);
+            foreach (var record in pairs)
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var title = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (title) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var baseKey = ReadRaw (value, "BaseKey") as ClassRecord;
+                if (baseKey == null)
+                    throw new InvalidDataException (label + " contains a scheme without BaseKey: " + title);
+                var exported = new LpkSchemeRecord {
+                    BaseKey = ReadLpkKeyRecord (baseKey, label + ": " + title),
+                    ContentXor = ReadRequired<byte> (value, "ContentXor"),
+                    RotatePattern = ReadRequired<uint> (value, "RotatePattern"),
+                    ImportGameInit = ReadRequired<bool> (value, "ImportGameInit"),
+                };
+                if (!result.TryAdd (title, exported))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + title);
+            }
+            return result;
+        }
+
+        static Dictionary<string, Dictionary<string, LpkKeyRecord>> ReadLpkKeyMap (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, Dictionary<string, LpkKeyRecord>> (StringComparer.Ordinal);
+            var pairs = GetDictionaryPairs (dictionary, label);
+            foreach (var record in pairs)
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var title = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (title) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var fileKeys = new Dictionary<string, LpkKeyRecord> (StringComparer.Ordinal);
+                foreach (var fileRecord in GetDictionaryPairs (value, label + ": " + title))
+                {
+                    var fileEntry = fileRecord as ClassRecord;
+                    if (fileEntry == null || !fileEntry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                        throw new InvalidDataException (label + " contains an invalid file-key entry.");
+                    var fileName = ReadRaw (fileEntry, "key") as string;
+                    var fileValue = ReadRaw (fileEntry, "value") as ClassRecord;
+                    if (string.IsNullOrWhiteSpace (fileName) || fileValue == null)
+                        throw new InvalidDataException (label + " contains an incomplete file-key entry.");
+                    if (!fileKeys.TryAdd (fileName, ReadLpkKeyRecord (fileValue, label + ": " + title + ": " + fileName)))
+                        throw new InvalidDataException (label + " contains a duplicate file key: " + title + "/" + fileName);
+                }
+                if (!result.TryAdd (title, fileKeys))
+                    throw new InvalidDataException (label + " contains a duplicate title: " + title);
+            }
+            return result;
+        }
+
+        static LpkKeyRecord ReadLpkKeyRecord (ClassRecord record, string label)
+        {
+            var result = new LpkKeyRecord {
+                Key1 = ReadRequired<uint> (record, "Key1"),
+                Key2 = ReadRequired<uint> (record, "Key2"),
+            };
+            if (result.Key1 == 0 && result.Key2 == 0)
+                throw new InvalidDataException (label + " contains an all-zero key.");
+            return result;
+        }
+
+        static Array GetDictionaryPairs (ClassRecord dictionary, string label)
+        {
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return Array.Empty<SerializationRecord> ();
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return Array.Empty<SerializationRecord> ();
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            return GetRecordArray (pairs);
         }
 
         static Dictionary<string, byte> ReadStringByteDictionary (ClassRecord dictionary, string label)

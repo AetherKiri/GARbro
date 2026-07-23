@@ -268,6 +268,14 @@ namespace GARbro.Core.Tests
             Assert.Equal ("A51707E734180105297E3937EAEE3A9A1CB2357E861E20B12FE2BDBACB9F9AE9",
                 Convert.ToHexString (SHA256.HashData (amTable)));
 
+            var lpk = LegacyXp3Exporter.ExportLpkKeys (database);
+            Assert.Equal (19, lpk.KnownSchemes.Count);
+            Assert.Equal (22, lpk.KnownKeys.Count);
+            Assert.Equal (2780408939u, lpk.KnownSchemes["Happening Love!!"].BaseKey.Key1);
+            Assert.Equal (2590219749u, lpk.KnownSchemes["Happening Love!!"].BaseKey.Key2);
+            Assert.Equal (2619661674u, lpk.KnownKeys["Happening Love!!"]["BGM.LPK"].Key1);
+            Assert.Equal (3739757510u, lpk.KnownKeys["Happening Love!!"]["BGM.LPK"].Key2);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
