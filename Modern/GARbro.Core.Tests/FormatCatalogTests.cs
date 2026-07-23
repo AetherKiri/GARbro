@@ -34,6 +34,7 @@ using GameRes.Formats.Mg;
 using GameRes.Formats.Majiro;
 using GameRes.Formats.FC01;
 using GameRes.Formats.Cyberworks;
+using GameRes.Formats.Unity;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -122,6 +123,42 @@ namespace GARbro.Core.Tests
                 Assert.Equal (source.Length, header.Length);
                 Assert.Equal (new byte[] { (byte)'O', (byte)'g', (byte)'g', (byte)'S' }, header.Take (4).ToArray ());
                 Assert.Equal (plaintext, header.Skip (4).ToArray ());
+            }
+        }
+
+        [Fact]
+        public void Bin_idx_format_loads_migrated_key_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "BIN/IDX");
+            var scheme = Assert.IsType<BinPackScheme> (format.Scheme);
+            Assert.Single (scheme.KnownKeys);
+            var key = scheme.KnownKeys["GuildMaster"];
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            var previousDirectory = Directory.GetCurrentDirectory ();
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                Directory.SetCurrentDirectory (tempDirectory);
+                var binPath = Path.Combine (tempDirectory, "sample.bin");
+                var idxPath = Path.Combine (tempDirectory, "sample.idx");
+                CreateBinIdxFixture (binPath, idxPath, key);
+
+                using (var view = new ArcView (binPath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated BIN/IDX fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.SetCurrentDirectory (previousDirectory);
+                Directory.Delete (tempDirectory, true);
             }
         }
 
@@ -1482,6 +1519,76 @@ namespace GARbro.Core.Tests
                 output.Write ((uint)(dataOffset + payload.Length));
                 output.Write (payload);
             }
+        }
+
+        static void CreateBinIdxFixture (string binPath, string idxPath, BinPackKey key)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated BIN/IDX fixture");
+            byte[] encryptedPayload;
+            using (var aes = Aes.Create ())
+            {
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Key = key.Key;
+                aes.IV = key.IV;
+                using (var encryptor = aes.CreateEncryptor ())
+                    encryptedPayload = encryptor.TransformFinalBlock (payload, 0, payload.Length);
+            }
+
+            byte[] indexRecord;
+            using (var record = new MemoryStream ())
+            using (var output = new BinaryWriter (record, Encoding.UTF8, true))
+            {
+                output.Write ((byte)0x83);
+                WriteBinIdxFieldName (output, "fileName");
+                WriteBinIdxString (output, "sample.txt");
+                WriteBinIdxFieldName (output, "index");
+                WriteBinIdxInt32 (output, 0);
+                WriteBinIdxFieldName (output, "size");
+                WriteBinIdxInt32 (output, encryptedPayload.Length);
+                indexRecord = record.ToArray ();
+            }
+
+            byte[] encryptedIndex;
+            using (var aes = Aes.Create ())
+            {
+                aes.Mode = CipherMode.CBC;
+                aes.Padding = PaddingMode.PKCS7;
+                aes.Key = key.Key;
+                aes.IV = key.IV;
+                using (var encryptor = aes.CreateEncryptor ())
+                    encryptedIndex = encryptor.TransformFinalBlock (indexRecord, 0, indexRecord.Length);
+            }
+
+            using (var output = new BinaryWriter (File.Create (idxPath), Encoding.UTF8))
+            {
+                output.Write (encryptedIndex.Length);
+                output.Write (encryptedIndex);
+            }
+            File.WriteAllBytes (binPath, encryptedPayload);
+        }
+
+        static void WriteBinIdxFieldName (BinaryWriter output, string name)
+        {
+            var bytes = Encoding.UTF8.GetBytes (name);
+            output.Write ((byte)(0xA0 | bytes.Length));
+            output.Write (bytes);
+        }
+
+        static void WriteBinIdxString (BinaryWriter output, string value)
+        {
+            var bytes = Encoding.UTF8.GetBytes (value);
+            output.Write ((byte)(0xA0 | bytes.Length));
+            output.Write (bytes);
+        }
+
+        static void WriteBinIdxInt32 (BinaryWriter output, int value)
+        {
+            output.Write ((byte)0xD2);
+            output.Write ((byte)(value >> 24));
+            output.Write ((byte)(value >> 16));
+            output.Write ((byte)(value >> 8));
+            output.Write ((byte)value);
         }
 
         static byte[] CreateGalFixture ()

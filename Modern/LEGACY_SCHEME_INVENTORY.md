@@ -36,6 +36,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `RCT` | `GameRes.Formats.Majiro.RctScheme` | `KnownKeys` |
 | `MCG` | `GameRes.Formats.FC01.McgScheme` | `KnownKeys` |
 | `OGG/TINK` | `GameRes.Formats.Cyberworks.TinkAudioScheme` | `KnownKeys` |
+| `BIN/IDX` | `GameRes.Formats.Unity.BinPackScheme` | `KnownKeys` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -56,6 +57,8 @@ The `RCT` record is safely exportable with `export-rct-keys`. Its 33 title-to-pa
 The `MCG` record is safely exportable with `export-mcg-keys`. Its 24 title-to-byte-key records are validated by `McgKeyDatabase`; `FormatCatalogTests.Mcg_format_loads_migrated_key_and_reads_encrypted_fixture` verifies title lookup, MCG byte decryption, and v101 LZSS RGB decoding. v200, indexed/16bpp variants, and writing remain explicit follow-ups.
 
 The `OGG/TINK` record is safely exportable with `export-tink-keys`. Its two signature-to-byte-key records are validated by `TinkKeyDatabase`; `FormatCatalogTests.Tink_audio_format_loads_migrated_keys_and_decodes_header` verifies both the data-backed scheme and deterministic Ogg header/XOR decoding. A full Vorbis payload fixture and writing remain explicit follow-ups.
+
+The `BIN/IDX` record is safely exportable with `export-bin-idx-keys`. Its single title-to-AES key/IV record is validated by `BinIdxKeyDatabase`; `FormatCatalogTests.Bin_idx_format_loads_migrated_key_and_decrypts_fixture` verifies encrypted index parsing and entry decryption.
 
 The `TCD` record is safely exportable with `export-tcd-keys`, validated by fixed-count/value regression assertions, and now loaded by the modern TopCat port. `FormatCatalogTests.Tcd_format_opens_a_minimal_v3_fixture` verifies index parsing and extraction from a deterministic TCD3 archive.
 

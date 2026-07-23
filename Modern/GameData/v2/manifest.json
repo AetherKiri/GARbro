@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "dataVersion": "2026.07.23.29",
+  "dataVersion": "2026.07.23.30",
   "datasets": [
     {
       "id": "xp3-title-registry",
@@ -183,6 +183,13 @@
       "kind": "key-map",
       "path": "GameData/v2/tink/keys.json",
       "sha256": "7d1a36d1730a52dcff046be27b782789efd7bcd5e32469a8683c8268ffd5757c"
+    },
+    {
+      "id": "bin-idx-keys",
+      "format": "BIN/IDX",
+      "kind": "key-map",
+      "path": "GameData/v2/bin_idx/keys.json",
+      "sha256": "bb804d55ce5ca73a9adb483fdc5078e9ff9dd022fba91dea12a493dd25962faa"
     }
   ]
 }

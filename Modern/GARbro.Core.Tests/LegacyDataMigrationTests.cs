@@ -189,6 +189,16 @@ namespace GARbro.Core.Tests
             Assert.Equal ("REJCMzIwNkYtRjE3MS00ODg1LUExMzEtRUM3RkJBNkZGNDkxIENvcHlyaWdodCAyMDA0IEN5YmVyd29ya3MgIlRpbmtlckJlbGwiLiwgYWxsIHJpZ2h0cyByZXNlcnZlZC4A",
                 Convert.ToBase64String (tinkKeys[1802398036u]));
 
+            var binIdxKeys = LegacyXp3Exporter.ExportBinIdxKeys (database);
+            Assert.Single (binIdxKeys);
+            Assert.Equal ("GuildMaster", binIdxKeys.Keys.Single ());
+            Assert.Equal (32, binIdxKeys["GuildMaster"].Key.Length);
+            Assert.Equal (16, binIdxKeys["GuildMaster"].IV.Length);
+            Assert.Equal ("YzZlYWhicTlzanVhd2h2ZHI5a3ZocHNtNXF2MzkzZ2E=",
+                Convert.ToBase64String (binIdxKeys["GuildMaster"].Key));
+            Assert.Equal ("QVJDLVBBQ0tQQVNTV09SRA==",
+                Convert.ToBase64String (binIdxKeys["GuildMaster"].IV));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
