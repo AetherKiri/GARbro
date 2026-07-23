@@ -191,7 +191,11 @@ namespace GameRes.Formats.AVC
                 return dir;
             }
 
+#if NET10_0_OR_GREATER
+            internal static ArchiveScheme[] KnownSchemes = AvcKeyDatabase.CreateSchemes ();
+#else
             internal static ArchiveScheme[] KnownSchemes = new ArchiveScheme[0];
+#endif
         }
 
         public override ResourceScheme Scheme

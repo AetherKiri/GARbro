@@ -49,6 +49,7 @@ The first non-XP3 data slice is ZIP. Its seven title-to-password records are now
 | `ARC/Tactics/2` | `GameRes.Formats.Tactics.SchemeMap` | `KnownSchemes` |
 | `ARC/RPM` | `GameRes.Formats.Rpm.ArcScheme` | `KnownSchemes` |
 | `DATA/Csystem` | `GameRes.Formats.Cyberworks.DataSchemeMap` | `KnownSchemes` |
+| `AVC` | `GameRes.Formats.AVC.AvcScheme` | `KnownSchemes` |
 
 Most `KnownKeys` members are serialized as title-to-string dictionaries; formats such as CRZ retain byte-array values explicitly in their v2 schema. The modern ZIP implementation now checks the resolved executable title before prompting, while preserving the interactive fallback. `ZipPasswordDatabase` validates schema, required values, duplicate titles, and conflicting case-insensitive keys. `FormatCatalogTests.Encrypted_zip_uses_migrated_title_password_before_prompt` opens a ZipCrypto archive beside a mapped executable and confirms the migrated password is used without raising an interactive request.
 
@@ -101,6 +102,8 @@ The `ARC/Tactics/2` record is safely exportable with `export-tactics-keys`. Its 
 The `ARC/RPM` record is safely exportable with `export-rpm-keys`. Its 31 title-to-encryption-scheme records preserve the keyword and encrypted-name width; `RpmKeyDatabase` validates the v2 map and `FormatCatalogTests.Rpm_format_loads_migrated_scheme_and_opens_fixture` verifies title lookup, index decryption, and entry extraction. The separate ZENOS reader continues using its built-in scheme inference.
 
 The `DATA/Csystem` record is safely exportable with `export-data-keys`. Its three title-to-header-size records are validated by `DataKeyDatabase`; `FormatCatalogTests.Data_csystem_format_loads_migrated_scheme_and_opens_fixture` verifies title lookup, TOC parsing, and entry extraction.
+
+The `AVC` record is safely exportable with `export-avc-keys`. Its four ordered scheme records preserve passwords and key/header offsets; `AvcKeyDatabase` validates the v2 array and `FormatCatalogTests.Avc_format_loads_migrated_scheme_and_decrypts_fixture` verifies header discovery, index decoding, and entry decryption.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

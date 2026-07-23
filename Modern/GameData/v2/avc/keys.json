@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": [
+    {
+      "password": "SETSUEI-",
+      "keyOffset": 8,
+      "headerOffset": 16
+    },
+    {
+      "password": "CHOKOPAI",
+      "keyOffset": 53,
+      "headerOffset": 81
+    },
+    {
+      "password": "ClOVeRrE",
+      "keyOffset": 17,
+      "headerOffset": 70
+    },
+    {
+      "password": "-AYASEKE",
+      "keyOffset": 12,
+      "headerOffset": 21
+    }
+  ]
+}

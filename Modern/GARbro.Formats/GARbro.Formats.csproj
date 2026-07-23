@@ -62,6 +62,7 @@
     <Compile Include="../../ArcFormats/Rpm/ArcARC.cs" Link="Rpm/ArcARC.cs" />
     <Compile Include="../../ArcFormats/Cyberworks/ArcDATA.cs" Link="Cyberworks/ArcDATA.cs" />
     <Compile Include="../../ArcFormats/Cyberworks/ImageDATA.cs" Link="Cyberworks/ImageDATA.cs" />
+    <Compile Include="../../ArcFormats/ArcAVC.cs" Link="ArcAVC.cs" />
     <Compile Include="../../ArcFormats/Strings/arcStrings.Designer.cs" Link="Strings/arcStrings.Designer.cs" />
     <EmbeddedResource Include="../../ArcFormats/Strings/*.resx" Link="Strings/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../GameData/v2/**/*.json" Link="GameData/v2/%(RecursiveDir)%(Filename)%(Extension)" />

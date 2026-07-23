@@ -372,6 +372,19 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, int> KnownSchemes { get; set; }
     }
 
+    internal sealed class AvcSchemeRecord
+    {
+        public string Password { get; set; }
+        public int KeyOffset { get; set; }
+        public int HeaderOffset { get; set; }
+    }
+
+    internal sealed class AvcKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public List<AvcSchemeRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -973,6 +986,34 @@ namespace GARbro.LegacyDataMigration
                 "Legacy DATA/Csystem scheme map");
             if (result.Count == 0)
                 throw new InvalidDataException ("Legacy DATA/Csystem scheme map is empty.");
+            return result;
+        }
+
+        internal static List<AvcSchemeRecord> ExportAvcKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "AVC");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy AVC scheme has no KnownSchemes member.");
+            var array = ReadRaw (scheme, "KnownSchemes") as ArrayRecord;
+            if (array == null || array.Rank != 1 || array.Lengths[0] == 0 || array.Lengths[0] > 256)
+                throw new InvalidDataException ("Legacy AVC scheme array is invalid.");
+            var result = new List<AvcSchemeRecord> (array.Lengths[0]);
+            foreach (var record in GetRecordArray (array))
+            {
+                var value = record as ClassRecord;
+                if (value == null)
+                    throw new InvalidDataException ("Legacy AVC scheme array contains an invalid entry.");
+                var exported = new AvcSchemeRecord {
+                    Password = ReadRequired<string> (value, "Password"),
+                    KeyOffset = ReadRequired<int> (value, "KeyOffset"),
+                    HeaderOffset = ReadRequired<int> (value, "HeaderOffset"),
+                };
+                if (exported.Password == null || exported.Password.Length > 256
+                    || exported.KeyOffset < 0 || exported.KeyOffset > 0x10000
+                    || exported.HeaderOffset < 0 || exported.HeaderOffset > 0x10000)
+                    throw new InvalidDataException ("Legacy AVC scheme contains invalid offsets.");
+                result.Add (exported);
+            }
             return result;
         }
 

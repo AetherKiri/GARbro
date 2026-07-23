@@ -30,6 +30,7 @@ using GameRes.Formats.YuRis;
 using GameRes.Formats.Tactics;
 using GameRes.Formats.Rpm;
 using GameRes.Formats.Cyberworks;
+using GameRes.Formats.AVC;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -781,6 +782,40 @@ namespace GARbro.Core.Tests
             finally
             {
                 gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Avc_format_loads_migrated_scheme_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "AVC");
+            var scheme = Assert.IsType<AvcScheme> (format.Scheme);
+            Assert.Equal (4, scheme.KnownSchemes.Length);
+            var encryption = scheme.KnownSchemes[0];
+            Assert.Equal ("SETSUEI-", encryption.Password);
+            Assert.Equal (8, encryption.KeyOffset);
+            Assert.Equal (16, encryption.HeaderOffset);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.dat");
+                CreateAvcFixture (archivePath, encryption);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.txt", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated AVC fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
                 Directory.Delete (tempDirectory, true);
             }
         }
@@ -2758,6 +2793,45 @@ namespace GARbro.Core.Tests
             var data = new byte[dataOffset + payload.Length];
             Buffer.BlockCopy (payload, 0, data, dataOffset, payload.Length);
             File.WriteAllBytes (Path.Combine (directory, "Data01.dat"), data);
+        }
+
+        static void CreateAvcFixture (string path, ArchiveScheme scheme)
+        {
+            const int indexOffset = 0x80;
+            const int headerOffset = 16;
+            const int indexSize = 0x114;
+            const int dataOffset = indexOffset + indexSize;
+            const string name = "sample.txt";
+            var key = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+            var password = Encoding.ASCII.GetBytes (scheme.Password);
+            var payload = Encoding.UTF8.GetBytes ("migrated AVC fixture");
+            var data = new byte[headerOffset + dataOffset + payload.Length];
+
+            for (var i = 0; i < key.Length; ++i)
+            {
+                data[scheme.HeaderOffset + i] = (byte)("ARCHIVE\0"[i] ^ key[i]);
+                data[scheme.KeyOffset + i] = (byte)(key[i] ^ password[i]);
+            }
+
+            var header = new byte[0x24];
+            LittleEndian.Pack (indexOffset, header, 0x10);
+            LittleEndian.Pack (indexSize, header, 0x14);
+            LittleEndian.Pack (1, header, 0x20);
+            for (var i = 0x10; i < header.Length; ++i)
+                data[headerOffset + i] = (byte)(header[i] ^ key[i & 7]);
+
+            var index = new byte[indexSize];
+            var nameBytes = Encodings.cp932.GetBytes (name);
+            Buffer.BlockCopy (nameBytes, 0, index, 1, nameBytes.Length);
+            LittleEndian.Pack (dataOffset, index, 0x108);
+            LittleEndian.Pack ((uint)payload.Length, index, 0x10C);
+            for (var i = 0; i < index.Length; ++i)
+                index[i] ^= key[(indexOffset + i) & 7];
+            Buffer.BlockCopy (index, 0, data, headerOffset + indexOffset, index.Length);
+
+            for (var i = 0; i < payload.Length; ++i)
+                data[headerOffset + dataOffset + i] = (byte)(payload[i] ^ key[(dataOffset + i) & 7]);
+            File.WriteAllBytes (path, data);
         }
 
         static byte DecryptYpfLength (byte[] table, byte value)

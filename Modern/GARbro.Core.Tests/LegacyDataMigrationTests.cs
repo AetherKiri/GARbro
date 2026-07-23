@@ -303,6 +303,12 @@ namespace GARbro.Core.Tests
             Assert.Equal (0, data["Mujina"]);
             Assert.Equal (4, data["Sandoku Ryouran"]);
 
+            var avc = LegacyXp3Exporter.ExportAvcKeys (database);
+            Assert.Equal (4, avc.Count);
+            Assert.Equal ("SETSUEI-", avc[0].Password);
+            Assert.Equal (8, avc[0].KeyOffset);
+            Assert.Equal (16, avc[0].HeaderOffset);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);
