@@ -58,7 +58,7 @@ namespace GameRes.Formats.Elf
         public override bool  IsHierarchic { get { return false; } }
         public override bool      CanWrite { get { return false; } }
 
-        static Ai5Scheme DefaultScheme = new Ai5Scheme { KnownSchemes = new Dictionary<string, ArcIndexScheme>() };
+        static Ai5Scheme DefaultScheme = new Ai5Scheme { KnownSchemes = Ai5KeyDatabase.CreateSchemeKeys () };
         public Dictionary<string, ArcIndexScheme> KnownSchemes { get { return DefaultScheme.KnownSchemes; } }
 
         public override ResourceScheme Scheme
