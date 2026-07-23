@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using MD5 = System.Security.Cryptography.MD5;
 using GameRes;
 using GameRes.Cryptography;
 using GameRes.Utility;
@@ -25,6 +26,8 @@ using GameRes.Formats.NitroPlus;
 using GameRes.Formats.Emote;
 using GameRes.Formats.Leaf;
 using GameRes.Formats.Ikura;
+using GameRes.Formats.Cmvs;
+using GameRes.Formats.Purple;
 using GameRes.Formats.Lucifen;
 using GameRes.Formats.ExHibit;
 using GameRes.Formats.YuRis;
@@ -1008,6 +1011,32 @@ namespace GARbro.Core.Tests
                 gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
                 Directory.Delete (tempDirectory, true);
             }
+        }
+
+        [Fact]
+        public void Cpz_format_loads_migrated_scheme_map ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "CPZ");
+            var scheme = Assert.IsType<CpzScheme> (format.Scheme);
+            Assert.Equal (6, scheme.KnownSchemes.Count);
+
+            var hapymaher = scheme.KnownSchemes["Hapymaher"];
+            Assert.Equal (5, hapymaher.Version);
+            Assert.Equal (24, hapymaher.Cpz5Secret.Length);
+            Assert.Equal (Md5Variant.B, hapymaher.Md5Variant);
+            Assert.Equal (443810357u, hapymaher.DecoderFactor);
+            Assert.Equal (4, hapymaher.DirKeyAddend.Length);
+
+            var chrono = scheme.KnownSchemes["Chrono Clock"];
+            Assert.Equal (6, chrono.Version);
+            Assert.Equal (Md5Variant.Chrono, chrono.Md5Variant);
+            Assert.Equal ((byte)10, chrono.EntryKeyPos);
+
+            var aoi = scheme.KnownSchemes["Aoi Tori"];
+            Assert.Equal (7, aoi.Version);
+            Assert.Equal (Md5Variant.Aoi, aoi.Md5Variant);
+            Assert.Equal (1547298939u, aoi.EntrySubKey);
         }
 
         [Theory]

@@ -430,6 +430,28 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<uint, Fsb5HeaderRecord> VorbisHeaders { get; set; }
     }
 
+    internal sealed class CpzSchemeRecord
+    {
+        public int Version { get; set; }
+        public uint[] Cpz5Secret { get; set; }
+        public int Md5Variant { get; set; }
+        public uint DecoderFactor { get; set; }
+        public uint EntryInitKey { get; set; }
+        public uint EntrySubKey { get; set; }
+        public byte EntryTailKey { get; set; }
+        public byte EntryKeyPos { get; set; }
+        public uint IndexSeed { get; set; }
+        public uint IndexAddend { get; set; }
+        public uint IndexSubtrahend { get; set; }
+        public uint[] DirKeyAddend { get; set; }
+    }
+
+    internal sealed class CpzKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, CpzSchemeRecord> KnownSchemes { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -1154,6 +1176,54 @@ namespace GARbro.LegacyDataMigration
             }
             if (result.Count == 0)
                 throw new InvalidDataException ("Legacy FSB5 Vorbis header map is empty.");
+            return result;
+        }
+
+        internal static Dictionary<string, CpzSchemeRecord> ExportCpzKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "CPZ");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy CPZ scheme has no KnownSchemes member.");
+            var dictionary = ReadRaw (scheme, "KnownSchemes") as ClassRecord;
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException ("Legacy CPZ scheme map is not a dictionary.");
+            var result = new Dictionary<string, CpzSchemeRecord> (StringComparer.Ordinal);
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] == 0 || pairs.Lengths[0] > 256)
+                throw new InvalidDataException ("Legacy CPZ scheme map has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException ("Legacy CPZ scheme map contains an invalid entry.");
+                var title = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (title) || value == null)
+                    throw new InvalidDataException ("Legacy CPZ scheme map contains an incomplete entry.");
+                var exported = new CpzSchemeRecord {
+                    Version = ReadRequired<int> (value, "Version"),
+                    Cpz5Secret = ReadRequiredArray<uint> (value, "Cpz5Secret"),
+                    Md5Variant = ReadEnumInt (ReadRaw (value, "Md5Variant"), "Legacy CPZ Md5Variant"),
+                    DecoderFactor = ReadRequired<uint> (value, "DecoderFactor"),
+                    EntryInitKey = ReadRequired<uint> (value, "EntryInitKey"),
+                    EntrySubKey = ReadRequired<uint> (value, "EntrySubKey"),
+                    EntryTailKey = ReadRequired<byte> (value, "EntryTailKey"),
+                    EntryKeyPos = ReadRequired<byte> (value, "EntryKeyPos"),
+                    IndexSeed = ReadRequired<uint> (value, "IndexSeed"),
+                    IndexAddend = ReadRequired<uint> (value, "IndexAddend"),
+                    IndexSubtrahend = ReadRequired<uint> (value, "IndexSubtrahend"),
+                    DirKeyAddend = ReadRequiredArray<uint> (value, "DirKeyAddend"),
+                };
+                if (exported.Version < 5 || exported.Version > 7
+                    || exported.Cpz5Secret.Length != 24 || exported.DirKeyAddend.Length != 4
+                    || exported.Md5Variant < 0 || exported.Md5Variant > 6)
+                    throw new InvalidDataException ("Legacy CPZ scheme contains invalid parameters: " + title);
+                if (!result.TryAdd (title, exported))
+                    throw new InvalidDataException ("Legacy CPZ scheme map contains a duplicate title: " + title);
+            }
             return result;
         }
 

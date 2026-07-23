@@ -337,6 +337,19 @@ namespace GARbro.Core.Tests
             Assert.Equal (3750, fsb5[2939054206u].PatchOffset);
             Assert.Equal (32, fsb5[2939054206u].PatchData.Length);
 
+            var cpz = LegacyXp3Exporter.ExportCpzKeys (database);
+            Assert.Equal (6, cpz.Count);
+            Assert.Equal (5, cpz["Hapymaher"].Version);
+            Assert.Equal (24, cpz["Hapymaher"].Cpz5Secret.Length);
+            Assert.Equal (3448828041u, cpz["Hapymaher"].Cpz5Secret[0]);
+            Assert.Equal (1, cpz["Hapymaher"].Md5Variant);
+            Assert.Equal (443810357u, cpz["Hapymaher"].DecoderFactor);
+            Assert.Equal (4, cpz["Hapymaher"].DirKeyAddend.Length);
+            Assert.Equal (6, cpz["Chrono Clock"].Version);
+            Assert.Equal (2, cpz["Chrono Clock"].Md5Variant);
+            Assert.Equal (7, cpz["Aoi Tori"].Version);
+            Assert.Equal (5, cpz["Aoi Tori"].Md5Variant);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

@@ -344,6 +344,13 @@
       "kind": "vorbis-header-map",
       "path": "GameData/v2/fsb5/headers.json",
       "sha256": "25af0579d3895abbc451920bace5b950675d4e68db3b06faa073e1f25b49de19"
+    },
+    {
+      "id": "cpz-keys",
+      "format": "CPZ",
+      "kind": "scheme-map",
+      "path": "GameData/v2/cpz/keys.json",
+      "sha256": "ef137f998634e1fa7d7ff13a24c40b4ca7eedf3ae34ceb422c3bef532702c6f8"
     }
   ]
 }

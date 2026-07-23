@@ -93,7 +93,15 @@ namespace GameRes.Formats.Purple
             Signatures = new uint[] { 0x355A5043, 0x365A5043, 0x375A5043 };
         }
 
-        static CpzScheme DefaultScheme = new CpzScheme();
+#if NET10_0_OR_GREATER
+        static CpzScheme DefaultScheme = new CpzScheme {
+            KnownSchemes = CpzKeyDatabase.CreateSchemes ()
+        };
+#else
+        static CpzScheme DefaultScheme = new CpzScheme {
+            KnownSchemes = new Dictionary<string, CmvsScheme> ()
+        };
+#endif
 
         internal Dictionary<string, CmvsScheme> KnownSchemes { get { return DefaultScheme.KnownSchemes; } }
 
@@ -132,10 +140,16 @@ namespace GameRes.Formats.Purple
             if (null == arc_key)
                 arc_key = new ArchiveKey();
 
+            var title = FormatCatalog.Instance.LookupGame (file.Name);
+            CmvsScheme mapped_scheme;
+            IEnumerable<CmvsScheme> schemes;
+            if (!string.IsNullOrEmpty (title) && KnownSchemes.TryGetValue (title, out mapped_scheme))
+                schemes = new[] { mapped_scheme };
+            else
+                schemes = KnownSchemes.Values.Where (s => s.Version == cpz.Version);
             var index_copy = new CowArray<byte> (index, 0, file_table_size).ToArray();
             var cmvs_md5 = cpz.CmvsMd5.Clone() as uint[];
-            var scheme = CreateCpz5Scheme(Md5Variant.Mirai);
-//            foreach (var scheme in KnownSchemes.Values.Where (s => s.Version == cpz.Version))
+            foreach (var scheme in schemes)
             {
                 var arc = ReadIndex (file, scheme, cpz, index, arc_key);
                 if (null != arc)
@@ -145,25 +159,6 @@ namespace GameRes.Formats.Purple
                 Array.Copy (index_copy, index, file_table_size);
             }
             throw new UnknownEncryptionScheme();
-        }
-
-        static uint[] DefaultCpz5Secret = {
-            0xCD90F089, 0xE982B782, 0xA282AB88, 0xCD82718E, 0x52838A83, 0xA882AA82, 0x7592648E, 0xB582AB82,
-            0xE182BF82, 0xDC82A282, 0x4281B782, 0xED82F48E, 0xBF82EA82, 0xA282E182, 0xB782DC82, 0x6081E682,
-            0xC6824181, 0xA482A282, 0xE082A982, 0xF48EA482, 0xBF82C182, 0xA282E182, 0xB582DC82, 0xF481BD82,
-        };
-
-        static CmvsScheme CreateCpz5Scheme(Md5Variant md5)
-        {
-            return new CmvsScheme
-            {
-                Version = 5,
-                Cpz5Secret = DefaultCpz5Secret,
-                Md5Variant = md5,
-                DecoderFactor = 0x1A743125,
-                EntryInitKey = 0x2547A39E,
-                EntryTailKey = 0xBC,
-            };
         }
 
         internal ArcFile ReadIndex (ArcView file, CmvsScheme scheme, CpzHeader cpz, byte[] index, ArchiveKey arc_key)
