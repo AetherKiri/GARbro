@@ -62,6 +62,11 @@ namespace GARbro.LegacyDataMigration
                     ExportPkgKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-repi-keys")
+                {
+                    ExportRepiKeys (args[1], args[2]);
+                    return 0;
+                }
                 if (args.Length == 3 && args[0] == "export-csaf-keys")
                 {
                     ExportCsafKeys (args[1], args[2]);
@@ -283,6 +288,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-fpk-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-cmp-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-pkg-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-repi-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-csaf-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-mbl-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-npk-keys <trusted-Formats.dat> <keys.json>");
@@ -432,6 +438,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportPkgKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new PkgKeysDocument { KnownKeys = keys });
             Console.WriteLine ("pkgKeyCount={0}", keys.Count);
+        }
+
+        static void ExportRepiKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportRepiKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new RepiKeysDocument { KnownSchemes = keys });
+            Console.WriteLine ("repiSchemeCount={0}", keys.Count);
         }
 
         static void ExportCsafKeys (string inputPath, string outputPath)

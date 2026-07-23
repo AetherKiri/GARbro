@@ -350,6 +350,15 @@ namespace GARbro.Core.Tests
             Assert.Equal (7, cpz["Aoi Tori"].Version);
             Assert.Equal (5, cpz["Aoi Tori"].Md5Variant);
 
+            var repi = LegacyXp3Exporter.ExportRepiKeys (database);
+            Assert.Equal (11, repi.Count);
+            Assert.Equal (3, repi["Period"].Length);
+            Assert.Equal (3738543313u, repi["Period"][0]);
+            Assert.Equal (4203158194u, repi["Period"][1]);
+            Assert.Equal (2166935461u, repi["Period"][2]);
+            Assert.Equal (3, repi["Quartett! Standard Edition"].Length);
+            Assert.Equal (4126854913u, repi["Quartett! Standard Edition"][2]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

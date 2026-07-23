@@ -28,6 +28,7 @@ using GameRes.Formats.Leaf;
 using GameRes.Formats.Ikura;
 using GameRes.Formats.Cmvs;
 using GameRes.Formats.Purple;
+using GameRes.Formats.Littlewitch;
 using GameRes.Formats.Lucifen;
 using GameRes.Formats.ExHibit;
 using GameRes.Formats.YuRis;
@@ -1037,6 +1038,38 @@ namespace GARbro.Core.Tests
             Assert.Equal (7, aoi.Version);
             Assert.Equal (Md5Variant.Aoi, aoi.Md5Variant);
             Assert.Equal (1547298939u, aoi.EntrySubKey);
+        }
+
+        [Fact]
+        public void Repi_pack_format_loads_migrated_schemes_and_decrypts_index ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "DAT/RepiPack");
+            var scheme = Assert.IsType<RepiScheme> (format.Scheme);
+            Assert.Equal (11, scheme.KnownSchemes.Count);
+            var key = scheme.KnownSchemes["Period"];
+            Assert.Equal (new uint[] { 3738543313u, 4203158194u, 2166935461u }, key);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.dat");
+                CreateRepiFixture (archivePath, key);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("0123456789abcdeffedcba9876543210", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated Repi fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
         }
 
         [Theory]
@@ -2380,6 +2413,41 @@ namespace GARbro.Core.Tests
                 writer.Write ((uint)entryOffset);
                 writer.Write ((uint)payload.Length);
                 output.Position = entryOffset;
+                writer.Write (payload);
+            }
+            File.WriteAllBytes (path, data);
+        }
+
+        static void CreateRepiFixture (string path, uint[] key)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated Repi fixture");
+            const int nameLength = 4;
+            const int indexOffset = 0x14 + nameLength;
+            const int entryOffset = indexOffset + 0x20;
+            var data = new byte[entryOffset + payload.Length];
+            using (var output = new MemoryStream (data, true))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                writer.Write (Encoding.ASCII.GetBytes ("RepiPack"));
+                writer.Write (5);
+                writer.Write ((uint)nameLength);
+                var archiveName = Encoding.ASCII.GetBytes ("sample.dat");
+                var archiveWord = LittleEndian.ToUInt32 (archiveName, 0);
+                writer.Write (key[0] ^ archiveWord);
+                writer.Write (1);
+
+                var plain = new uint[] {
+                    0x67452301u, 0xEFCDAB89u, 0x98BADCFEu, 0x10325476u,
+                    entryOffset, (uint)payload.Length, (uint)payload.Length, 0u,
+                };
+                var encrypted = new byte[0x20];
+                uint streamKey = key[2];
+                for (var i = 0; i < plain.Length; ++i)
+                {
+                    LittleEndian.Pack (plain[i] ^ streamKey, encrypted, i * 4);
+                    streamKey += Binary.RotL (plain[i], 16) ^ key[1];
+                }
+                writer.Write (encrypted);
                 writer.Write (payload);
             }
             File.WriteAllBytes (path, data);

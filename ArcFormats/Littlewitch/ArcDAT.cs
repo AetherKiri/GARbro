@@ -189,7 +189,11 @@ namespace GameRes.Formats.Littlewitch
             return DatScheme.KnownSchemes.Values.FirstOrDefault (k => k[0] == arc_key);
         }
 
+#if NET10_0_OR_GREATER
+        static RepiScheme DatScheme = new RepiScheme { KnownSchemes = RepiKeyDatabase.CreateSchemes () };
+#else
         static RepiScheme DatScheme = new RepiScheme { KnownSchemes = new Dictionary<string, uint[]>() };
+#endif
 
         public override ResourceScheme Scheme
         {

@@ -53,6 +53,7 @@
     <Compile Include="../../ArcFormats/Cmvs/CmvsMD5.cs" Link="Cmvs/CmvsMD5.cs" />
     <Compile Include="../../ArcFormats/Cmvs/HuffmanDecoder.cs" Link="Cmvs/HuffmanDecoder.cs" />
     <Compile Include="../../ArcFormats/MD5.cs" Link="MD5.cs" />
+    <Compile Include="../../ArcFormats/Littlewitch/ArcDAT.cs" Link="Littlewitch/ArcDAT.cs" />
     <Compile Include="../../ArcFormats/Selene/ArcKCAP.cs" Link="Selene/ArcKCAP.cs" />
     <Compile Include="../../ArcFormats/Elf/ArcAi5Win.cs" Link="Elf/ArcAi5Win.cs" />
     <Compile Include="../../ArcFormats/NitroPlus/ArcNPA.cs" Link="NitroPlus/ArcNPA.cs" />

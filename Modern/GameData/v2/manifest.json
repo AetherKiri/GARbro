@@ -351,6 +351,13 @@
       "kind": "scheme-map",
       "path": "GameData/v2/cpz/keys.json",
       "sha256": "ef137f998634e1fa7d7ff13a24c40b4ca7eedf3ae34ceb422c3bef532702c6f8"
+    },
+    {
+      "id": "repi-keys",
+      "format": "DAT/RepiPack",
+      "kind": "scheme-map",
+      "path": "GameData/v2/repi/keys.json",
+      "sha256": "99865d06d26e04584a02dfb49e48bbd492b60667abd583d3359860172dbcc2af"
     }
   ]
 }

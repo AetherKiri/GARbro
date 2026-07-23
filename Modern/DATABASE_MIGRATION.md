@@ -134,6 +134,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add FSB5 header/patch validation and deterministic migrated-header lookup coverage.
 - [x] Migrate the CPZ title-to-scheme map as a standalone v2 dataset and load it in the modern archive reader.
 - [x] Add CPZ scheme validation and deterministic migrated-scheme lookup coverage; full archive fixture coverage remains a follow-up.
+- [x] Migrate the DAT/RepiPack title-to-key map as a standalone v2 dataset and load it in the modern archive reader.
+- [x] Add RepiPack key-shape validation and a deterministic encrypted-index/extraction fixture.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

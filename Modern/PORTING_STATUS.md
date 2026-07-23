@@ -48,12 +48,13 @@
 - IKURA/GDL discovery, title-secret lookup, and encrypted script extraction are available through the modern port with its migrated 18-secret map.
 - FSB5 audio header reconstruction is available through the modern port with its migrated 161-entry Vorbis header map.
 - CPZ discovery and version/title-bound scheme probing are available through the modern port with its migrated six-scheme map; full encrypted archive fixture coverage remains pending.
+- DAT/RepiPack discovery, migrated key lookup, encrypted index decoding, and entry extraction are available through the modern port with its migrated 11-scheme map.
 - KiriKiri XP3 creation, listing, and extraction are available for standard and explicitly selected encrypted schemes, including compressed index and content streams.
 - Modern builds use platform APIs for memory mapping and register legacy code pages.
 
 ## Explicit temporary limits
 
-- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, ARCG, MGPK, RCT, MCG, TINK, FSB5, CPZ, BIN/IDX, ARC/AZ, ARC/AZ/encrypted, PKZ, PBZ, KCAP, ARC/AI5WIN, NPA, PSB/EMOTE, AM/Leaf, LPK, GYU, YPF, ARC/Tactics/2, ARC/RPM, DATA/Csystem, AVC, DPK, PAK/AGSI, PAK/LEAF, IKURA/GDL, NOA, GAL, CRZ, ACTGS, ADS, and DAT/SPEED records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
+- The legacy `Formats.dat` BinaryFormatter database is rejected by the modern runtime. XP3, ZIP, TCD, Morning PAK, Moonhir FPK, CMP, PKG/2, CSAF, MBL, NPK, PCK, NS2, NSA, FJSYS, INT, ARCG, MGPK, RCT, MCG, TINK, FSB5, CPZ, DAT/RepiPack, BIN/IDX, ARC/AZ, ARC/AZ/encrypted, PKZ, PBZ, KCAP, ARC/AI5WIN, NPA, PSB/EMOTE, AM/Leaf, LPK, GYU, YPF, ARC/Tactics/2, ARC/RPM, DATA/Csystem, AVC, DPK, PAK/AGSI, PAK/LEAF, IKURA/GDL, NOA, GAL, CRZ, ACTGS, ADS, and DAT/SPEED records currently use checksum-verified v2 data; remaining format-specific records still require explicit migration adapters.
 - TINK header decryption is covered; a full Vorbis payload fixture and any writer remain outside this migration slice.
 - MCG currently supports encrypted v100/v101 24bpp RGB reads; v200, indexed/16bpp variants, and writing remain unavailable in the modern port.
 - RCT currently supports encrypted RGB reads only; writer, overlay frames, masks, and other image variants remain unavailable in the modern port.

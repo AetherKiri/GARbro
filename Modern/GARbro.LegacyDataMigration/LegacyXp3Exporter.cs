@@ -91,6 +91,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, uint[]> KnownKeys { get; set; }
     }
 
+    internal sealed class RepiKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, uint[]> KnownSchemes { get; set; }
+    }
+
     internal sealed class CsafKeysDocument
     {
         public int SchemaVersion { get; set; } = 1;
@@ -695,6 +701,15 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy PKG/2 scheme has no KnownKeys member.");
             var dictionary = ReadRaw (pkgScheme, "KnownKeys") as ClassRecord;
             return ReadUIntArrayDictionary (dictionary, "Legacy PKG/2 key map");
+        }
+
+        internal static Dictionary<string, uint[]> ExportRepiKeys (LegacyFormatsDatabase database)
+        {
+            var repiScheme = FindScheme (database, "DAT/RepiPack");
+            if (repiScheme == null || !repiScheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy DAT/RepiPack scheme has no KnownSchemes member.");
+            var dictionary = ReadRaw (repiScheme, "KnownSchemes") as ClassRecord;
+            return ReadUIntArrayDictionary (dictionary, "Legacy DAT/RepiPack scheme map");
         }
 
         internal static Dictionary<string, string> ExportCsafKeys (LegacyFormatsDatabase database)
