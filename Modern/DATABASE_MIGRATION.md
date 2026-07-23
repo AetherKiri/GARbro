@@ -128,6 +128,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add PAK/AGSI nested-map validation and a deterministic encrypted index/entry fixture.
 - [x] Migrate the PAK/LEAF title-to-byte key map as a standalone v2 dataset and load it in the modern archive reader.
 - [x] Add PAK/LEAF key validation and a deterministic encrypted index/entry fixture.
+- [x] Migrate the IKURA/GDL title-to-secret map as a standalone v2 dataset and load it in the modern archive reader.
+- [x] Add IKURA secret-map validation (18 secrets, 2048 bytes each) and a deterministic encrypted script fixture.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

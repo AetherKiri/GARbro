@@ -176,7 +176,13 @@ namespace GameRes.Formats.Ikura
             {
                 entry_size -= 0x10;
                 if (null == isf.Secret)
+                {
+#if NET10_0_OR_GREATER
+                    isf.Secret = GetSecret (FormatCatalog.Instance.LookupGame (arc.File.Name, "*.exe"));
+#else
                     isf.Secret = QuerySecret();
+#endif
+                }
                 if (null == isf.Secret || 0 == isf.Secret.Length)
                     return arc.File.CreateStream (entry.Offset, entry.Size);
             }
@@ -204,6 +210,7 @@ namespace GameRes.Formats.Ikura
             return new BinMemoryStream (data, entry.Name);
         }
 
+#if !NET10_0_OR_GREATER
         public override ResourceOptions GetDefaultOptions ()
         {
             return new IsfOptions {
@@ -215,6 +222,7 @@ namespace GameRes.Formats.Ikura
         {
             return new GUI.WidgetISF();
         }
+#endif
 
         private byte[] QuerySecret ()
         {
@@ -225,7 +233,7 @@ namespace GameRes.Formats.Ikura
         private static byte[] GetSecret (string scheme)
         {
             byte[] secret;
-            if (KnownSecrets.TryGetValue (scheme, out secret))
+            if (!string.IsNullOrEmpty (scheme) && KnownSecrets.TryGetValue (scheme, out secret))
                 return secret;
             return null;
         }
@@ -236,7 +244,11 @@ namespace GameRes.Formats.Ikura
                 data[i] = (byte)method (data[i]);
         }
 
+#if NET10_0_OR_GREATER
+        public static Dictionary<string, byte[]> KnownSecrets = IkuraKeyDatabase.CreateSecrets ();
+#else
         public static Dictionary<string, byte[]> KnownSecrets = new Dictionary<string, byte[]>();
+#endif
 
         public override ResourceScheme Scheme
         {

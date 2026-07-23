@@ -325,6 +325,10 @@ namespace GARbro.Core.Tests
             Assert.Equal (11, leaf["Kizuato"].Length);
             Assert.Equal (leaf["Kizuato"], leaf["Shizuku"]);
 
+            var ikura = LegacyXp3Exporter.ExportIkuraKeys (database);
+            Assert.Equal (18, ikura.Count);
+            Assert.All (ikura.Values, value => Assert.Equal (2048, value.Length));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

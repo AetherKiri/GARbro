@@ -411,6 +411,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte[]> KnownSchemes { get; set; }
     }
 
+    internal sealed class IkuraKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, byte[]> KnownSecrets { get; set; }
+    }
+
     internal sealed class Xp3SkippedProfile
     {
         public string Title { get; set; }
@@ -1085,6 +1091,15 @@ namespace GARbro.LegacyDataMigration
                 throw new InvalidDataException ("Legacy Leaf scheme has no KnownSchemes member.");
             return ReadByteDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord,
                 "Legacy Leaf key map");
+        }
+
+        internal static Dictionary<string, byte[]> ExportIkuraKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "IKURA/GDL");
+            if (scheme == null || !scheme.HasMember ("KnownSecrets"))
+                throw new InvalidDataException ("Legacy IKURA scheme has no KnownSecrets member.");
+            return ReadByteDictionary (ReadRaw (scheme, "KnownSecrets") as ClassRecord,
+                "Legacy IKURA secret map");
         }
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)

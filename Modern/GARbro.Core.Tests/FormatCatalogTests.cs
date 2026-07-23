@@ -24,6 +24,7 @@ using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
 using GameRes.Formats.Emote;
 using GameRes.Formats.Leaf;
+using GameRes.Formats.Ikura;
 using GameRes.Formats.Lucifen;
 using GameRes.Formats.ExHibit;
 using GameRes.Formats.YuRis;
@@ -935,6 +936,47 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.txt", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated Leaf fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                gameMapField.SetValue (FormatCatalog.Instance, originalGameMap);
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Ikura_gdl_format_loads_migrated_secrets_and_decrypts_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "IKURA/GDL");
+            var scheme = Assert.IsType<IsfScheme> (format.Scheme);
+            Assert.Equal (18, scheme.KnownSecrets.Count);
+            var title = scheme.KnownSecrets.Keys.OrderBy (value => value, StringComparer.Ordinal).First ();
+            var secret = scheme.KnownSecrets[title];
+            Assert.Equal (2048, secret.Length);
+
+            var gameMapField = typeof (FormatCatalog).GetField ("m_game_map",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            Assert.NotNull (gameMapField);
+            var originalGameMap = (Dictionary<string, string>)gameMapField.GetValue (FormatCatalog.Instance);
+            var testGameMap = new Dictionary<string, string> (originalGameMap,
+                StringComparer.OrdinalIgnoreCase) { ["sample.gdl"] = title };
+            gameMapField.SetValue (FormatCatalog.Instance, testGameMap);
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.gdl");
+                CreateIkuraFixture (archivePath, secret);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.isf", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated IKURA fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2258,6 +2300,36 @@ namespace GARbro.Core.Tests
                 zip.Write (data, 0, data.Length);
                 zip.CloseEntry();
             }
+        }
+
+        static void CreateIkuraFixture (string path, byte[] secret)
+        {
+            var plaintext = Encoding.UTF8.GetBytes ("migrated IKURA fixture");
+            var encrypted = (byte[])plaintext.Clone ();
+            var decoder = new IsfDecoder (secret);
+            decoder.Decode (encrypted);
+            var footer = Encoding.ASCII.GetBytes ("SECRETFILTER100a");
+            var payload = encrypted.Concat (footer).ToArray ();
+            const int entryOffset = 0x40;
+            var data = new byte[entryOffset + payload.Length];
+            using (var output = new MemoryStream (data, true))
+            using (var writer = new BinaryWriter (output, Encoding.ASCII, true))
+            {
+                output.Position = 4;
+                writer.Write (Encoding.ASCII.GetBytes ("PX10"));
+                output.Position = 8;
+                writer.Write (1);
+                writer.Write (0x14u);
+                output.Position = 0x20;
+                var name = new byte[12];
+                Encoding.ASCII.GetBytes ("sample.isf").CopyTo (name, 0);
+                writer.Write (name);
+                writer.Write ((uint)entryOffset);
+                writer.Write ((uint)payload.Length);
+                output.Position = entryOffset;
+                writer.Write (payload);
+            }
+            File.WriteAllBytes (path, data);
         }
 
         static void CreateTcd3Fixture (string path)

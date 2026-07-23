@@ -56,6 +56,7 @@
     <Compile Include="../../ArcFormats/DirectDraw/DxtDecoder.cs" Link="DirectDraw/DxtDecoder.cs" />
     <Compile Include="../../ArcFormats/Leaf/ArcAM.cs" Link="Leaf/ArcAM.cs" />
     <Compile Include="../../ArcFormats/Leaf/ArcLEAF.cs" Link="Leaf/ArcLEAF.cs" />
+    <Compile Include="../../ArcFormats/Ikura/ArcDRS.cs" Link="Ikura/ArcDRS.cs" />
     <Compile Include="../../ArcFormats/Lucifen/ArcLPK.cs" Link="Lucifen/ArcLPK.cs" />
     <Compile Include="../../ArcFormats/ExHibit/ImageGYU.cs" Link="ExHibit/ImageGYU.cs" />
     <Compile Include="../../ArcFormats/YuRis/ArcYPF.cs" Link="YuRis/ArcYPF.cs" />

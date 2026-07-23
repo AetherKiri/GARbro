@@ -257,6 +257,11 @@ namespace GARbro.LegacyDataMigration
                     ExportLeafKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-ikura-keys")
+                {
+                    ExportIkuraKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -307,6 +312,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-dpk-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-agsi-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-leaf-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-ikura-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -730,6 +736,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportLeafKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new LeafKeysDocument { KnownSchemes = keys });
             Console.WriteLine ("leafKeyCount={0}", keys.Count);
+        }
+
+        static void ExportIkuraKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportIkuraKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new IkuraKeysDocument { KnownSecrets = keys });
+            Console.WriteLine ("ikuraSecretCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)

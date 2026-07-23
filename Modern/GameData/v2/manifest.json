@@ -330,6 +330,13 @@
       "kind": "key-map",
       "path": "GameData/v2/leaf/keys.json",
       "sha256": "afade3944b839bfcb57de54b423c8e227b38f2979a9cdba9873d079e602b09d4"
+    },
+    {
+      "id": "ikura-keys",
+      "format": "IKURA/GDL",
+      "kind": "secret-map",
+      "path": "GameData/v2/ikura/keys.json",
+      "sha256": "823fbb4941ec05ede08bed73798dd23dd3e920bf757f0e1f054e99e99e599fbf"
     }
   ]
 }
