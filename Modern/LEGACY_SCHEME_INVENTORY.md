@@ -65,7 +65,7 @@ The `BIN/IDX` record is safely exportable with `export-bin-idx-keys`. Its single
 
 The `ARC/AZ` record is safely exportable with `export-asb-keys`. Its four title-to-uint ASB keys are validated by `AsbKeyDatabase`; `FormatCatalogTests.Arc_az_format_uses_migrated_key_for_encrypted_asb_fixture` verifies compressed index parsing and ASB script decryption.
 
-The `ARC/AZ/encrypted` record is safely exportable with `export-az-encrypted-keys`. Its two index/content-key scheme records are validated by `AzEncryptedKeyDatabase`; `FormatCatalogTests.Arc_az_encrypted_format_uses_migrated_scheme_for_fixture` verifies encrypted header, compressed index, and entry extraction for the explicit-content-key scheme. The `Default` scheme's system.arc/sysenv content-key derivation remains a follow-up.
+The `ARC/AZ/encrypted` record is safely exportable with `export-az-encrypted-keys`. Its two index/content-key scheme records are validated by `AzEncryptedKeyDatabase`; `FormatCatalogTests.Arc_az_encrypted_format_uses_migrated_scheme_for_fixture` verifies explicit content-key extraction, while `FormatCatalogTests.Arc_az_encrypted_default_scheme_derives_system_content_key` covers the `system.arc`/`sysenv.tbl` derivation path.
 
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 

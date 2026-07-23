@@ -276,6 +276,36 @@ namespace GARbro.Core.Tests
             }
         }
 
+        [Fact]
+        public void Arc_az_encrypted_default_scheme_derives_system_content_key ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARC/AZ/encrypted");
+            var scheme = Assert.IsType<AzEncryptedScheme> (format.Scheme);
+            var key = scheme.KnownSchemes["Default"];
+            Assert.Null (key.ContentKey);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "system.arc");
+                CreateAzEncryptedSystemFixture (archivePath, key.IndexKey);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir, item => item.Name == "sample.bin");
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated ARC/AZ default fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
         [Theory]
         [InlineData("PNG")]
         [InlineData("JPEG")]
@@ -1775,6 +1805,61 @@ namespace GARbro.Core.Tests
                 output.Write (header, 0, header.Length);
                 output.Write (packedIndex, 0, packedIndex.Length);
                 output.Write (payload, 0, payload.Length);
+            }
+        }
+
+        static void CreateAzEncryptedSystemFixture (string path, uint indexKey)
+        {
+            var environment = Enumerable.Range (1, 16).Select (value => (byte)value).ToArray ();
+            var sysenvCompressed = CompressBytes (environment);
+            var sysenv = new byte[4 + sysenvCompressed.Length];
+            Buffer.BlockCopy (sysenvCompressed, 0, sysenv, 4, sysenvCompressed.Length);
+            LittleEndian.Pack (Adler32.Compute (sysenv, 4, sysenvCompressed.Length), sysenv, 0);
+
+            var payload = Encoding.UTF8.GetBytes ("migrated ARC/AZ default fixture");
+            var records = new byte[0x60];
+            WriteAzEncryptedIndexRecord (records, 0, 0, (uint)sysenv.Length, "sysenv.tbl");
+            WriteAzEncryptedIndexRecord (records, 0x30, (uint)sysenv.Length, (uint)payload.Length, "sample.bin");
+            var packedIndex = new byte[4 + CompressBytes (records).Length];
+            var compressedRecords = CompressBytes (records);
+            Buffer.BlockCopy (compressedRecords, 0, packedIndex, 4, compressedRecords.Length);
+            LittleEndian.Pack (Adler32.Compute (packedIndex, 4, compressedRecords.Length), packedIndex, 0);
+
+            var header = new byte[0x30];
+            Buffer.BlockCopy (Encoding.ASCII.GetBytes ("ARC\0"), 0, header, 0, 4);
+            LittleEndian.Pack (1, header, 4);
+            LittleEndian.Pack (2, header, 8);
+            LittleEndian.Pack ((uint)packedIndex.Length, header, 12);
+            XorAzEncrypted (header, 0, indexKey);
+            XorAzEncrypted (packedIndex, 0x30, indexKey);
+            XorAzEncrypted (sysenv, 0x30 + packedIndex.Length, indexKey);
+            var contentKey = AzEncryptedKeyDerivation.GenerateContentKey (environment);
+            XorAzEncrypted (payload, 0x30 + packedIndex.Length + sysenv.Length, contentKey);
+
+            using (var output = File.Create (path))
+            {
+                output.Write (header, 0, header.Length);
+                output.Write (packedIndex, 0, packedIndex.Length);
+                output.Write (sysenv, 0, sysenv.Length);
+                output.Write (payload, 0, payload.Length);
+            }
+        }
+
+        static void WriteAzEncryptedIndexRecord (byte[] output, int offset, uint dataOffset, uint size, string name)
+        {
+            LittleEndian.Pack (dataOffset, output, offset);
+            LittleEndian.Pack (size, output, offset + 4);
+            var bytes = Encoding.ASCII.GetBytes (name);
+            Buffer.BlockCopy (bytes, 0, output, offset + 0x10, Math.Min (bytes.Length, 0x1F));
+        }
+
+        static byte[] CompressBytes (byte[] data)
+        {
+            using (var output = new MemoryStream ())
+            {
+                using (var zlib = new ZLibStream (output, CompressionLevel.SmallestSize, true))
+                    zlib.Write (data, 0, data.Length);
+                return output.ToArray ();
             }
         }
 

@@ -46,7 +46,6 @@
 - NOA ERISA and SimpleCrypt variants remain unsupported; those entries require the remaining Entis decoder slices.
 - GAL compressed, JPEG, shuffled/encrypted, layered, and alpha-layer variants remain unsupported until their cross-platform decoder paths are ported.
 - DAT/SPEED encrypted pixel-stream fixtures and writer coverage remain pending; the migrated reader currently covers metadata, title-key resolution, and unencrypted RLE data.
-- ARC/AZ/encrypted archives whose scheme has a null content key still require system.arc/sysenv content-key derivation; explicit-content-key schemes are covered.
 - NSA compressed entries using SPB, LZSS, or NBZ are rejected until their decompression paths are ported.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
 - Hx, Senren, and related Cx XP3 helpers are available through bundled, checksum-verified v2 profiles or an external `--xp3-profile <file> --xp3-scheme <name>`. Migrated executable bindings are available for automatic XP3 detection; real archive fixture coverage is still pending.

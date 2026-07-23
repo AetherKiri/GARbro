@@ -44,6 +44,7 @@
     <Compile Include="../../ArcFormats/ExeFile.cs" Link="ExeFile.cs" />
     <Compile Include="../../ArcFormats/SimpleEncryption.cs" Link="SimpleEncryption.cs" />
     <Compile Include="../../ArcFormats/StudioJikkenshitsu/SjTransform.cs" Link="StudioJikkenshitsu/SjTransform.cs" />
+    <Compile Include="../../ArcFormats/AZSys/FastMersenneTwister.cs" Link="AZSys/FastMersenneTwister.cs" />
     <Compile Include="../../ArcFormats/Strings/arcStrings.Designer.cs" Link="Strings/arcStrings.Designer.cs" />
     <EmbeddedResource Include="../../ArcFormats/Strings/*.resx" Link="Strings/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../GameData/v2/**/*.json" Link="GameData/v2/%(RecursiveDir)%(Filename)%(Extension)" />
