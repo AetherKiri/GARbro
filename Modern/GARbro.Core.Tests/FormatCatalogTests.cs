@@ -36,6 +36,7 @@ using GameRes.Formats.FC01;
 using GameRes.Formats.Sviu;
 using GameRes.Formats.Pvns;
 using GameRes.Formats.Selene;
+using GameRes.Formats.Elf;
 using GameRes.Formats.Cyberworks;
 using GameRes.Formats.Unity;
 using GameRes.Formats.AZSys;
@@ -392,6 +393,38 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.bin", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated KCAP fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Ai5win_format_loads_migrated_scheme_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "ARC/AI5WIN");
+            var scheme = Assert.IsType<Ai5Scheme> (format.Scheme);
+            Assert.Equal (14, scheme.KnownSchemes.Count);
+            var key = scheme.KnownSchemes["Be-Yond"];
+            Assert.Equal (20, key.NameLength);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.arc");
+                CreateAi5Fixture (archivePath, key);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("sample.bin", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated AI5WIN fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2008,6 +2041,29 @@ namespace GARbro.Core.Tests
                 output.Write (count, 0, count.Length);
                 output.Write (index, 0, index.Length);
                 output.Write (encryptedPayload, 0, encryptedPayload.Length);
+            }
+        }
+
+        static void CreateAi5Fixture (string path, ArcIndexScheme key)
+        {
+            var payload = Encoding.UTF8.GetBytes ("migrated AI5WIN fixture");
+            var name = Encoding.ASCII.GetBytes ("sample.bin");
+            var indexSize = key.NameLength + 8;
+            var index = new byte[indexSize];
+            var encryptedName = new byte[key.NameLength];
+            Buffer.BlockCopy (name, 0, encryptedName, 0, name.Length);
+            for (int i = 0; i < encryptedName.Length; ++i)
+                encryptedName[i] ^= key.NameKey;
+            Buffer.BlockCopy (encryptedName, 0, index, 0, encryptedName.Length);
+            LittleEndian.Pack ((uint)payload.Length ^ key.SizeKey, index, key.NameLength);
+            LittleEndian.Pack ((uint)index.Length + 4u ^ key.OffsetKey, index, 4 + key.NameLength);
+            var count = new byte[4];
+            LittleEndian.Pack (1, count, 0);
+            using (var output = File.Create (path))
+            {
+                output.Write (count, 0, count.Length);
+                output.Write (index, 0, index.Length);
+                output.Write (payload, 0, payload.Length);
             }
         }
 

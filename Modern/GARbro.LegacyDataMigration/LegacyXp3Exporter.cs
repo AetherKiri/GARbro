@@ -259,6 +259,20 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, string> KnownSchemes { get; set; }
     }
 
+    internal sealed class Ai5KeyRecord
+    {
+        public int NameLength { get; set; }
+        public byte NameKey { get; set; }
+        public uint SizeKey { get; set; }
+        public uint OffsetKey { get; set; }
+    }
+
+    internal sealed class Ai5KeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<string, Ai5KeyRecord> KnownSchemes { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -741,6 +755,14 @@ namespace GARbro.LegacyDataMigration
             return ReadStringDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy KCAP key map");
         }
 
+        internal static Dictionary<string, Ai5KeyRecord> ExportAi5Keys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "ARC/AI5WIN");
+            if (scheme == null || !scheme.HasMember ("KnownSchemes"))
+                throw new InvalidDataException ("Legacy ARC/AI5WIN scheme has no KnownSchemes member.");
+            return ReadAi5Dictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy ARC/AI5WIN key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -1054,6 +1076,42 @@ namespace GARbro.LegacyDataMigration
                 };
                 if (exported.ArcKey.Length > 256 || exported.ScriptKey.Length > 256)
                     throw new InvalidDataException (label + " contains an oversized key: " + key);
+                if (!result.TryAdd (key, exported))
+                    throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<string, Ai5KeyRecord> ReadAi5Dictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<string, Ai5KeyRecord> (StringComparer.Ordinal);
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key") as string;
+                var value = ReadRaw (entry, "value") as ClassRecord;
+                if (string.IsNullOrWhiteSpace (key) || value == null)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                var exported = new Ai5KeyRecord {
+                    NameLength = ReadRequired<int> (value, "NameLength"),
+                    NameKey = ReadRequired<byte> (value, "NameKey"),
+                    SizeKey = ReadRequired<uint> (value, "SizeKey"),
+                    OffsetKey = ReadRequired<uint> (value, "OffsetKey"),
+                };
+                if (exported.NameLength <= 0 || exported.NameLength > 0x100)
+                    throw new InvalidDataException (label + " contains an invalid name length: " + key);
                 if (!result.TryAdd (key, exported))
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
             }

@@ -243,6 +243,13 @@ namespace GARbro.Core.Tests
             Assert.Equal ("71B45C275CFF9EDD9B91DC336E4F254D4774B050F671E396BE1697DA4B24FCEA",
                 Convert.ToHexString (SHA256.HashData (Encoding.UTF8.GetBytes (kcapKeys["Itazura Mahjong"]))));
 
+            var ai5Keys = LegacyXp3Exporter.ExportAi5Keys (database);
+            Assert.Equal (14, ai5Keys.Count);
+            Assert.Equal (20, ai5Keys["Be-Yond"].NameLength);
+            Assert.Equal ((byte)85, ai5Keys["Be-Yond"].NameKey);
+            Assert.Equal (2857740885u, ai5Keys["Be-Yond"].SizeKey);
+            Assert.Equal (1437226410u, ai5Keys["Be-Yond"].OffsetKey);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

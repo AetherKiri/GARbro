@@ -232,6 +232,13 @@
       "kind": "key-map",
       "path": "GameData/v2/kcap/keys.json",
       "sha256": "1c00c4909496383bf6cb89e4f0f079d52b6ff699b5b8306da8a0ffdb4c1a745f"
+    },
+    {
+      "id": "ai5-keys",
+      "format": "ARC/AI5WIN",
+      "kind": "key-map",
+      "path": "GameData/v2/ai5/keys.json",
+      "sha256": "c1e15fea5b1b8d86b18b6d32ec771442c3b587c7dd7cb2e88bc10af964aebee1"
     }
   ]
 }

@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "knownSchemes": {
+    "Ai no Katachi ~Ecchi na Onna no Ko wa Kirai... Desu ka?~": {
+      "nameLength": 30,
+      "nameKey": 169,
+      "sizeKey": 2813969631,
+      "offsetKey": 1504239443
+    },
+    "Ai Shimai ~Docchi ni Suru no!!~": {
+      "nameLength": 32,
+      "nameKey": 152,
+      "sizeKey": 1970573812,
+      "offsetKey": 1160912511
+    },
+    "Be-Yond": {
+      "nameLength": 20,
+      "nameKey": 85,
+      "sizeKey": 2857740885,
+      "offsetKey": 1437226410
+    },
+    "Be-Yond (install)": {
+      "nameLength": 20,
+      "nameKey": 38,
+      "sizeKey": 334534003,
+      "offsetKey": 3569524729
+    },
+    "De-Ja": {
+      "nameLength": 20,
+      "nameKey": 3,
+      "sizeKey": 1464419344,
+      "offsetKey": 1426552439
+    },
+    "Dorei Kaigo": {
+      "nameLength": 20,
+      "nameKey": 6,
+      "sizeKey": 1429221412,
+      "offsetKey": 1466446422
+    },
+    "Hana to Hebi": {
+      "nameLength": 32,
+      "nameKey": 3,
+      "sizeKey": 1699107941,
+      "offsetKey": 2036667272
+    },
+    "Himekishi Angelica": {
+      "nameLength": 256,
+      "nameKey": 165,
+      "sizeKey": 2908225227,
+      "offsetKey": 1496492025
+    },
+    "Hyakki ~Inmoku Sareta Haikyo~": {
+      "nameLength": 20,
+      "nameKey": 3,
+      "sizeKey": 1447198977,
+      "offsetKey": 842564913
+    },
+    "Jokei Kazoku ~Inbou~": {
+      "nameLength": 30,
+      "nameKey": 115,
+      "sizeKey": 2941749692,
+      "offsetKey": 1509608261
+    },
+    "Lime Iro Ryuukitan X ~Koi, Oshiete Kudasai.~": {
+      "nameLength": 32,
+      "nameKey": 3,
+      "sizeKey": 337712535,
+      "offsetKey": 272799284
+    },
+    "Shangrlia Multipack": {
+      "nameLength": 32,
+      "nameKey": 95,
+      "sizeKey": 1182995842,
+      "offsetKey": 391285011
+    },
+    "Kono Yo no Hate de Koi o Utau Shoujo": {
+      "nameLength": 20,
+      "nameKey": 3,
+      "sizeKey": 862283605,
+      "offsetKey": 1753352209
+    },
+    "Nonomura Byouin no Hitobito": {
+      "nameLength": 20,
+      "nameKey": 0,
+      "sizeKey": 352674057,
+      "offsetKey": 842008133
+    }
+  }
+}

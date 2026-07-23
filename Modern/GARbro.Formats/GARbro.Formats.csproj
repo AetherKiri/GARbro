@@ -48,6 +48,7 @@
     <Compile Include="../../ArcFormats/Sviu/ArcPKZ.cs" Link="Sviu/ArcPKZ.cs" />
     <Compile Include="../../ArcFormats/Cmvs/ArcPBZ.cs" Link="Cmvs/ArcPBZ.cs" />
     <Compile Include="../../ArcFormats/Selene/ArcKCAP.cs" Link="Selene/ArcKCAP.cs" />
+    <Compile Include="../../ArcFormats/Elf/ArcAi5Win.cs" Link="Elf/ArcAi5Win.cs" />
     <Compile Include="../../ArcFormats/Strings/arcStrings.Designer.cs" Link="Strings/arcStrings.Designer.cs" />
     <EmbeddedResource Include="../../ArcFormats/Strings/*.resx" Link="Strings/%(Filename)%(Extension)" />
     <EmbeddedResource Include="../GameData/v2/**/*.json" Link="GameData/v2/%(RecursiveDir)%(Filename)%(Extension)" />

@@ -73,6 +73,8 @@ The `PBZ` record is safely exportable with `export-pbz-keys`. Its single ArcKey/
 
 The `KCAP` record is safely exportable with `export-kcap-keys`. Its two title-to-password records are validated by `KcapKeyDatabase`; `FormatCatalogTests.Kcap_format_loads_migrated_password_and_decrypts_fixture` verifies title-based password selection and encrypted entry extraction.
 
+The `ARC/AI5WIN` record is safely exportable with `export-ai5-keys`. Its 14 structured scheme records are validated by `Ai5KeyDatabase`; `FormatCatalogTests.Ai5win_format_loads_migrated_scheme_and_opens_fixture` verifies encrypted directory decoding and entry extraction.
+
 The `DAT/SPEED` record is safely exportable with `export-sj-dat-keys`. Its five title-to-byte-key records are validated by `SjDatKeyDatabase`; `FormatCatalogTests.Speed_dat_format_loads_migrated_key_and_decodes_rle_fixture` verifies title-key resolution and RLE pixel extraction. Encrypted payload fixture coverage and writing remain explicit follow-ups.
 
 The `TCD` record is safely exportable with `export-tcd-keys`, validated by fixed-count/value regression assertions, and now loaded by the modern TopCat port. `FormatCatalogTests.Tcd_format_opens_a_minimal_v3_fixture` verifies index parsing and extraction from a deterministic TCD3 archive.

@@ -187,6 +187,11 @@ namespace GARbro.LegacyDataMigration
                     ExportKcapKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-ai5-keys")
+                {
+                    ExportAi5Keys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -223,6 +228,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-pkz-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-pbz-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-kcap-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-ai5-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
             catch (Exception error)
@@ -531,6 +537,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportKcapKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new KcapKeysDocument { KnownSchemes = keys });
             Console.WriteLine ("kcapKeyCount={0}", keys.Count);
+        }
+
+        static void ExportAi5Keys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportAi5Keys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new Ai5KeysDocument { KnownSchemes = keys });
+            Console.WriteLine ("ai5KeyCount={0}", keys.Count);
         }
 
         static void EnsureNewFile (string path)
