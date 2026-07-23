@@ -4204,6 +4204,14 @@
       }
     },
     {
+      "id": "AI Love",
+      "title": "AI Love",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 734916043
+      }
+    },
+    {
       "id": "ALIA\u0027s CARNIVAL Flowering Sky [Offical Chinese Ver]",
       "title": "ALIA\u0027s CARNIVAL Flowering Sky [Offical Chinese Ver]",
       "algorithm": "hx-lite",
@@ -9385,6 +9393,14 @@
       }
     },
     {
+      "id": "Aa Mama ni Naru!",
+      "title": "Aa Mama ni Naru!",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3598228156
+      }
+    },
+    {
       "id": "Aete Mushi Suru Kimi to no Mirai ~Relay Broadcast~",
       "title": "Aete Mushi Suru Kimi to no Mirai ~Relay Broadcast~",
       "algorithm": "cx-encryption",
@@ -13697,10 +13713,71 @@
       "parameters": {}
     },
     {
+      "id": "Boku no Mirai wa, Koi to Kakin to",
+      "title": "Boku no Mirai wa, Koi to Kakin to",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 227
+      }
+    },
+    {
+      "id": "Boku no Mirai wa, Koi to Kakin to [Trial]",
+      "title": "Boku no Mirai wa, Koi to Kakin to [Trial]",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 49
+      }
+    },
+    {
+      "id": "Boku to Koi Suru Ponkotsu Akuma.",
+      "title": "Boku to Koi Suru Ponkotsu Akuma.",
+      "algorithm": "smile",
+      "parameters": {
+        "keyXor": 3505437307,
+        "firstXor": 123,
+        "zeroXor": 94
+      }
+    },
+    {
+      "id": "Boku to Koi Suru Ponkotsu Akuma. Suggoi Ecchi!",
+      "title": "Boku to Koi Suru Ponkotsu Akuma. Suggoi Ecchi!",
+      "algorithm": "smile",
+      "parameters": {
+        "keyXor": 3505437307,
+        "firstXor": 123,
+        "zeroXor": 94
+      }
+    },
+    {
+      "id": "Bosei Kanojo -Shikyuu Kikan Hen-",
+      "title": "Bosei Kanojo -Shikyuu Kikan Hen-",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3598228156
+      }
+    },
+    {
       "id": "Bra-ban!",
       "title": "Bra-ban!",
       "algorithm": "poring-soft",
       "parameters": {}
+    },
+    {
+      "id": "Bukkake! Doshikoring MINUKI Max Acme...",
+      "title": "Bukkake! Doshikoring MINUKI Max Acme...",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
+      }
+    },
+    {
+      "id": "Bura Bura",
+      "title": "Bura Bura",
+      "algorithm": "smx",
+      "parameters": {
+        "mask": 3,
+        "keySeq": "AwUEAwg="
+      }
     },
     {
       "id": "Cafe Sourire",
@@ -15854,6 +15931,14 @@
             "key2": "r5eGhOPufNjqgZMwtggGhg=="
           }
         }
+      }
+    },
+    {
+      "id": "CharaBration!",
+      "title": "CharaBration!",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
       }
     },
     {
@@ -23234,6 +23319,14 @@
       "title": "Dare mo ga Kanojo o Neratteru",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Deatte 5-fun wa Ore no Mono!",
+      "title": "Deatte 5-fun wa Ore no Mono!",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 53
+      }
     },
     {
       "id": "Deep One",
@@ -40258,6 +40351,14 @@
       "parameters": {}
     },
     {
+      "id": "Haru to Yuki",
+      "title": "Haru to Yuki",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
+      }
+    },
+    {
       "id": "Haruiro\u2606Communication\u266A",
       "title": "Haruiro\u2606Communication\u266A",
       "algorithm": "cx-encryption",
@@ -43393,6 +43494,15 @@
           ],
           "tpmFileName": null
         }
+      }
+    },
+    {
+      "id": "Hataraku Otona no Ren\u0027ai Jijou",
+      "title": "Hataraku Otona no Ren\u0027ai Jijou",
+      "algorithm": "smx",
+      "parameters": {
+        "mask": 2,
+        "keySeq": "AwEAAg=="
       }
     },
     {
@@ -47595,6 +47705,14 @@
           ],
           "tpmFileName": null
         }
+      }
+    },
+    {
+      "id": "Hentai Keimusho 24-ji",
+      "title": "Hentai Keimusho 24-ji",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 0
       }
     },
     {
@@ -51883,6 +52001,16 @@
       "parameters": {}
     },
     {
+      "id": "Imouto no Seiiki",
+      "title": "Imouto no Seiiki",
+      "algorithm": "smile",
+      "parameters": {
+        "keyXor": 552518022,
+        "firstXor": 134,
+        "zeroXor": 60
+      }
+    },
+    {
       "id": "In! Joku! Pink Ranger!!",
       "title": "In! Joku! Pink Ranger!!",
       "algorithm": "hash",
@@ -51923,6 +52051,22 @@
       "title": "Ingoku no Hako",
       "algorithm": "flying-shine",
       "parameters": {}
+    },
+    {
+      "id": "Inochi no Spare",
+      "title": "Inochi no Spare",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 771534797
+      }
+    },
+    {
+      "id": "Inochi no Spare [Trial]",
+      "title": "Inochi no Spare [Trial]",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 716950749
+      }
     },
     {
       "id": "Inraku Counseling",
@@ -52988,6 +53132,15 @@
       "title": "Itsu de mo Onna no Ko ni Seieki...",
       "algorithm": "dieselmine",
       "parameters": {}
+    },
+    {
+      "id": "Izuna Zanshinken",
+      "title": "Izuna Zanshinken",
+      "algorithm": "smx",
+      "parameters": {
+        "mask": 5,
+        "keySeq": "AwgHBgUEAg=="
+      }
     },
     {
       "id": "JK Trouble Main\u0022s",
@@ -57218,6 +57371,30 @@
       }
     },
     {
+      "id": "Kamaitachi no Yoru",
+      "title": "Kamaitachi no Yoru",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
+      }
+    },
+    {
+      "id": "Kami-sama no You na Kimi e",
+      "title": "Kami-sama no You na Kimi e",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 199
+      }
+    },
+    {
+      "id": "Kamidanomi Shisugite Ore no Mirai ga Yabai.",
+      "title": "Kamidanomi Shisugite Ore no Mirai ga Yabai.",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 205
+      }
+    },
+    {
       "id": "Kaminarikko Chuuihou!",
       "title": "Kaminarikko Chuuihou!",
       "algorithm": "high-running",
@@ -59334,6 +59511,14 @@
       "title": "Kareshi ni Naisho de Kairaku Ochi",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Kari Gurashi Ren\u0027ai",
+      "title": "Kari Gurashi Ren\u0027ai",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 0
+      }
     },
     {
       "id": "Kasshoku Cool Bitch Hitozuma no Seiyoku Kaishou",
@@ -63546,10 +63731,26 @@
       }
     },
     {
+      "id": "Koishi Irodoru Seigiranman",
+      "title": "Koishi Irodoru Seigiranman",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 105
+      }
+    },
+    {
       "id": "Koko wa Suki na Dake Sex Shite",
       "title": "Koko wa Suki na Dake Sex Shite",
       "algorithm": "dieselmine",
       "parameters": {}
+    },
+    {
+      "id": "Kokoro no Katachi to Iro to Oto",
+      "title": "Kokoro no Katachi to Iro to Oto",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 247
+      }
     },
     {
       "id": "Kon Kon",
@@ -80470,6 +80671,14 @@
       "parameters": {}
     },
     {
+      "id": "Namaiki Delation",
+      "title": "Namaiki Delation",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 0
+      }
+    },
+    {
       "id": "Namaiki JK ni Fukushuu no Seikatsu Shidou",
       "title": "Namaiki JK ni Fukushuu no Seikatsu Shidou",
       "algorithm": "hash",
@@ -80486,6 +80695,14 @@
       "title": "Nariyuki\u2192Papakatsu Girls!!",
       "algorithm": "poring-soft",
       "parameters": {}
+    },
+    {
+      "id": "Natsu no Owari",
+      "title": "Natsu no Owari",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 87
+      }
     },
     {
       "id": "Natsuiro Shimai",
@@ -81551,6 +81768,24 @@
       "title": "Nee\u2665Summer!",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Neko Para Extra",
+      "title": "Neko Para Extra",
+      "algorithm": "smile",
+      "parameters": {
+        "keyXor": 1146260359,
+        "firstXor": 135,
+        "zeroXor": 35
+      }
+    },
+    {
+      "id": "Neko to Wakai Seyo!",
+      "title": "Neko to Wakai Seyo!",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 44
+      }
     },
     {
       "id": "Nekogami-sama to, Nanatsuboshi",
@@ -83725,6 +83960,14 @@
       "parameters": {}
     },
     {
+      "id": "Onaji Class no Idol-san. Around me is full by a celebrity.",
+      "title": "Onaji Class no Idol-san. Around me is full by a celebrity.",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 232
+      }
+    },
+    {
       "id": "One Room -Yui Hanasaka Memorial-",
       "title": "One Room -Yui Hanasaka Memorial-",
       "algorithm": "hx",
@@ -84777,6 +85020,22 @@
       }
     },
     {
+      "id": "Onee-chan no Yuuwaku",
+      "title": "Onee-chan no Yuuwaku",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 705275717
+      }
+    },
+    {
+      "id": "Oni no Wakusei",
+      "title": "Oni no Wakusei",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 0
+      }
+    },
+    {
       "id": "Onigokko!",
       "title": "Onigokko!",
       "algorithm": "cx-encryption",
@@ -85824,6 +86083,30 @@
       "parameters": {}
     },
     {
+      "id": "Ore no Cupid ga Ponkotsu Sugite Kowa~i.",
+      "title": "Ore no Cupid ga Ponkotsu Sugite Kowa~i.",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 14
+      }
+    },
+    {
+      "id": "Ore no Cupid ga Ponkotsu Sugite Kowa~i. - Trial",
+      "title": "Ore no Cupid ga Ponkotsu Sugite Kowa~i. - Trial",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 120
+      }
+    },
+    {
+      "id": "Ore no Hitomi de Maruhadaka! Fukachi na Mirai to Misukasu Vision",
+      "title": "Ore no Hitomi de Maruhadaka! Fukachi na Mirai to Misukasu Vision",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 60
+      }
+    },
+    {
       "id": "Ore no Imouto wa Kyou kara Do S",
       "title": "Ore no Imouto wa Kyou kara Do S",
       "algorithm": "hash",
@@ -85840,6 +86123,14 @@
       "title": "Ore no Saimin Fantasia",
       "algorithm": "dieselmine",
       "parameters": {}
+    },
+    {
+      "id": "Ore no Sugata ga, Toumei ni!? Invisible to Suuki na Unmei",
+      "title": "Ore no Sugata ga, Toumei ni!? Invisible to Suuki na Unmei",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 149
+      }
     },
     {
       "id": "Ore to 5-nin no Yome-san ga Raburabu nano wa",
@@ -89075,6 +89366,14 @@
       "title": "Princess Saga",
       "algorithm": "flying-shine",
       "parameters": {}
+    },
+    {
+      "id": "Puramai Wars",
+      "title": "Puramai Wars",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 0
+      }
     },
     {
       "id": "RGH ~Koi to Hero to Gakuen to~",
@@ -93282,6 +93581,24 @@
       "parameters": {}
     },
     {
+      "id": "Role Player: Okayu Shimai no Nenmaku Portrait - Gurigucha Live!",
+      "title": "Role Player: Okayu Shimai no Nenmaku Portrait - Gurigucha Live!",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 798088789
+      }
+    },
+    {
+      "id": "Royal Garden",
+      "title": "Royal Garden",
+      "algorithm": "smile",
+      "parameters": {
+        "keyXor": 1651056185,
+        "firstXor": 57,
+        "zeroXor": 106
+      }
+    },
+    {
       "id": "Rui wa Tomo o Yobu",
       "title": "Rui wa Tomo o Yobu",
       "algorithm": "cx-encryption",
@@ -95377,6 +95694,14 @@
           ],
           "tpmFileName": null
         }
+      }
+    },
+    {
+      "id": "Ryuukishi Bloody\u2020Saga",
+      "title": "Ryuukishi Bloody\u2020Saga",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
       }
     },
     {
@@ -97486,6 +97811,22 @@
       }
     },
     {
+      "id": "Same to Ikiru Nanokakan",
+      "title": "Same to Ikiru Nanokakan",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 114
+      }
+    },
+    {
+      "id": "Same to Ikiru Nanokakan [Trial]",
+      "title": "Same to Ikiru Nanokakan [Trial]",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 209
+      }
+    },
+    {
       "id": "Sanoba Witch",
       "title": "Sanoba Witch",
       "algorithm": "yuzu",
@@ -98561,6 +98902,15 @@
       "title": "Seiso na Ano Ko wa, Kakure Bitch",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Sekisaba!",
+      "title": "Sekisaba!",
+      "algorithm": "smx",
+      "parameters": {
+        "mask": 5,
+        "keySeq": "AgUEAwICAw=="
+      }
     },
     {
       "id": "Senden no Shugo Kishi Niina",
@@ -102793,6 +103143,14 @@
       "parameters": {}
     },
     {
+      "id": "Shoujo to Toshi no Sa, Futamawari.",
+      "title": "Shoujo to Toshi no Sa, Futamawari.",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
+      }
+    },
+    {
       "id": "Shoujo\u2606Kageki Revue Starlight Butai Souzougeki Harukanaru El Dorado",
       "title": "Shoujo\u2606Kageki Revue Starlight Butai Souzougeki Harukanaru El Dorado",
       "algorithm": "hx",
@@ -104943,10 +105301,34 @@
       "parameters": {}
     },
     {
+      "id": "Sousaku Kanojo no Ren\u0027ai Koushiki",
+      "title": "Sousaku Kanojo no Ren\u0027ai Koushiki",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 798088789
+      }
+    },
+    {
+      "id": "Sousaku Kanojo no Ren\u0027ai Koushiki - Trial Edition",
+      "title": "Sousaku Kanojo no Ren\u0027ai Koushiki - Trial Edition",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 798088789
+      }
+    },
+    {
       "id": "Sousei no Himegimi",
       "title": "Sousei no Himegimi",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Specialite!",
+      "title": "Specialite!",
+      "algorithm": "stripe",
+      "parameters": {
+        "key": 175
+      }
     },
     {
       "id": "Suiheisen made Nan Mile?",
@@ -104962,6 +105344,14 @@
           "controlBlock": null,
           "tpmFileName": "plugin\\mogla.tpm"
         }
+      }
+    },
+    {
+      "id": "Suiren to Shion",
+      "title": "Suiren to Shion",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 798088789
       }
     },
     {
@@ -106035,6 +106425,14 @@
           "controlBlock": null,
           "tpmFileName": "plugin\\serenade.tpm"
         }
+      }
+    },
+    {
+      "id": "Surechigau Kyoudai no Kowareru Rinrikan",
+      "title": "Surechigau Kyoudai no Kowareru Rinrikan",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 248
       }
     },
     {
@@ -108142,6 +108540,30 @@
       "title": "Tawawa Oku-san x Happening Gym",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Teakamamire no Danshi",
+      "title": "Teakamamire no Danshi",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3854429322
+      }
+    },
+    {
+      "id": "Teakamamire no Fukushuu",
+      "title": "Teakamamire no Fukushuu",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3598228156
+      }
+    },
+    {
+      "id": "Teakamamire no Tenshi",
+      "title": "Teakamamire no Tenshi",
+      "algorithm": "akabei",
+      "parameters": {
+        "seed": 3737124058
+      }
     },
     {
       "id": "Temptation -Saiin no Naraku-",
@@ -111366,6 +111788,14 @@
       }
     },
     {
+      "id": "Treasure Hunting",
+      "title": "Treasure Hunting",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 0
+      }
+    },
+    {
       "id": "Tsubasa no Oka no Hime",
       "title": "Tsubasa no Oka no Hime",
       "algorithm": "poring-soft",
@@ -112453,6 +112883,14 @@
       "title": "Uchi ni Tenshi ga Yari ni kita",
       "algorithm": "hash",
       "parameters": {}
+    },
+    {
+      "id": "Uchi wa Mou, Enki Dekinai.",
+      "title": "Uchi wa Mou, Enki Dekinai.",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 2
+      }
     },
     {
       "id": "Ushinawareta Mirai o Motomete",
@@ -118713,6 +119151,23 @@
       "parameters": {}
     },
     {
+      "id": "Yakimochi Stream",
+      "title": "Yakimochi Stream",
+      "algorithm": "mado",
+      "parameters": {
+        "seed": 4076513695
+      }
+    },
+    {
+      "id": "Yaya, Okiba ga Nai!",
+      "title": "Yaya, Okiba ga Nai!",
+      "algorithm": "smx",
+      "parameters": {
+        "mask": 4,
+        "keySeq": "AQMDAgQB"
+      }
+    },
+    {
       "id": "Yome Sagashi ga Hakadori Sugite Yabai.",
       "title": "Yome Sagashi ga Hakadori Sugite Yabai.",
       "algorithm": "hash",
@@ -119788,6 +120243,23 @@
       "title": "Youjoku no Ouhi to Sono Himegimi",
       "algorithm": "hybrid",
       "parameters": {}
+    },
+    {
+      "id": "Yurameku Kokoro ni Michita Sekai de",
+      "title": "Yurameku Kokoro ni Michita Sekai de",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 205
+      }
+    },
+    {
+      "id": "Yurikago yori Tenshi made",
+      "title": "Yurikago yori Tenshi made",
+      "algorithm": "smx",
+      "parameters": {
+        "mask": 4,
+        "keySeq": "AgMEBQQC"
+      }
     },
     {
       "id": "Yurikago yori Tenshi made [Trial]",
@@ -121875,6 +122347,14 @@
           ],
           "tpmFileName": null
         }
+      }
+    },
+    {
+      "id": "Yuusha to Maou to, Majo no Cafe",
+      "title": "Yuusha to Maou to, Majo no Cafe",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 205
       }
     },
     {
@@ -126086,6 +126566,22 @@
       "title": "your diary \u002B [English]",
       "algorithm": "no-crypt",
       "parameters": {}
+    },
+    {
+      "id": "\u5922\u5E7B\u306E\u30C6\u30A3\u30EB\u30FB\u30CA\u30FB\u30CE\u30FC\u30B0",
+      "title": "\u5922\u5E7B\u306E\u30C6\u30A3\u30EB\u30FB\u30CA\u30FB\u30CE\u30FC\u30B0",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 85
+      }
+    },
+    {
+      "id": "\u6D77\u3068\u96EA\u306E\u30B7\u30A2\u30F3\u30D6\u30EB\u30FC",
+      "title": "\u6D77\u3068\u96EA\u306E\u30B7\u30A2\u30F3\u30D6\u30EB\u30FC",
+      "algorithm": "xor",
+      "parameters": {
+        "key": 160
+      }
     }
   ]
 }

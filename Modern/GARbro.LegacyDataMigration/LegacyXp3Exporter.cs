@@ -527,6 +527,29 @@ namespace GARbro.LegacyDataMigration
         public int RandomType { get; set; }
     }
 
+    internal sealed class Xp3ExportSeedParameters
+    {
+        public uint Seed { get; set; }
+    }
+
+    internal sealed class Xp3ExportByteKeyParameters
+    {
+        public byte Key { get; set; }
+    }
+
+    internal sealed class Xp3ExportSmileParameters
+    {
+        public uint KeyXor { get; set; }
+        public byte FirstXor { get; set; }
+        public byte ZeroXor { get; set; }
+    }
+
+    internal sealed class Xp3ExportSmxParameters
+    {
+        public int Mask { get; set; }
+        public byte[] KeySeq { get; set; }
+    }
+
     internal static class LegacyXp3Exporter
     {
         const string KnownSchemePairType = "[GameRes.Formats.KiriKiri.ICrypt,";
@@ -1295,6 +1318,49 @@ namespace GARbro.LegacyDataMigration
             else
             switch (crypt.TypeName.FullName)
             {
+            case "GameRes.Formats.KiriKiri.AkabeiCrypt":
+                algorithm = "akabei";
+                parameters = new Xp3ExportSeedParameters {
+                    Seed = ReadRequired<uint> (crypt, "m_seed"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.MadoCrypt":
+                algorithm = "mado";
+                parameters = new Xp3ExportSeedParameters {
+                    Seed = ReadRequired<uint> (crypt, "AkabeiCrypt+m_seed"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.XorCrypt":
+                algorithm = "xor";
+                parameters = new Xp3ExportByteKeyParameters {
+                    Key = ReadRequired<byte> (crypt, "m_key"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.StripeCrypt":
+                algorithm = "stripe";
+                parameters = new Xp3ExportByteKeyParameters {
+                    Key = ReadRequired<byte> (crypt, "m_key"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.SmileCrypt":
+                algorithm = "smile";
+                parameters = new Xp3ExportSmileParameters {
+                    KeyXor = ReadRequired<uint> (crypt, "m_key_xor"),
+                    FirstXor = ReadRequired<byte> (crypt, "m_first_xor"),
+                    ZeroXor = ReadRequired<byte> (crypt, "m_zero_xor"),
+                };
+                break;
+            case "GameRes.Formats.KiriKiri.SmxCrypt":
+                algorithm = "smx";
+                var smxMask = ReadRequired<int> (crypt, "Mask");
+                var smxKeySeq = ReadRequiredArray<byte> (crypt, "KeySeq");
+                if (smxMask < 0 || smxKeySeq.Length <= smxMask + 1)
+                    throw new InvalidDataException ("Legacy SMX profile has invalid key sequence: " + title);
+                parameters = new Xp3ExportSmxParameters {
+                    Mask = smxMask,
+                    KeySeq = smxKeySeq,
+                };
+                break;
             case "GameRes.Formats.KiriKiri.CxEncryption":
                 algorithm = "cx-encryption";
                 parameters = new Xp3ExportCxParameters { Cx = ReadCx (crypt) };

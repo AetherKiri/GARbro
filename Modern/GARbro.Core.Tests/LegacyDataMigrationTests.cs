@@ -40,14 +40,20 @@ namespace GARbro.Core.Tests
 
             Assert.Equal (1, document.SchemaVersion);
             Assert.Equal (453, report.SourceKnownSchemeCount);
-            Assert.Equal (371, report.ExportedProfileCount);
+            Assert.Equal (431, report.ExportedProfileCount);
             Assert.Equal (1, report.DuplicateProfileCount);
-            Assert.Equal (81, report.SkippedProfiles.Count);
+            Assert.Equal (21, report.SkippedProfiles.Count);
             Assert.Equal (21, document.Profiles.Count (profile => profile.Algorithm == "hx"));
             Assert.Equal (101, document.Profiles.Count (profile => profile.Algorithm == "hash"));
             Assert.Equal (28, document.Profiles.Count (profile => profile.Algorithm == "flying-shine"));
             Assert.Equal (14, document.Profiles.Count (profile => profile.Algorithm == "applique"));
             Assert.Equal (15, document.Profiles.Count (profile => profile.Algorithm == "dieselmine"));
+            Assert.Equal (22, document.Profiles.Count (profile => profile.Algorithm == "xor"));
+            Assert.Equal (19, document.Profiles.Count (profile => profile.Algorithm == "akabei"));
+            Assert.Equal (7, document.Profiles.Count (profile => profile.Algorithm == "mado"));
+            Assert.Equal (6, document.Profiles.Count (profile => profile.Algorithm == "smx"));
+            Assert.Equal (5, document.Profiles.Count (profile => profile.Algorithm == "smile"));
+            Assert.Equal (1, document.Profiles.Count (profile => profile.Algorithm == "stripe"));
             Assert.DoesNotContain (report.SkippedProfiles,
                 profile => profile.LegacyType == "GameRes.Formats.KiriKiri.HxCrypt");
             Assert.DoesNotContain (report.SkippedProfiles,

@@ -89,6 +89,29 @@ namespace GameRes.Formats.KiriKiri
         public int RandomType { get; set; }
     }
 
+    public sealed class Xp3SeedParameters
+    {
+        public uint Seed { get; set; }
+    }
+
+    public sealed class Xp3ByteKeyParameters
+    {
+        public byte Key { get; set; }
+    }
+
+    public sealed class Xp3SmileParameters
+    {
+        public uint KeyXor { get; set; }
+        public byte FirstXor { get; set; }
+        public byte ZeroXor { get; set; }
+    }
+
+    public sealed class Xp3SmxParameters
+    {
+        public int Mask { get; set; }
+        public byte[] KeySeq { get; set; }
+    }
+
     /// <summary>
     /// Compatibility DTO for the pre-v2 profile array. New data must use Xp3ProfileDocument.
     /// </summary>
@@ -267,6 +290,22 @@ namespace GameRes.Formats.KiriKiri
         {
             switch (profile.Algorithm)
             {
+            case "akabei":
+                return new AkabeiCrypt (ReadParameters<Xp3SeedParameters> (profile).Seed);
+            case "mado":
+                return new MadoCrypt (ReadParameters<Xp3SeedParameters> (profile).Seed);
+            case "xor":
+                return new XorCrypt (ReadParameters<Xp3ByteKeyParameters> (profile).Key);
+            case "stripe":
+                return new StripeCrypt (ReadParameters<Xp3ByteKeyParameters> (profile).Key);
+            case "smile":
+                var smile = ReadParameters<Xp3SmileParameters> (profile);
+                return new SmileCrypt (smile.KeyXor, smile.FirstXor, smile.ZeroXor);
+            case "smx":
+                var smx = ReadParameters<Xp3SmxParameters> (profile);
+                if (smx.KeySeq == null || smx.Mask < 0 || smx.KeySeq.Length <= smx.Mask + 1)
+                    throw new InvalidDataException ("XP3 SMX profile has invalid key sequence: " + profile.Id);
+                return new SmxCrypt (smx.Mask, smx.KeySeq);
             case "altered-pink":
                 return new AlteredPinkCrypt();
             case "applique":

@@ -68,7 +68,7 @@
 - PBZ `.scr` entries still require the legacy script-specific secondary decryption path; ordinary encrypted entries are supported.
 - NPA writing and unknown encrypted-title discovery remain unavailable; the modern reader requires a matching archive basename or migrated title binding.
 - TIFF write support and the GX4 BinaryFormatter index reader are pending dedicated safe adapters.
-- XP3 now bundles 372 checksum-verified v2 profiles, including Hx, Senren, related Cx helpers, and 228 simple hash-based algorithm profiles. Migrated executable bindings are available for automatic XP3 detection; 81 parameterized/special profiles and real archive fixture coverage are still pending.
+- XP3 now bundles 431 checksum-verified v2 profiles, including Hx, Senren, related Cx helpers, 228 simple hash-based records, and key-parameterized Akabei/Mado/Xor/Stripe/Smile/SMX profiles. Migrated executable bindings are available for automatic XP3 detection; 21 list-file/key-table profiles and real archive fixture coverage are still pending.
 - ZIP now consumes its seven migrated title-to-password entries before falling back to the interactive password prompt; an encrypted ZipCrypto fixture covers that path.
 - Other archive formats remain in the legacy solution while their WPF option controls are replaced with data-driven option definitions.
 
