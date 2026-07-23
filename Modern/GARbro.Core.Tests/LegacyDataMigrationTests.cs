@@ -258,6 +258,11 @@ namespace GARbro.Core.Tests
             Assert.Equal (22, npaKeys["Kimi to Kanojo to Kanojo no Koi"].TitleId);
             Assert.Equal (305419896u, npaKeys["Kimi to Kanojo to Kanojo no Koi"].NameKey);
 
+            var psbKeys = LegacyXp3Exporter.ExportPsbKeys (database);
+            Assert.Equal (13, psbKeys.Length);
+            Assert.Equal (970396437u, psbKeys[0]);
+            Assert.Equal (439510497u, psbKeys[^1]);
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

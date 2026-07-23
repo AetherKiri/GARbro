@@ -286,6 +286,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, NpaKeyRecord> KnownSchemes { get; set; }
     }
 
+    internal sealed class PsbKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public uint[] KnownKeys { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -782,6 +788,20 @@ namespace GARbro.LegacyDataMigration
             if (scheme == null || !scheme.HasMember ("KnownSchemes"))
                 throw new InvalidDataException ("Legacy NPA scheme has no KnownSchemes member.");
             return ReadNpaDictionary (ReadRaw (scheme, "KnownSchemes") as ClassRecord, "Legacy NPA key map");
+        }
+
+        internal static uint[] ExportPsbKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "PSB/EMOTE");
+            if (scheme == null || !scheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy PSB/EMOTE scheme has no KnownKeys member.");
+            var keys = ReadRaw (scheme, "KnownKeys") as SZArrayRecord<uint>;
+            if (keys == null || keys.Length == 0 || keys.Length > 256)
+                throw new InvalidDataException ("Legacy PSB/EMOTE key list is empty or invalid.");
+            var result = keys.GetArray (false);
+            if (result.Distinct ().Count () != result.Length)
+                throw new InvalidDataException ("Legacy PSB/EMOTE key list contains duplicates.");
+            return result;
         }
 
 

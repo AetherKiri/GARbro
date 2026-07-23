@@ -22,6 +22,7 @@ using GameRes.Formats.TopCat;
 using GameRes.Formats.FamilyAdvSystem;
 using GameRes.Formats.Marble;
 using GameRes.Formats.NitroPlus;
+using GameRes.Formats.Emote;
 using GameRes.Formats.NScripter;
 using GameRes.Formats.NSystem;
 using GameRes.Formats.Tamamo;
@@ -458,6 +459,38 @@ namespace GARbro.Core.Tests
                     Assert.Equal ("sample.bin", entry.Name);
                     using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
                         Assert.Equal ("migrated NPA fixture", input.ReadToEnd ());
+                }
+            }
+            finally
+            {
+                Directory.Delete (tempDirectory, true);
+            }
+        }
+
+        [Fact]
+        public void Psb_format_loads_migrated_keys_and_opens_fixture ()
+        {
+            var format = FormatCatalog.Instance.Formats.OfType<ArchiveFormat> ()
+                .Single (item => item.Tag == "PSB/EMOTE");
+            var scheme = Assert.IsType<PsbScheme> (format.Scheme);
+            Assert.Equal (13, scheme.KnownKeys.Length);
+            Assert.Equal (970396437u, scheme.KnownKeys[0]);
+            Assert.Equal (439510497u, scheme.KnownKeys[^1]);
+
+            var tempDirectory = Path.Combine (Path.GetTempPath (), Path.GetRandomFileName ());
+            Directory.CreateDirectory (tempDirectory);
+            try
+            {
+                var archivePath = Path.Combine (tempDirectory, "sample.psb");
+                CreatePsbFixture (archivePath);
+                using (var view = new ArcView (archivePath))
+                using (var arc = format.TryOpen (view))
+                {
+                    Assert.NotNull (arc);
+                    var entry = Assert.Single (arc.Dir);
+                    Assert.Equal ("a", entry.Name);
+                    using (var input = new StreamReader (format.OpenEntry (arc, entry), Encoding.UTF8))
+                        Assert.Equal ("migrated PSB fixture", input.ReadToEnd ());
                 }
             }
             finally
@@ -2151,6 +2184,71 @@ namespace GARbro.Core.Tests
                 writer.Write ((uint)plaintext.Length);
                 writer.Write (encrypted);
             }
+        }
+
+        static void CreatePsbFixture (string path)
+        {
+            var names1 = new byte[99];
+            var names2 = new byte[99];
+            names1[0] = 1;
+            names2[98] = 0;
+            names1[98] = 2;
+            names2[2] = 98;
+            names1[2] = 0;
+
+            var data = new List<byte> (new byte[40]);
+            var namesOffset = data.Count;
+            AddPsbArray (data, names1, 1);
+            AddPsbArray (data, names2, 1);
+            var stringsOffset = data.Count;
+            AddPsbArray (data, Array.Empty<byte> (), 1);
+            var stringsDataOffset = data.Count;
+            AddPsbArray (data, Array.Empty<byte> (), 1);
+            var chunkOffsetsOffset = data.Count;
+            AddPsbArray (data, new byte[4], 4);
+            var chunkLengthsOffset = data.Count;
+            var payload = Encoding.UTF8.GetBytes ("migrated PSB fixture");
+            AddPsbArray (data, BitConverter.GetBytes (payload.Length), 4);
+            var rootOffset = data.Count;
+            data.Add (0x21);
+            AddPsbArray (data, BitConverter.GetBytes (0), 4);
+            AddPsbArray (data, new byte[] { 0, 0, 0, 0 }, 4);
+            data.Add (0x19);
+            data.Add (0);
+            var chunkDataOffset = data.Count;
+
+            PackPsbInt (data, 12, namesOffset);
+            PackPsbInt (data, 16, stringsOffset);
+            PackPsbInt (data, 20, stringsDataOffset);
+            PackPsbInt (data, 24, chunkOffsetsOffset);
+            PackPsbInt (data, 28, chunkLengthsOffset);
+            PackPsbInt (data, 32, chunkDataOffset);
+            PackPsbInt (data, 36, rootOffset);
+            using (var output = File.Create (path))
+            {
+                output.Write (Encoding.ASCII.GetBytes ("PSB\0"), 0, 4);
+                output.WriteByte (3);
+                output.WriteByte (0);
+                output.WriteByte (0);
+                output.WriteByte (0);
+                output.Write (data.ToArray (), 8, data.Count - 8);
+                output.Write (payload, 0, payload.Length);
+            }
+        }
+
+        static void AddPsbArray (List<byte> data, byte[] values, int elementSize)
+        {
+            data.Add (0x0D);
+            data.Add ((byte)(values.Length / elementSize));
+            data.Add ((byte)(0x0C + elementSize));
+            data.AddRange (values);
+        }
+
+        static void PackPsbInt (List<byte> data, int offset, int value)
+        {
+            var bytes = BitConverter.GetBytes (value);
+            for (var i = 0; i < bytes.Length; ++i)
+                data[offset + i] = bytes[i];
         }
 
         static void EncryptPbz (byte[] data, byte[] key)

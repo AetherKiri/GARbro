@@ -246,6 +246,13 @@
       "kind": "key-map",
       "path": "GameData/v2/npa/keys.json",
       "sha256": "469783d12c05da41ff45e06722503c26c8505a208e44fcf8fe325e48075f5c06"
+    },
+    {
+      "id": "psb-keys",
+      "format": "PSB/EMOTE",
+      "kind": "key-list",
+      "path": "GameData/v2/psb/keys.json",
+      "sha256": "4d3ac2bef09a334da55ebf394d3cbaa0ce4fdd607f128a6147da37fd819e9665"
     }
   ]
 }

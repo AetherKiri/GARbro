@@ -197,6 +197,11 @@ namespace GARbro.LegacyDataMigration
                     ExportNpaKeys (args[1], args[2]);
                     return 0;
                 }
+                if (args.Length == 3 && args[0] == "export-psb-keys")
+                {
+                    ExportPsbKeys (args[1], args[2]);
+                    return 0;
+                }
 
                 Console.Error.WriteLine ("Usage: garbro-legacy-data-migration inspect <trusted-Formats.dat>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-xp3 <trusted-Formats.dat> <profiles.json> <report.json>");
@@ -235,6 +240,7 @@ namespace GARbro.LegacyDataMigration
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-kcap-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-ai5-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-npa-keys <trusted-Formats.dat> <keys.json>");
+                Console.Error.WriteLine ("       garbro-legacy-data-migration export-psb-keys <trusted-Formats.dat> <keys.json>");
                 Console.Error.WriteLine ("       garbro-legacy-data-migration export-npa-keys <trusted-Formats.dat> <keys.json>");
                 return 2;
             }
@@ -560,6 +566,14 @@ namespace GARbro.LegacyDataMigration
             var keys = LegacyXp3Exporter.ExportNpaKeys (LegacyFormatsReader.Read (inputPath));
             WriteJson (outputPath, new NpaKeysDocument { KnownSchemes = keys });
             Console.WriteLine ("npaKeyCount={0}", keys.Count);
+        }
+
+        static void ExportPsbKeys (string inputPath, string outputPath)
+        {
+            EnsureNewFile (outputPath);
+            var keys = LegacyXp3Exporter.ExportPsbKeys (LegacyFormatsReader.Read (inputPath));
+            WriteJson (outputPath, new PsbKeysDocument { KnownKeys = keys });
+            Console.WriteLine ("psbKeyCount={0}", keys.Length);
         }
 
         static void EnsureNewFile (string path)

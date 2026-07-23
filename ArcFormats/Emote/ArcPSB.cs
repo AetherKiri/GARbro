@@ -60,7 +60,7 @@ namespace GameRes.Formats.Emote
         public override bool  IsHierarchic { get { return false; } }
         public override bool      CanWrite { get { return false; } }
 
-        static uint[] KnownKeys = new uint[] { 970396437u };
+        static uint[] KnownKeys = PsbKeyDatabase.CreateKeys ();
 
         public PsbOpener ()
         {
