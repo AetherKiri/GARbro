@@ -193,6 +193,12 @@ namespace GARbro.LegacyDataMigration
         public Dictionary<string, byte> KnownKeys { get; set; }
     }
 
+    internal sealed class TinkKeysDocument
+    {
+        public int SchemaVersion { get; set; } = 1;
+        public Dictionary<uint, byte[]> KnownKeys { get; set; }
+    }
+
 
 
     internal sealed class Xp3SkippedProfile
@@ -610,6 +616,14 @@ namespace GARbro.LegacyDataMigration
             return ReadStringByteDictionary (ReadRaw (scheme, "KnownKeys") as ClassRecord, "Legacy MCG key map");
         }
 
+        internal static Dictionary<uint, byte[]> ExportTinkKeys (LegacyFormatsDatabase database)
+        {
+            var scheme = FindScheme (database, "OGG/TINK");
+            if (scheme == null || !scheme.HasMember ("KnownKeys"))
+                throw new InvalidDataException ("Legacy OGG/TINK scheme has no KnownKeys member.");
+            return ReadUIntByteDictionary (ReadRaw (scheme, "KnownKeys") as ClassRecord, "Legacy OGG/TINK key map");
+        }
+
 
         static Xp3ExportProfile TryExportProfile (string title, ClassRecord crypt, out string reason)
         {
@@ -879,6 +893,34 @@ namespace GARbro.LegacyDataMigration
                     throw new InvalidDataException (label + " contains an incomplete entry.");
                 if (!result.TryAdd (key, (byte)value))
                     throw new InvalidDataException (label + " contains a duplicate key: " + key);
+            }
+            return result;
+        }
+
+        static Dictionary<uint, byte[]> ReadUIntByteDictionary (ClassRecord dictionary, string label)
+        {
+            if (dictionary == null || !dictionary.TypeName.FullName.StartsWith ("System.Collections.Generic.Dictionary`2", StringComparison.Ordinal))
+                throw new InvalidDataException (label + " is not a dictionary.");
+            var result = new Dictionary<uint, byte[]> ();
+            if (!dictionary.HasMember ("KeyValuePairs"))
+                return result;
+            var rawPairs = dictionary.GetRawValue ("KeyValuePairs");
+            if (rawPairs == null)
+                return result;
+            var pairs = rawPairs as ArrayRecord;
+            if (pairs == null || pairs.Rank != 1 || pairs.Lengths[0] > 100000)
+                throw new InvalidDataException (label + " has invalid entries.");
+            foreach (var record in GetRecordArray (pairs))
+            {
+                var entry = record as ClassRecord;
+                if (entry == null || !entry.TypeName.FullName.StartsWith ("System.Collections.Generic.KeyValuePair`2", StringComparison.Ordinal))
+                    throw new InvalidDataException (label + " contains an invalid entry.");
+                var key = ReadRaw (entry, "key");
+                var value = ReadRaw (entry, "value") as SZArrayRecord<byte>;
+                if (!(key is uint) || value == null || value.Length == 0)
+                    throw new InvalidDataException (label + " contains an incomplete entry.");
+                if (!result.TryAdd ((uint)key, value.GetArray (false)))
+                    throw new InvalidDataException (label + " contains a duplicate signature: " + key);
             }
             return result;
         }

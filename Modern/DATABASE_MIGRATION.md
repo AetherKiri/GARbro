@@ -83,6 +83,8 @@ The migrated game map contains 1,129 executable bindings. It is kept in the titl
 - [x] Add ACTGS key-list validation and a deterministic encrypted DAT index/entry fixture.
 - [x] Migrate the ADS title-to-byte-key map as a standalone v2 dataset and load it in the modern ADS reader.
 - [x] Add ADS key-map validation and a deterministic encrypted index/entry fixture.
+- [x] Migrate the Cyberworks OGG/TINK signature-to-byte-key map as a standalone v2 dataset and load it in the modern audio reader.
+- [x] Add TINK key-map validation and deterministic header/XOR decoding coverage; full Vorbis payload fixture remains a follow-up.
 - [x] Migrate the ARCG signature-to-passkey map as a standalone v2 dataset and load it in the modern ARCG reader.
 - [x] Add ARCG key-map validation and a deterministic inline-index/listing fixture.
 - [x] Migrate the MGPK title-to-byte-key map as a standalone v2 dataset and load it in the modern MGPK reader.

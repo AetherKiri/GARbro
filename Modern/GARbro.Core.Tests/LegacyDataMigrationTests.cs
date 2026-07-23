@@ -180,6 +180,15 @@ namespace GARbro.Core.Tests
             Assert.Equal (24, mcgKeys.Count);
             Assert.Equal ((byte)1, mcgKeys["Echo"]);
 
+            var tinkKeys = LegacyXp3Exporter.ExportTinkKeys (database);
+            Assert.Equal (2, tinkKeys.Count);
+            Assert.Equal (66, tinkKeys[1735290707u].Length);
+            Assert.Equal (99, tinkKeys[1802398036u].Length);
+            Assert.Equal ("NDkyMzNFRDQ5MTFFNDhjNjhFQkYxRERBQ0UzQTc3NTJBOEI1MkQzRDEzQzM0ZTUwOUZCRS1FM0VGREUzRjJENjEA",
+                Convert.ToBase64String (tinkKeys[1735290707u]));
+            Assert.Equal ("REJCMzIwNkYtRjE3MS00ODg1LUExMzEtRUM3RkJBNkZGNDkxIENvcHlyaWdodCAyMDA0IEN5YmVyd29ya3MgIlRpbmtlckJlbGwiLiwgYWxsIHJpZ2h0cyByZXNlcnZlZC4A",
+                Convert.ToBase64String (tinkKeys[1802398036u]));
+
             foreach (var profile in document.Profiles)
             {
                 Assert.True (Xp3Opener.TryGetScheme (profile.Id, out var scheme), profile.Id);

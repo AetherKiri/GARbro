@@ -33,6 +33,7 @@ using GameRes.Formats.Will;
 using GameRes.Formats.Mg;
 using GameRes.Formats.Majiro;
 using GameRes.Formats.FC01;
+using GameRes.Formats.Cyberworks;
 using ICSharpCode.SharpZipLib.Zip;
 using Xunit;
 
@@ -100,6 +101,28 @@ namespace GARbro.Core.Tests
             Assert.Contains ("WAV", tags);
             Assert.Contains ("OGG", tags);
             Assert.Contains ("MP3", tags);
+        }
+
+        [Fact]
+        public void Tink_audio_format_loads_migrated_keys_and_decodes_header ()
+        {
+            var format = FormatCatalog.Instance.AudioFormats.OfType<TinkAudio> ().Single ();
+            var scheme = Assert.IsType<TinkAudioScheme> (format.Scheme);
+            Assert.Equal (2, scheme.KnownKeys.Count);
+            var key = scheme.KnownKeys[1735290707u];
+            var plaintext = Enumerable.Range (0, 28).Select (value => (byte)(value * 3 + 1)).ToArray ();
+            var source = new byte[4 + plaintext.Length];
+            BitConverter.GetBytes (1735290707u).CopyTo (source, 0);
+            for (int i = 0; i < plaintext.Length; ++i)
+                source[4 + i] = (byte)(plaintext[i] ^ key[i % key.Length]);
+
+            using (var input = new BinaryStream (new MemoryStream (source), "sample.j0"))
+            {
+                Assert.True (TinkDecoder.TryDecodeHeader (input, scheme.KnownKeys, out var header));
+                Assert.Equal (source.Length, header.Length);
+                Assert.Equal (new byte[] { (byte)'O', (byte)'g', (byte)'g', (byte)'S' }, header.Take (4).ToArray ());
+                Assert.Equal (plaintext, header.Skip (4).ToArray ());
+            }
         }
 
         [Theory]
